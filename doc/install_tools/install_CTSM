@@ -1,0 +1,7 @@
+# Ref: https://github.com/ESCOMP/CTSM/wiki/CTSM-Quickstart-Guide-for-Users
+
+git clone -b master https://github.com/ESCOMP/CTSM.git
+
+cd CTSM
+
+./manage_externals/checkout_externals

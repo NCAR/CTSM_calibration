@@ -1,0 +1,6 @@
+
+bnum=2
+rm -r /glade/scratch/guoqiang/CTSM_outputs/CAMELS_Calib/Lump_calib/CAMELS_${bnum}
+rm -r /glade/scratch/guoqiang/CTSM_outputs/CAMELS_Calib/Lump_calib/archive/CAMELS_${bnum}
+rm -r /glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib/CAMELS_${bnum}
+rm -r /glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib/CAMELS_${bnum}_OstCalib
