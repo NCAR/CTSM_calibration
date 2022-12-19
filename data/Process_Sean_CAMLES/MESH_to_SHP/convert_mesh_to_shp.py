@@ -32,7 +32,7 @@ for i in range(numbasin):
     polygon_geom = Polygon(zip(lon_point_list, lat_point_list))
     polygons.append(polygon_geom)
 
-gdf = gpd.GeoDataFrame({'SeanID': np.arange(numbasin), 'lon_cen': 180-centerCoords[:,0], 'lat_cen': centerCoords[:,1]}, geometry=polygons, crs="EPSG:4326")
+gdf = gpd.GeoDataFrame({'SeanID': np.arange(numbasin), 'lon_cen': centerCoords[:,0] - 360, 'lat_cen': centerCoords[:,1]}, geometry=polygons, crs="EPSG:4326")
 gdf.to_file(outfile)
 
 
