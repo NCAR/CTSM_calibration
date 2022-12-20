@@ -1,0 +1,1 @@
+The scripts are mostly deprecated

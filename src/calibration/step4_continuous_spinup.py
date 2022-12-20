@@ -48,9 +48,10 @@ def check_job_status_use_qstat(jobid, file_CaseStatus, wait_gap=30):
 ########################################################################################################################
 # settings
 
-pathCTSMcase = '/glade/u/home/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib/CAMELS_0'
-spinup_months = 9
-
+# pathCTSMcase = '/glade/u/home/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib/CAMELS_0'
+# spinup_months = 9
+pathCTSMcase = sys.argv[1]
+spinup_months = int(sys.argv[2])
 
 force_Jan_start = True # CTSM default initial conditions start at Jan 1st. So, using Jan as the start date could be better
 spinup_info = 'spinup_info.csv'
@@ -91,56 +92,69 @@ for s in settingnames:
     v = df_setting['run_spinup'][s]
     _ = subprocess.run(f'./xmlchange {s}={v}', shell=True)
 
+try:
+    ########################################################################################################################
+    # run the model to generate restart files
 
-########################################################################################################################
-# run the model to generate restart files
+    # clean run folder
+    RUNDIR = get_xmlquery_output('RUNDIR')
+    _ = subprocess.run(f'rm {RUNDIR}/*.nc', shell=True)
 
-# clean run folder
-RUNDIR = get_xmlquery_output('RUNDIR')
-_ = subprocess.run(f'rm {RUNDIR}/*.nc', shell=True)
+    # submit
+    out = subprocess.run('./case.submit', capture_output=True)
+    out = out.stdout.decode().split('\n')
+    for line in out:
+        if 'Submitted job id is ' in line:
+            id_run = line.replace('Submitted job id is ', '').split('.')[0]
+        if 'Submitted job case.st_archive with id ' in line:
+            id_archive = line.replace('Submitted job case.st_archive with id ', '').split('.')[0]
 
-# submit
-out = subprocess.run('./case.submit', capture_output=True)
-out = out.stdout.decode().split('\n')
-for line in out:
-    if 'Submitted job id is ' in line:
-        id_run = line.replace('Submitted job id is ', '').split('.')[0]
-    if 'Submitted job case.st_archive with id ' in line:
-        id_archive = line.replace('Submitted job case.st_archive with id ', '').split('.')[0]
+    # hold until the job is finished
+    file_CaseStatus = f'{pathCTSMcase}/CaseStatus'
+    check_job_status_use_qstat(id_archive, file_CaseStatus, wait_gap=60)
 
-# hold until the job is finished
-file_CaseStatus = f'{pathCTSMcase}/CaseStatus'
-check_job_status_use_qstat(id_archive, file_CaseStatus, wait_gap=60)
+    if detect_laststatus_of_CaseStatus(file_CaseStatus, 'st_archive success'):
+        print('Spin up run is successfully finished!')
+    else:
+        sys.exit('Spin up run failed!')
 
-if detect_laststatus_of_CaseStatus(file_CaseStatus, 'st_archive success'):
-    print('Spin up run is successfully finished!')
-else:
-    sys.exit('Spin up run failed!')
+    ########################################################################################################################
+    # copy restart files to a target folder and change model settings
 
-########################################################################################################################
-# copy restart files to a target folder and change model settings
+    file_restart = glob.glob(f'{RUNDIR}/*.clm2.r.*.nc')
+    file_restart.sort()
+    file_restart = file_restart[-1]
+    file_restart_archive = pathSpinup + '/' + pathlib.Path(file_restart).name
+    file_info = file_restart_archive.replace('.nc', '_info.csv')
 
-file_restart = glob.glob(f'{RUNDIR}/*.clm2.r.*.nc')
-file_restart.sort()
-file_restart = file_restart[-1]
-file_restart_archive = pathSpinup + '/' + pathlib.Path(file_restart).name
-file_info = file_restart_archive.replace('.nc', '_info.csv')
+    _ = shutil.copy(file_restart, pathSpinup)
+    _ = shutil.copy(spinup_info, file_info)
 
-_ = shutil.copy(file_restart, pathSpinup)
-_ = shutil.copy(spinup_info, file_info)
+    ########################################################################################################################
+    # copy restart files to a target folder and change model settings to before spin up
 
-########################################################################################################################
-# copy restart files to a target folder and change model settings to before spin up
+    if update_restart == True:
+        with open('user_nl_clm', 'a') as f:
+            f.write(f"finidat = '{file_restart_archive}'\n")
 
-if update_restart == True:
-    with open('user_nl_clm', 'a') as f:
-        f.write(f"finidat = '{file_restart_archive}'\n")
+    sucess_flag = True
 
-# change model settings
+except:
+    print('Failed to create restart files!')
+    sucess_flag = False
+
+
+# change model settings back to the original
 for s in settingnames:
     v = df_setting['before_spinup'][s]
     _ = subprocess.run(f'./xmlchange {s}={v}', shell=True)
 
 
 os.chdir(cwd)
-print('Finish spin up!')
+
+
+
+if sucess_flag == True:
+    print('Finish spin up!')
+else:
+    sys.exit('Failed spin up!')
