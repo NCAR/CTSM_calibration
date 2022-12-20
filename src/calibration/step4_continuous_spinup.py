@@ -59,7 +59,8 @@ for s in settingnames:
 # run the model to generate restart files
 try:
     RUNDIR = func_runCTSM.submit_and_run_CTSM_model(direct_run=True, rm_old=True)
-
+    sucess_flag = True
+    
 except:
     print('Failed to create restart files!')
     sucess_flag = False
