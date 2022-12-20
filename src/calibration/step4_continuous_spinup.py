@@ -33,14 +33,19 @@ def check_job_status_use_qstat(jobid, file_CaseStatus, wait_gap=30):
 
     # check status
     flag = True
+    iternum = 0
     while flag:
         tasklist = subprocess.run(f'qstat {jobid}', shell=True, capture_output=True)
         tasklist = tasklist.stdout.decode()
         if len(tasklist) == 0:
-            flag = False
+            if iternum < 2:
+                flag = False
+            else:
+                flag = True
         else:
             # print('Waiting ...')
             time.sleep(wait_gap)
+        iternum = iternum + 1
     t2 = time.time()
     print(f'Job {jobid} cannot be found using qstat after {t2 - t1} seconds.')
     print('Stop checking the status.')

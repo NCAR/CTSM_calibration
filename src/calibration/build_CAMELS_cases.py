@@ -13,12 +13,12 @@ basin_num = 11
 infile_basin_info = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/shared_data_Sean/Sean_MESH_CAMELS_basin_info.csv'
 
 # less active settings
-script_step1 = '/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/Calibration/OneBasin/step1_create_case_SingleBasin.py'
-script_step2 = '/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/Calibration/OneBasin/step2_create_ostrich_settings.py'
-script_step3 = '/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/Calibration/OneBasin/step3_subset_datm_forcing.py'
-script_step4 = '/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/Calibration/OneBasin/step4_continuous_spinup.py'
-inpathOstSource = "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/Calibration/Ostrich_calib_support"
-infileCalibParam = "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/Calibration/Calib_params/param_yifan.csv"
+script_step1 = '/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/calibration/step1_create_case_SingleBasin.py'
+script_step2 = '/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/calibration/step2_create_ostrich_settings.py'
+script_step3 = '/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/calibration/step3_subset_datm_forcing.py'
+script_step4 = '/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/calibration/step4_continuous_spinup.py'
+inpathOstSource = "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/Ostrich_support"
+infileCalibParam = "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/parameter/param_yifan.csv"
 
 infileMESH_divide = f'/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_basin_divide/ESMFmesh_ctsm_HCDN_nhru_final_671_v0_8e-3_basin{basin_num}.nc'
 
