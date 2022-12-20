@@ -39,9 +39,9 @@ def check_job_status_use_qstat(jobid, file_CaseStatus, wait_gap=30):
         tasklist = tasklist.stdout.decode()
         if len(tasklist) == 0:
             if iternum < 2:
-                flag = False
-            else:
                 flag = True
+            else:
+                flag = False
         else:
             # print('Waiting ...')
             time.sleep(wait_gap)
