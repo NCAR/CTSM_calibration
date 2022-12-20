@@ -77,7 +77,8 @@ def submit_and_run_CTSM_model(direct_run=False, rm_old=True):
         # hold until the job is finished
         check_job_status_use_qstat(id_archive, 'CaseStatus', wait_gap=60)
 
-    if detect_laststatus_of_CaseStatus('CaseStatus', 'st_archive success'):
+    if detect_laststatus_of_CaseStatus('CaseStatus', 'success'):
+        # "st_archive success" for ./case.submit or "case.submit success" for "./case.submit --no-batch"
         print('Model run is successfully finished!')
     else:
         sys.exit('Model run failed!')
