@@ -24,9 +24,9 @@ infileMESH_divide = f'/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_basin_di
 
 inpathCTSMcase = f"/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib/CAMELS_{basin_num}"
 
-eval_ignore_month = 1 # the first part of simulation is ignored when evaluating the model for better spin up
+ignore_year = 1 # the first part of simulation is ignored when evaluating the model for better spin up
 spinup_month = 60 # 5-year spin up
-casebuild = 'direct' # direct or qcmd. no need to use qcmd if this script is submitted through qbs
+buildoption = 'direct' # direct or qcmd. no need to use qcmd if this script is submitted through qbs
 
 ########################################################################################################################
 # basin info
@@ -64,11 +64,11 @@ STOP_N = 36 # 3 years
 RUN_STARTDATE = '2000-01-01'
 STOP_DATE = '2002-12-31'
 
-_ = subprocess.run(f'python {script_step1} {basin_num} {STOP_N} {RUN_STARTDATE} {casebuild}', shell=True)
+_ = subprocess.run(f'python {script_step1} {basin_num} {STOP_N} {RUN_STARTDATE} {buildoption}', shell=True)
 
 ########################################################################################################################
 # step-2: Create Ostrich settings
-DateEvalStart = (pd.Timestamp(RUN_STARTDATE) + pd.offsets.DateOffset(months=eval_ignore_month)).strftime('%Y-%m-%d') # ignor the first year when evaluating model
+DateEvalStart = (pd.Timestamp(RUN_STARTDATE) + pd.offsets.DateOffset(years=1)).strftime('%Y-%m-%d') # ignor the first year when evaluating model
 DateEvalEnd = STOP_DATE
 
 _ = subprocess.run(f'python {script_step2} {inpathCTSMcase} {inpathOstSource} {infileCalibParam} {infile_Qobs} {DateEvalStart} {DateEvalEnd}', shell=True)

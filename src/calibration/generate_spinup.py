@@ -1,26 +1,40 @@
 # spin up using a continuous period simulation
 
-import sys, subprocess, time, os, shutil, glob, pathlib
+import sys, subprocess, time, os, shutil, glob, pathlib, toml
 import pandas as pd
 import func_run_CTSM_model as func_runCTSM
 
 
+
+config_file_spinup = sys.argv[1]
+
+print('Create spin up ...')
+print('Reading configuration from:', config_file_spinup)
+
 ########################################################################################################################
-# settings
+# settings used for create CTSE case
 
-# pathCTSMcase = '/glade/u/home/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib/CAMELS_0'
-# spinup_months = 9
-pathCTSMcase = sys.argv[1]
-spinup_months = int(sys.argv[2])
+##############
+# parse settings
 
-force_Jan_start = True # CTSM default initial conditions start at Jan 1st. So, using Jan as the start date could be better
+config_spinup = toml.load(config_file_spinup)
+
+
+path_CTSM_case = config_spinup['path_CTSM_case']
+spinup_month = config_spinup['spinup_month']
+spinup_mode = config_spinup['spinup_mode']
+force_Jan_start = config_spinup['force_Jan_start']
+update_restart = config_spinup['update_restart']
+
+##############
+# default settings
+
 spinup_info = 'spinup_info.csv'
-update_restart = True # after spin-up is done, add the restart file to user_nl_clm
 
-if pathCTSMcase[-1]=='/':
-    pathCTSMcase = pathCTSMcase[:-1]
+if path_CTSM_case[-1]=='/':
+    path_CTSM_case = path_CTSM_case[:-1]
 
-pathSpinup = pathCTSMcase + '_SpinupFiles'
+pathSpinup = path_CTSM_case + '_SpinupFiles'
 os.makedirs(pathSpinup, exist_ok=True)
 
 t1 = time.time()
@@ -30,7 +44,7 @@ t1 = time.time()
 cwd = os.getcwd()
 
 # get model settings
-os.chdir(pathCTSMcase)
+os.chdir(path_CTSM_case)
 
 settingnames = ['RUN_STARTDATE', 'STOP_N', 'STOP_OPTION']
 
@@ -39,14 +53,14 @@ df_setting['before_spinup'] = [func_runCTSM.get_xmlquery_output(s) for s in sett
 
 date0 = pd.Timestamp(df_setting['before_spinup']['RUN_STARTDATE'])
 datee = (date0 - pd.offsets.DateOffset(hours=1)).strftime('%Y-%m-%d')
-dates = (date0 - pd.offsets.DateOffset(months=spinup_months)).strftime('%Y-%m-%d')
+dates = (date0 - pd.offsets.DateOffset(months=spinup_month)).strftime('%Y-%m-%d')
 
 if (force_Jan_start == True) and (dates[-5:] != '01-01'):
     print('Force the spin up start date to be Jan 1st.')
-    spinup_months = spinup_months + int(dates[5:7]) - 1
+    spinup_month = spinup_month + int(dates[5:7]) - 1
     dates = dates[:4] + '-01-01'
 
-df_setting['run_spinup'] = [dates, spinup_months, 'nmonths']
+df_setting['run_spinup'] = [dates, spinup_month, 'nmonths']
 df_setting.to_csv(spinup_info, index=False)
 
 # change model settings
@@ -60,7 +74,7 @@ for s in settingnames:
 try:
     RUNDIR = func_runCTSM.submit_and_run_CTSM_model(direct_run=True, rm_old=True)
     sucess_flag = True
-    
+
 except:
     print('Failed to create restart files!')
     sucess_flag = False
