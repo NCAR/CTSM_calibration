@@ -196,7 +196,7 @@ _ = subprocess.run(f'chmod +x {outfile_savemodel}', shell=True)
 # create submission file
 file_submit = f'{ostrichRunDir}/submit.Ostrich.sh'
 
-lines1 = ['#!/bin/bash -l', '#PBS -N OstrichCalib', '#PBS -q share', '#PBS -l walltime=12:00:00', f'#PBS -A {projectcode}']
+lines1 = ['#!/bin/bash -l', '#PBS -N OstrichCalib', '#PBS -q share', '#PBS -l walltime=12:00:00', f'#PBS -A {projectCode}']
 
 lines2 = []
 template_file = f'{path_CTSM_case}/.case.run'

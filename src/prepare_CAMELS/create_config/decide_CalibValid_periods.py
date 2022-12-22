@@ -140,9 +140,9 @@ def calibration_period_CTSMformat(infile_Qobs, settings, method=1):
         calibyears = settings['calibyears']
         validratio = settings['validratio']
         trial_start_date = settings['trial_start_date']
-        year_start, year_end = calib_period_QBeginning(infile_Qobs, calibyears, validratio, trial_start_date)
-        RUN_STARTDATE = f'{year_start}-10-01'
-        STOP_DATE = f'{year_end}-09-30'
+        date_start, date_end = calib_period_QBeginning(infile_Qobs, calibyears, validratio, trial_start_date)
+        RUN_STARTDATE = date_start
+        STOP_DATE = date_end
         STOP_OPTION = 'nmonths'
         STOP_N = calibyears * 12 # for STOP_OPTION: nmonths
     elif settings['method'] == 2:

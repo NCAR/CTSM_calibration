@@ -86,7 +86,7 @@ rm_interconfig = False
 ########################################################################################################################
 print(f"Settings are read from {config_file}")
 config = toml.load(config_file)
-config['path_config_file'] = pathlib.Path(config_file).parent
+config['path_config_file'] = str(pathlib.Path(config_file).parent)
 
 ########################################################################################################################
 # step-1: Create model case

@@ -9,8 +9,17 @@ import decide_CalibValid_periods as decidePeriod
 ########################################################################################################################
 # settings
 # basin_num = int(sys.argv[1])
-basin_num = 11
+basin_num = 33
 infile_basin_info = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/shared_data_Sean/Sean_MESH_CAMELS_basin_info.csv'
+
+outpath_case = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib'
+outpath_out = '/glade/scratch/guoqiang/CTSM_outputs/CAMELS_Calib/Lump_calib'
+outpath_config = f'{outpath_case}/configuration'
+outfile_config = f'{outpath_config}/CAMELS-{basin_num}_config.toml'
+
+os.makedirs(outpath_case, exist_ok=True)
+os.makedirs(outpath_out, exist_ok=True)
+os.makedirs(outpath_config, exist_ok=True)
 
 ########################################################################################################################
 # basic configurations
@@ -33,8 +42,8 @@ infile_Qobs = df_info.iloc[basin_num]['file_obsQ']
 # settings['method'] = 1
 # settings['calibyears'] = 5 # how many years are used to calibrate the model
 # settings['validratio'] = 0.8 # ratio of valid Q records during the period
-# settings['trial_start_date'] = '1985-01-01' # only use data after this period
-# RUN_STARTDATE, STOP_N, STOP_OPTION, STOP_DATE = decidePeriod.calibration_period_CTSMformat(infile_Qobs, settings, method)
+# settings['trial_start_date'] = '1985-10-01' # only use data after this period. month can be used to define the start of a water year
+# RUN_STARTDATE, STOP_N, STOP_OPTION, STOP_DATE = decidePeriod.calibration_period_CTSMformat(infile_Qobs, settings)
 
 # # method-2
 # settings = {}
@@ -42,7 +51,7 @@ infile_Qobs = df_info.iloc[basin_num]['file_obsQ']
 # settings['startmonth'] = 10 #  the start of a year (e.g., 1 or 10)
 # settings['periodlength'] = 5 # calib years
 # settings['window'] = 5 # years of rolling mean
-# RUN_STARTDATE, STOP_N, STOP_OPTION, STOP_DATE = decidePeriod.calibration_period_CTSMformat(infile_Qobs, settings, method)
+# RUN_STARTDATE, STOP_N, STOP_OPTION, STOP_DATE = decidePeriod.calibration_period_CTSMformat(infile_Qobs, settings)
 
 # Method-3: default start period to utilize the existing restart file
 STOP_OPTION = 'nmonths'
@@ -55,8 +64,8 @@ STOP_DATE = '2002-12-31'
 config_CTSM = {}
 config_CTSM['files'] = {}
 config_CTSM['files']['path_CTSM_source'] = '/glade/u/home/guoqiang/CTSM_repos/CTSM'
-config_CTSM['files']['path_CTSM_case'] = f'/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib/CAMELS_{basin_num}'
-config_CTSM['files']['path_CTSM_CIMEout'] = f'/glade/scratch/guoqiang/CTSM_outputs/CAMELS_Calib/Lump_calib/CAMELS_{basin_num}'
+config_CTSM['files']['path_CTSM_case'] = f'{outpath_case}/CAMELS_{basin_num}'
+config_CTSM['files']['path_CTSM_CIMEout'] = f'{outpath_out}/CAMELS_{basin_num}'
 config_CTSM['files']['file_CTSM_mesh'] = f'/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_basin_mask/ESMFmesh_ctsm_HCDN_nhru_final_671_v0_8e-3_basin{basin_num}.nc'
 config_CTSM['files']['file_CTSM_surfdata'] = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/shared_data_Sean/surfdata_CAMELS_hist_78pfts_CMIP6_simyr2000_c221004.nc'
 
@@ -101,3 +110,6 @@ config_all['HPC'] = config_HPC
 config_all['CTSM'] = config_CTSM
 config_all['calib'] = config_calib
 config_all['spinup'] = config_spinup
+
+with open(outfile_config, 'w') as f:
+    toml.dump(config_all, f)
