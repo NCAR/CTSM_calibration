@@ -1,12 +1,9 @@
 # Build cases for CAMELS basins. one basin one case
 # better to run within a computation node due to the time cost of case.build, spin up, forcing subset
 
-import pandas as pd
-import numpy as np
-import os, sys, subprocess
+import subprocess, sys
 import toml
-import decide_CalibValid_periods as decidePeriod
-
+import pathlib
 
 # functions for parsing configurations
 def parse_CTSMcase_config(config):
@@ -22,7 +19,9 @@ def parse_CTSMcase_config(config):
                        'casebuild': config['CTSM']['settings']['casebuild'],
                        'projectCode': config['HPC']['projectCode'],
                        }
-    file_config_CTSMcase = './_cstm.config_CTMScase.toml'
+    # # simpler but less obvious
+    # config_CTSMcase = config['CTSM']['files'] | config['CTSM']['settings'] | config['HPC']
+    file_config_CTSMcase = config['path_config_file'] + '/_cstm.config_CTMScase.toml'
     with open(file_config_CTSMcase, 'w') as f:
         toml.dump(config_CTSMcase, f)
     return file_config_CTSMcase
@@ -40,7 +39,7 @@ def parse_Ostrich_config(config):
                       'STOP_OPTION': config['CTSM']['settings']['STOP_OPTION'],
                       'projectCode': config['HPC']['projectCode'],
                       }
-    file_config_Ostrich = './_cstm.config_Ostrich.toml'
+    file_config_Ostrich = config['path_config_file'] + '/_cstm.config_Ostrich.toml'
     with open(file_config_Ostrich, 'w') as f:
         toml.dump(config_Ostrich, f)
     return file_config_Ostrich
@@ -49,7 +48,7 @@ def parse_SubForc_config(config):
     config_SubForc = {'path_CTSM_case': config['CTSM']['files']['path_CTSM_case'],
                       'subset_length': config['CTSM']['settings']['subset_length'],
                       }
-    file_config_SubForc = './_cstm.config_SubForc.toml'
+    file_config_SubForc = config['path_config_file'] + '/_cstm.config_SubForc.toml'
     with open(file_config_SubForc, 'w') as f:
         toml.dump(config_SubForc, f)
     return file_config_SubForc
@@ -58,18 +57,36 @@ def parse_namelist_config(config):
     config_NL = {'path_CTSM_case': config['CTSM']['files']['path_CTSM_case'],
                       'AddToNamelist': config['CTSM']['AddToNamelist'],
                       }
-    file_config_NL = './_cstm.config_namelist.toml'
+    file_config_NL = config['path_config_file'] + '/_cstm.config_namelist.toml'
     with open(file_config_NL, 'w') as f:
         toml.dump(config_NL, f)
     return file_config_NL
 
+def parse_spinup_config(config):
+    config_spinup = {'path_CTSM_case': config['CTSM']['files']['path_CTSM_case'],
+                     'spinup_month': config['spinup']['spinup_month'],
+                     'spinup_mode': config['spinup']['spinup_mode'],
+                     'force_Jan_start': config['spinup']['force_Jan_start'],
+                     'update_restart': config['spinup']['update_restart'],
+                     }
+    file_config_spinup = config['path_config_file'] + '/_cstm.config_spinup.toml'
+    with open(file_config_spinup, 'w') as f:
+        toml.dump(config_spinup, f)
+    return file_config_spinup
+
 ########################################################################################################################
 # input config file
-config_file = './cstm.config.toml'
-# config_file = sys.argv[1]
+# config_file = './cstm.config.toml'
+config_file = sys.argv[1]
 
+# remove intermediate configuration files (.e.g., _cstm.config_CTMScase.toml)
+rm_interconfig = False
+
+
+########################################################################################################################
 print(f"Settings are read from {config_file}")
 config = toml.load(config_file)
+config['path_config_file'] = pathlib.Path(config_file).parent
 
 ########################################################################################################################
 # step-1: Create model case
@@ -102,21 +119,15 @@ _ = subprocess.run(f'python {script_NL} {file_config_NL}', shell=True)
 ########################################################################################################################
 # step-5: Model spin up
 
-config_spinup = {'path_CTSM_case': config['CTSM']['files']['path_CTSM_case'],
-                 'spinup_month': config['spinup']['spinup_month'],
-                 'spinup_mode': config['spinup']['spinup_mode'],
-                 'force_Jan_start': config['spinup']['force_Jan_start'],
-                 'update_restart': config['spinup']['update_restart'],
-                 }
-
-file_config_spinup = './_cstm.config_spinup.toml'
-with open(file_config_spinup, 'w') as f:
-    toml.dump(config_spinup, f)
-
-
 script_spinup = config['calib']['files']['path_script_calib'] + '/' + 'generate_spinup.py'
-file_config_spinup = parse_SubForc_config(config)
-
+file_config_spinup = parse_spinup_config(config)
 _ = subprocess.run(f'python {script_spinup} {file_config_spinup}', shell=True)
 
+########################################################################################################################
+# finally ...
 
+if rm_interconfig == True:
+    _ = subprocess.run('rm _*.toml', shell=True)
+
+
+print('Model creation successful!')

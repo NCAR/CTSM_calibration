@@ -129,9 +129,44 @@ def calib_period_QBeginning(infile_q, calibyears, validratio, trial_start_date, 
     return trial_start_date.strftime('%Y-%m-%d'), trial_end_date.strftime('%Y-%m-%d')
 
 
+def calibration_period_CTSMformat(infile_Qobs, settings, method=1):
+    if settings['method'] == 1:
+        print('Decide calibration period using streamflow data')
+        #### Method-1
+        # use streamflow to decide calibration period
+        # calibyears = 5 # how many years are used to calibrate the model
+        # validratio = 0.8 # ratio of valid Q records during the period
+        # trial_start_date = '1980-01-01' # only use data after this period
+        calibyears = settings['calibyears']
+        validratio = settings['validratio']
+        trial_start_date = settings['trial_start_date']
+        year_start, year_end = calib_period_QBeginning(infile_Qobs, calibyears, validratio, trial_start_date)
+        RUN_STARTDATE = f'{year_start}-10-01'
+        STOP_DATE = f'{year_end}-09-30'
+        STOP_OPTION = 'nmonths'
+        STOP_N = calibyears * 12 # for STOP_OPTION: nmonths
+    elif settings['method'] == 2:
+        print('Decide calibration period using anomaly years')
+        #### Method-2: climate anomaly years
+        # startmonth = 10 #  the start of a year (e.g., 1 or 10)
+        # periodlength = 5 # calib years
+        # window = 5 # years of rolling mean
+        startmonth = settings['startmonth']
+        periodlength = settings['periodlength']
+        window = settings['window']
+        period_extreme = cal_period_extreme(infile_Qobs, startmonth, periodlength, window)
+        RUN_STARTDATE = period_extreme['date_start'].loc['min']
+        STOP_DATE = period_extreme['date_end'].loc['min']
+        # diff = pd.Timestamp(STOP_DATE).to_period('M') - pd.Timestamp(RUN_STARTDATE).to_period('M')
+        # STOP_N = diff.n + 1
+        STOP_OPTION = 'nmonths'
+        STOP_N = periodlength * 12 # for STOP_OPTION: nmonths
+    else:
+        sys.exit('Method must be 1 or 2!')
+    return RUN_STARTDATE, STOP_N, STOP_OPTION, STOP_DATE
+
 if __name__ == '__main__':
     infile_q='/glade/p/ral/hap/common_data/camels/obs_flow_met/basin_dataset_public_v1p2/usgs_streamflow/all/01022500_streamflow_qc.txt'
-    file
     # method-1:
     print('Method-1')
     trial_start_date, trial_end_date = calib_period_QBeginning(infile_q, calibyears=5, validratio=0.8, trial_start_date='1980-01-01', col_date='date', col_qobs='Qobs')
