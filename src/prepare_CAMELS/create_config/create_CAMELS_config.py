@@ -8,8 +8,8 @@ import decide_CalibValid_periods as decidePeriod
 
 ########################################################################################################################
 # settings
-# basin_num = int(sys.argv[1])
-basin_num = 33
+basin_num = int(sys.argv[1])
+# basin_num = 33
 infile_basin_info = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/shared_data_Sean/Sean_MESH_CAMELS_basin_info.csv'
 
 outpath_case = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib'

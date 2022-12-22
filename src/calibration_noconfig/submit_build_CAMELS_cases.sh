@@ -4,7 +4,7 @@
 #PBS -A P08010000
 #PBS  -l select=1:ncpus=1
 
-# command: qsub -v num=0 submit_build_CAMELS_cases.sh
+# command: qsub -v num=0 Cheyenne_submit.sh
 
 module load conda
 conda activate npl-2022b-tgq

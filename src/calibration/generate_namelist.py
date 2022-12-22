@@ -34,6 +34,6 @@ for i in range(len(writelist)):
             for j in range(len(value)):
                 if len(value[j]) > 0:
                     print(f'Appending {value[j]} to {key}')
-                    _ = f.write(value[j] + '/n')
+                    _ = f.write(value[j] + '\n')
 
 os.chdir(cwd)

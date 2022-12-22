@@ -76,7 +76,7 @@ def parse_spinup_config(config):
 
 ########################################################################################################################
 # input config file
-# config_file = './cstm.config.toml'
+# config_file = './example.cstm.config.toml'
 config_file = sys.argv[1]
 
 # remove intermediate configuration files (.e.g., _cstm.config_CTMScase.toml)
