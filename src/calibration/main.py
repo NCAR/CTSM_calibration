@@ -21,7 +21,7 @@ def parse_CTSMcase_config(config):
                        }
     # # simpler but less obvious
     # config_CTSMcase = config['CTSM']['files'] | config['CTSM']['settings'] | config['HPC']
-    file_config_CTSMcase = config['path_config_file'] + '/_cstm.config_CTMScase.toml'
+    file_config_CTSMcase = config['path_config_file'] + '/_' + config['name_config_file'].replace('.toml', '') + '_CTMScase.toml'
     with open(file_config_CTSMcase, 'w') as f:
         toml.dump(config_CTSMcase, f)
     return file_config_CTSMcase
@@ -39,7 +39,7 @@ def parse_Ostrich_config(config):
                       'STOP_OPTION': config['CTSM']['settings']['STOP_OPTION'],
                       'projectCode': config['HPC']['projectCode'],
                       }
-    file_config_Ostrich = config['path_config_file'] + '/_cstm.config_Ostrich.toml'
+    file_config_Ostrich = config['path_config_file'] + '/_' + config['name_config_file'].replace('.toml', '') + '_Ostrich.toml'
     with open(file_config_Ostrich, 'w') as f:
         toml.dump(config_Ostrich, f)
     return file_config_Ostrich
@@ -48,7 +48,7 @@ def parse_SubForc_config(config):
     config_SubForc = {'path_CTSM_case': config['CTSM']['files']['path_CTSM_case'],
                       'subset_length': config['CTSM']['settings']['subset_length'],
                       }
-    file_config_SubForc = config['path_config_file'] + '/_cstm.config_SubForc.toml'
+    file_config_SubForc = config['path_config_file'] + '/_' + config['name_config_file'].replace('.toml', '') + '_SubForc.toml'
     with open(file_config_SubForc, 'w') as f:
         toml.dump(config_SubForc, f)
     return file_config_SubForc
@@ -57,7 +57,7 @@ def parse_namelist_config(config):
     config_NL = {'path_CTSM_case': config['CTSM']['files']['path_CTSM_case'],
                       'AddToNamelist': config['CTSM']['AddToNamelist'],
                       }
-    file_config_NL = config['path_config_file'] + '/_cstm.config_namelist.toml'
+    file_config_NL = config['path_config_file'] + '/_' + config['name_config_file'].replace('.toml', '') + '_namelist.toml'
     with open(file_config_NL, 'w') as f:
         toml.dump(config_NL, f)
     return file_config_NL
@@ -69,7 +69,7 @@ def parse_spinup_config(config):
                      'force_Jan_start': config['spinup']['force_Jan_start'],
                      'update_restart': config['spinup']['update_restart'],
                      }
-    file_config_spinup = config['path_config_file'] + '/_cstm.config_spinup.toml'
+    file_config_spinup = config['path_config_file'] + '/_' + config['name_config_file'].replace('.toml', '') + '_spinup.toml'
     with open(file_config_spinup, 'w') as f:
         toml.dump(config_spinup, f)
     return file_config_spinup
@@ -87,6 +87,7 @@ rm_interconfig = False
 print(f"Settings are read from {config_file}")
 config = toml.load(config_file)
 config['path_config_file'] = str(pathlib.Path(config_file).parent)
+config['name_config_file'] = pathlib.Path(config_file).name
 
 ########################################################################################################################
 # step-1: Create model case

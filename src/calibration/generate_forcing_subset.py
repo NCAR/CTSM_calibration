@@ -44,10 +44,12 @@ def subset_meshfile(meshfile, example_subsetfile):
 def subset_allfiles(datm_xml_dict, keyword_data, outpathSubset, ncformat, subset_length):
     # e.g., datm_xml_dict['file']['stream_info'][0]['datafiles']['file']
     inout_maplist = []
+    keyword_data_complete = []
     for kyd in keyword_data:
         flag = False
         for dicti in datm_xml_dict['file']['stream_info']:
             if kyd in dicti['@name']:
+                keyword_data_complete.append(dicti['@name'])
                 flag = True
                 infilelist = dicti['datafiles']['file']
                 meshfile = dicti['meshfile']
@@ -105,7 +107,7 @@ def subset_allfiles(datm_xml_dict, keyword_data, outpathSubset, ncformat, subset
                 _ = f.write(f'datafile: {infilelist[i]} -> {outfilelist[i]}\n')
             f.write(f'meshfile: {meshfile} -> {outfilemesh}\n')
         inout_maplist.append(outfile_infilelist)
-    return inout_maplist
+    return inout_maplist, keyword_data_complete
 
 
 
@@ -180,7 +182,7 @@ with open(initial_datm_streams_xml) as f:
     datm_xml_dict = xmltodict.parse(f.read())
 
 keyword_data = ['Solar', 'Precip', 'TPQW']
-inout_maplist = subset_allfiles(datm_xml_dict, keyword_data, outpathSubset, ncformat, subset_length)
+inout_maplist, keyword_data_complete = subset_allfiles(datm_xml_dict, keyword_data, outpathSubset, ncformat, subset_length)
 
 ########################################################################################################################
 # update user_nl_datm_streams
@@ -189,7 +191,7 @@ with open(initial_user_nl_datm_streams, 'r') as f:
     contents = f.readlines()
 
 contents.append('\n')
-for i in range(len(keyword_data)):
+for i in range(len(keyword_data_complete)):
     # data files and mesh file
     datafilesi = ''
     with open(inout_maplist[i], 'r') as f:
@@ -202,10 +204,10 @@ for i in range(len(keyword_data)):
                 meshfile = li[1].strip().split('->')[1].strip()
     datafilesi = datafilesi[:-1]
     # add contents
-    contents.append(f'{keyword_data[i]}:meshfile={meshfile}\n')
-    if not keyword_data[i] == 'topo.observed':
-        contents.append(f'{keyword_data[i]}:mapalgo=nn\n')
-    contents.append(f'{keyword_data[i]}:datafiles={datafilesi}\n')
+    contents.append(f'{keyword_data_complete[i]}:meshfile={meshfile}\n')
+    if not keyword_data_complete[i] == 'topo.observed':
+        contents.append(f'{keyword_data_complete[i]}:mapalgo=nn\n')
+    contents.append(f'{keyword_data_complete[i]}:datafiles={datafilesi}\n')
 
 # write to file
 with open(user_nl_datm_streams, 'w') as f:

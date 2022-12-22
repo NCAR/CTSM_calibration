@@ -75,7 +75,7 @@ config_CTSM['settings']['STOP_N'] = STOP_N
 config_CTSM['settings']['STOP_OPTION'] = STOP_OPTION
 config_CTSM['settings']['NTASKS'] = 1
 config_CTSM['settings']['casebuild'] = 'direct'
-config_CTSM['settings']['subset_length'] = 'subset_length'
+config_CTSM['settings']['subset_length'] = 'existing'
 
 config_CTSM['AddToNamelist'] = {}
 config_CTSM['AddToNamelist']['user_nl_datm_streams'] = ['topo.observed:meshfile=/glade/work/swensosc/topo_data/ESMFmesh_ctsm_elev_Conus_0.125d_210810.cdf5.nc',
