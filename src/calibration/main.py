@@ -12,6 +12,7 @@ def parse_CTSMcase_config(config):
                        'path_CTSM_CIMEout': config['CTSM']['files']['path_CTSM_CIMEout'],
                        'file_CTSM_mesh': config['CTSM']['files']['file_CTSM_mesh'],
                        'file_CTSM_surfdata': config['CTSM']['files']['file_CTSM_surfdata'],
+                       'createcase': config['CTSM']['settings']['createcase'],
                        'RUN_STARTDATE': config['CTSM']['settings']['RUN_STARTDATE'],
                        'STOP_N': config['CTSM']['settings']['STOP_N'],
                        'STOP_OPTION': config['CTSM']['settings']['STOP_OPTION'],

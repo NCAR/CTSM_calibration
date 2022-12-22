@@ -70,6 +70,7 @@ config_CTSM['files']['file_CTSM_mesh'] = f'/glade/work/guoqiang/CTSM_cases/CAMEL
 config_CTSM['files']['file_CTSM_surfdata'] = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/shared_data_Sean/surfdata_CAMELS_hist_78pfts_CMIP6_simyr2000_c221004.nc'
 
 config_CTSM['settings'] = {}
+config_CTSM['settings']['createcase'] = "--compset I2000Clm51Sp --driver nuopc --compiler intel --res f09_g16 --handle-preexisting-dirs r --run-unsupported"
 config_CTSM['settings']['RUN_STARTDATE'] = RUN_STARTDATE
 config_CTSM['settings']['STOP_N'] = STOP_N
 config_CTSM['settings']['STOP_OPTION'] = STOP_OPTION

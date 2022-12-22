@@ -43,6 +43,7 @@ def subset_meshfile(meshfile, example_subsetfile):
 
 def subset_allfiles(datm_xml_dict, keyword_data, outpathSubset, ncformat, subset_length):
     # e.g., datm_xml_dict['file']['stream_info'][0]['datafiles']['file']
+    tstart = time.time()
     inout_maplist = []
     keyword_data_complete = []
     for kyd in keyword_data:
@@ -107,6 +108,8 @@ def subset_allfiles(datm_xml_dict, keyword_data, outpathSubset, ncformat, subset
                 _ = f.write(f'datafile: {infilelist[i]} -> {outfilelist[i]}\n')
             f.write(f'meshfile: {meshfile} -> {outfilemesh}\n')
         inout_maplist.append(outfile_infilelist)
+    tend = time.time()
+    print('Time cost (sec):', tend-tstart)
     return inout_maplist, keyword_data_complete
 
 

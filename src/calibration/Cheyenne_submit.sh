@@ -1,8 +1,10 @@
 #PBS -N buildcalib
 #PBS -q share
-#PBS -l walltime=1:00:00
+#PBS -l walltime=3:00:00
 #PBS -A P08010000
 #PBS  -l select=1:ncpus=1
+#PBS -e ./log/
+#PBS -o ./log/
 #PBS -J 1-3:1
 
 module load conda
@@ -12,7 +14,7 @@ configfile=/glade/u/home/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib/configurati
 
 echo "Configuration file is $configfile"
 
-python main.py configfile
+python main.py $configfile
 
 
 

@@ -30,6 +30,8 @@ path_CTSM_case = config_CTSMcase['path_CTSM_case']
 path_CTSM_CIMEout = config_CTSMcase['path_CTSM_CIMEout']
 file_CTSM_mesh = config_CTSMcase['file_CTSM_mesh']
 file_CTSM_surfdata = config_CTSMcase['file_CTSM_surfdata']
+
+createcase = config_CTSMcase['createcase']
 RUN_STARTDATE = config_CTSMcase['RUN_STARTDATE']
 STOP_N = config_CTSMcase['STOP_N']
 STOP_OPTION = config_CTSMcase['STOP_OPTION']
@@ -83,7 +85,7 @@ pwd = os.getcwd()
 
 ################################
 # (1) create new case
-newcase_settings = f"--compset I2000Clm51Sp --driver nuopc --compiler intel --res f09_g16 --run-unsupported --project {projectCode}"
+newcase_settings = f"{createcase} --project {projectCode}"
 _ = subprocess.run(f'{path_CTSM_source}/cime/scripts/create_newcase --case {path_CTSM_case} {newcase_settings}', shell=True)
 
 ################################
