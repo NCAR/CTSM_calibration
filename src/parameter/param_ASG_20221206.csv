@@ -13,7 +13,7 @@ d_max,15,5,100,Param,Multiplicative,Stomatal resistance and photosynthesis,None
 frac_sat_soil_dsl_init,0.8,0.25,2,Param,Multiplicative,Stomatal resistance and photosynthesis,None
 cv,0.01,0.0025,0.04,Param,Multiplicative,Stomatal resistance and photosynthesis,None
 a_coef,0.13,0.05,0.15,Param,Multiplicative,Stomatal resistance and photosynthesis,None
-upplim_destruct_metamorph,175,10,500,Param,Multiplicative,Snow Processes,None
+upplim_destruct_metamorph,175,10,500,Namelist,Multiplicative,Snow Processes,None
 n_melt_coef,200,25,600,Param,Multiplicative,Snow Processes,None
 medlynintercept,100,1,20000,Param,Multiplicative,Stomatal resistance and photosynthesis,None
 precip_repartition_nonglc_all_rain_t,2,0,4,Namelist,Additive,Hydrology,"precip_repartition_glc_all_rain_t,precip_repartition_glc_all_snow_t,precip_repartition_nonglc_all_snow_t"
