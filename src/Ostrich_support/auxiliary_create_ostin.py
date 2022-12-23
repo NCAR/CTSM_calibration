@@ -8,15 +8,14 @@ import pandas as pd
 import numpy as np
 
 
-infile_lndin = sys.argv[1]
-infile_ostin_template = sys.argv[2]
-infile_calibparam = sys.argv[3]
-outfile_ostin_txt = sys.argv[4]
-
-# infile_lndin = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib/CAMELS_100/Buildconf/clmconf/lnd_in'
-# infile_ostin_template = '/glade/u/home/guoqiang/CTSM_repos/CTSM_Guoqiang/Calibration/Ostrich_calib_support/ostIn_KGE_DDS.tpl'
-# infile_calibparam = '/glade/u/home/guoqiang/CTSM_repos/CTSM_Guoqiang/Calibration/Calib_params/param_yifan.csv'
-# outfile_ostin_txt = '/glade/u/home/guoqiang/test_ostin.txt'
+# infile_lndin = sys.argv[1]
+# infile_ostin_template = sys.argv[2]
+# infile_calibparam = sys.argv[3]
+# outfile_ostin_txt = sys.argv[4]
+infile_lndin = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib/CAMELS_2/Buildconf/clmconf/lnd_in'
+infile_ostin_template = '/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/Ostrich_support/ostIn_KGE_DDS.tpl'
+infile_calibparam = '/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/parameter/param_ASG_20221206.csv'
+outfile_ostin_txt = '/glade/u/home/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib/CAMELS_2_OstCalib/run/ostIn.txt'
 
 trial_num = 400
 OstrichWarmStart = 'no'
@@ -99,12 +98,12 @@ for i in range(len(df_calibparam)):
         sys.exit(f'Unknown Source {Sourcei} for {parami_name}')
 
     # calculate Ostrich parameter range
+    parami_lower = df_calibparam.iloc[i]['Lower']
+    parami_upper = df_calibparam.iloc[i]['Upper']
     if Methodi == 'Multiplicative':
         parami_priori_min = parami_values.min()
         parami_priori_max = parami_values.max()
         parami_priori_mean = parami_values.mean()
-        parami_lower = df_calibparam.iloc[i]['Lower']
-        parami_upper = df_calibparam.iloc[i]['Upper']
         if parami_upper < 0 or parami_lower < 0:
             # df_calibparam.at[i, 'Lower_mtp'] = parami_upper / parami_priori_max
             # df_calibparam.at[i, 'Upper_mtp'] = parami_lower / parami_priori_min
