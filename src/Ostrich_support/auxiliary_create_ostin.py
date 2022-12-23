@@ -81,7 +81,7 @@ for i in range(len(df_calibparam)):
             print(f'Cannot find parameter {parami_name} in {infile_surfdata}!!!')
             parami_values = np.array(np.nan)
         else:
-            elementMask = ds_surf['elementMask'].values
+            elementMask = ds_mesh['elementMask'].values
             parami_values = ds_surf[parami_name].values
             parami_values = parami_values[elementMask == 1]
     elif Sourcei == 'Namelist': # name list file
