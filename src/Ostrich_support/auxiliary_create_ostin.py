@@ -77,7 +77,7 @@ for i in range(len(df_calibparam)):
             parami_values = ds_param[parami_name].values
             parami_values = parami_values[parami_values != 0]
     elif Sourcei == 'Surfdata':  # surface data file
-        if not parami_name in ds_param.data_vars:
+        if not parami_name in ds_surf.data_vars:
             print(f'Cannot find parameter {parami_name} in {infile_surfdata}!!!')
             parami_values = np.array(np.nan)
         else:
@@ -87,9 +87,11 @@ for i in range(len(df_calibparam)):
     elif Sourcei == 'Namelist': # name list file
         flag = False
         for line in lines_lndin:
+            line = line.strip()
             if line.startswith(parami_name):
                 parami_values = np.array(float(line.split('=')[-1].strip().replace('\'', '').split('d')[0]))
                 flag = True
+                break
         if flag == False:
             print(f'Cannot find parameter {parami_name} in {infile_lndin}!!!')
             parami_values = np.array(np.nan)
