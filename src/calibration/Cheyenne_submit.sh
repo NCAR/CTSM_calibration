@@ -5,7 +5,7 @@
 #PBS  -l select=1:ncpus=1
 #PBS -e ./log/
 #PBS -o ./log/
-#PBS -J 1-3:1
+#PBS -J 0-2:1
 
 module load conda
 conda activate npl-2022b-tgq

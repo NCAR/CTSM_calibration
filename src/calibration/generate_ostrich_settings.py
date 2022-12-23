@@ -62,6 +62,7 @@ RUN_STARTDATE = config_Ostrich['RUN_STARTDATE']
 STOP_N = config_Ostrich['STOP_N']
 STOP_OPTION = config_Ostrich['STOP_OPTION']
 projectCode = config_Ostrich['projectCode']
+jobsetting = config_Ostrich['jobsetting']
 
 #############
 # default settings
@@ -196,7 +197,8 @@ _ = subprocess.run(f'chmod +x {outfile_savemodel}', shell=True)
 # create submission file
 file_submit = f'{ostrichRunDir}/submit.Ostrich.sh'
 
-lines1 = ['#!/bin/bash -l', '#PBS -N OstrichCalib', '#PBS -q share', '#PBS -l walltime=12:00:00', f'#PBS -A {projectCode}']
+# lines1 = ['#!/bin/bash -l', '#PBS -N OstrichCalib', '#PBS -q share', '#PBS -l walltime=12:00:00', f'#PBS -A {projectCode}']
+lines1 = ['#!/bin/bash -l', f'#PBS -A {projectCode}'] + jobsetting
 
 lines2 = []
 template_file = f'{path_CTSM_case}/.case.run'
@@ -211,7 +213,7 @@ os.chdir(path_CTSM_case)
 out = subprocess.run('./xmlquery DOUT_S_ROOT', shell=True, capture_output=True)
 DOUT_S_ROOT = out.stdout.decode().strip().split(' ')[-1]
 os.chdir(cwd)
-lines3 = ['\n', f'rm -r {DOUT_S_ROOT}\*']
+lines3 = ['\n', f'rm -r {DOUT_S_ROOT}/*']
 
 lines4 = ['\n', 'module load conda/latest', 'conda activate npl-2022b', '\n', './OstrichGCC']
 

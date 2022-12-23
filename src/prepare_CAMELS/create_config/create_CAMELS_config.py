@@ -94,6 +94,9 @@ config_calib['files']['file_calib_param'] = '/glade/u/home/guoqiang/CTSM_repos/C
 config_calib['files']['file_Qobs'] = infile_Qobs
 config_calib['eval'] = {}
 config_calib['eval']['ignore_month'] = 12
+config_calib['job'] = {}
+config_calib['job']['jobsetting'] = ['#PBS -N OstrichCalib', '#PBS -q share', '#PBS -l walltime=6:00:00']
+# config_calib['job']['jobsetting'] = ['#PBS -N OstrichCalib', '#PBS -q casper', '#PBS -l walltime=24:00:00']
 
 ########################################################################################################################
 # spinup configurations

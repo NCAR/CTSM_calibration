@@ -1,4 +1,5 @@
 # configuration file used to run the CTSM calibration tool
+# this configuration is generated using a Python script
 
 [intro] # Not needed for model run
 author = "Guoqiang Tang"
@@ -44,6 +45,10 @@ file_Qobs = "..."
 
 [calib.eval]
 ignore_month = 12 # the first part of simulation is ignored when evaluating the model for better spin up
+
+[calib.job]
+#jobsetting = ['#PBS -N OstrichCalib', '#PBS -q casper', '#PBS -l walltime=24:00:00']
+jobsetting = ['#PBS -N OstrichCalib', '#PBS -q share', '#PBS -l walltime=6:00:00']
 
 [spinup]
 spinup_mode = "continuous" # continuous: period before RUN_STARTDATE. No other option for now

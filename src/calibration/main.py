@@ -39,6 +39,7 @@ def parse_Ostrich_config(config):
                       'STOP_N': config['CTSM']['settings']['STOP_N'],
                       'STOP_OPTION': config['CTSM']['settings']['STOP_OPTION'],
                       'projectCode': config['HPC']['projectCode'],
+                      'jobsetting': config['calib']['job']['jobsetting']
                       }
     file_config_Ostrich = config['path_config_file'] + '/_' + config['name_config_file'].replace('.toml', '') + '_Ostrich.toml'
     with open(file_config_Ostrich, 'w') as f:

@@ -12,5 +12,5 @@ do
   rm ${pathcase}/configuration/*CAMELS-${bnum}*
 
   rm -r ${pathout}/CAMELS_${bnum}
-  rm -r  ${pathout}/archive/CAMELS_${bnum}
+#  rm -r  ${pathout}/archive/CAMELS_${bnum}
 done
