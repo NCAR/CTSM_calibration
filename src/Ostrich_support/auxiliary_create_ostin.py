@@ -100,10 +100,10 @@ for i in range(len(df_calibparam)):
     # calculate Ostrich parameter range
     parami_lower = df_calibparam.iloc[i]['Lower']
     parami_upper = df_calibparam.iloc[i]['Upper']
+    parami_priori_min = parami_values.min()
+    parami_priori_max = parami_values.max()
+    parami_priori_mean = parami_values.mean()
     if Methodi == 'Multiplicative':
-        parami_priori_min = parami_values.min()
-        parami_priori_max = parami_values.max()
-        parami_priori_mean = parami_values.mean()
         if parami_upper < 0 or parami_lower < 0:
             # df_calibparam.at[i, 'Lower_mtp'] = parami_upper / parami_priori_max
             # df_calibparam.at[i, 'Upper_mtp'] = parami_lower / parami_priori_min
