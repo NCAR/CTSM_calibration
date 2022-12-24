@@ -152,13 +152,17 @@ with open(outfile_lndin_base, 'r') as f:
     lines = f.readlines()
     varname_lndin = [l.split('=')[0].strip() for l in lines]
 
-with xr.open_dataset(outfile_param_base) as ds_param:
-    for i in range(len(df_calibparam)):
-        parami_name = df_calibparam.iloc[i]['Parameter']
-        if (parami_name in ds_param.data_vars) or (parami_name in varname_lndin):
-            flags[i] = 1
+ds_param = xr.open_dataset(outfile_param_base)
+ds_surfdata = xr.open_dataset(outfile_surfdata_base)
+for i in range(len(df_calibparam)):
+    parami_name = df_calibparam.iloc[i]['Parameter']
+    if (parami_name in ds_param.data_vars) or (parami_name in varname_lndin) or (parami_name in ds_surfdata.data_vars):
+        flags[i] = 1
+    else:
+        print('Cannot find parami_name in parameter nc file or lnd_in file or surfdata nc file.')
 
 df_calibparam = df_calibparam[flags == 1]
+df_calibparam.index = np.arange(len(df_calibparam))
 
 ########################################################################################################################
 # Create Ostrich setting files
@@ -168,7 +172,7 @@ df_calibparam = df_calibparam[flags == 1]
 _ = subprocess.run(f'ln -sf {exeOstrich} {ostrichRunDir}/', shell=True)
 
 #############
-# create nc_multiplier.tpl
+# create param_factor.tpl
 df_calibparam['Parameter_Ost'] = ''
 df_calibparam['Source_file'] = ''
 df_calibparam['OstrichTrial_file'] = ''
@@ -177,22 +181,22 @@ outfile_param_tpl = f'{ostrichRunDir}/param_factor.tpl'
 with open(outfile_param_tpl, 'w') as f:
     for i in range(len(df_calibparam)):
 
-        if df_calibparam.loc[i]['Method'] == 'Multiplicative':
+        if df_calibparam.iloc[i]['Method'] == 'Multiplicative':
             suffix1 = 'mtp'
-        elif df_calibparam.loc[i]['Method'] == 'Additive':
+        elif df_calibparam.iloc[i]['Method'] == 'Additive':
             suffix1 = 'add'
         else:
             sys.exit('Error! Method must be Multiplicative or Additive.')
 
-        if df_calibparam.loc[i]['Source'] == 'Param':
+        if df_calibparam.iloc[i]['Source'] == 'Param':
             suffix2 = 'P'
             df_calibparam.at[i, 'Source_file'] = outfile_param_base
             df_calibparam.at[i, 'OstrichTrial_file'] = outfile_param_ost
-        elif df_calibparam.loc[i]['Method'] == 'Namelist':
+        elif df_calibparam.iloc[i]['Source'] == 'Namelist':
             suffix2 = 'N'
             df_calibparam.at[i, 'Source_file'] = outfile_lndin_base
             df_calibparam.at[i, 'OstrichTrial_file'] = infile_user_nl_clm
-        elif df_calibparam.loc[i]['Method'] == 'Surfdata':
+        elif df_calibparam.iloc[i]['Source'] == 'Surfdata':
             suffix2 = 'S'
             df_calibparam.at[i, 'Source_file'] = outfile_surfdata_base
             df_calibparam.at[i, 'OstrichTrial_file'] = outfile_surfdata_ost
@@ -202,11 +206,11 @@ with open(outfile_param_tpl, 'w') as f:
         suffix = f'{suffix2}_{suffix1}'
         # suffix = 'fct'
 
-        p_raw = df_calibparam.iloc[i]['Parameter'].values
+        p_raw = df_calibparam.iloc[i]['Parameter']
         p_ost = f'{p_raw}_{suffix}'
         df_calibparam.at[i, 'Parameter_Ost'] = p_ost
 
-        linep = f'{p_raw:50} | {p_ost}\n'
+        linep = f'{p_raw:50} |     {p_ost}\n'
         _ = f.write(linep)
 
 # save for later use

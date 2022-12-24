@@ -43,7 +43,7 @@ print('#'* 50)
 
 ########################################################################################################################
 # Input arguments
-if len(sys.argv) != 5:
+if len(sys.argv) != 4:
     print("The number of input argument is wrong!")
     sys.exit(0)
 
