@@ -4,6 +4,9 @@
 
 import os, sys, shutil, glob, subprocess, datetime
 
+import pandas as pd
+
+
 ########################################################################################################################
 # define some functions
 def get_target_archive_files(pathCTSM, keyword):
@@ -57,13 +60,20 @@ else:
 ######## hard coded parameters (may be changed later)
 archive_keyword = ".clm2.h1." # what archive files to be saved? only for PreserveBestModel
 
+########################################################################################################################
+# define folder name
+
+file_OstModel = f'{pathOstrichRun}/OstModel0.txt'
+df_OstModel = pd.read_csv(file_OstModel)
+current_run = int(df_OstModel.iloc[-1]['Run'])
+
 nowtime_UTC = datetime.datetime.utcnow()
 nowtime_UTC = nowtime_UTC.strftime("%Y-%m-%m-%H-%M-%S")
 
 if mode == 'PreserveBestModel':
     pathOstrichSave = f'{pathOstrichSave}/{mode}'
 elif mode == 'PreserveModelOutput':
-    pathOstrichSave = f'{pathOstrichSave}/{mode}/{nowtime_UTC}'
+    pathOstrichSave = f'{pathOstrichSave}/{mode}/Run_{current_run}'
 else:
     sys.exit('Unknown mode for saving!')
     
@@ -75,6 +85,8 @@ os.makedirs(pathOstrichSave, exist_ok=True)
 # parameter file and append a UTC time suffix to it
 file_lnd_in = f'{pathCTSM}/Buildconf/clmconf/lnd_in'
 file_parameter = get_value_from_settingfile(file_lnd_in, 'paramfile')
+file_surfdata = get_value_from_settingfile(file_lnd_in, 'fsurdat')
+file_user_nl_clm = f'{pathCTSM}/user_nl_clm'
 
 ########################################################################################################################
 # save files
@@ -101,6 +113,9 @@ else:
 
 # save parameters
 _ = subprocess.run(f'cp {file_parameter} {pathOstrichSave}', shell=True)
+_ = subprocess.run(f'cp {file_surfdata} {pathOstrichSave}', shell=True)
+_ = subprocess.run(f'cp {file_lnd_in} {pathOstrichSave}', shell=True)
+_ = subprocess.run(f'cp {file_user_nl_clm} {pathOstrichSave}', shell=True)
 
 if mode == 'PreserveBestModel':
     # save Ostrich outputs

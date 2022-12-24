@@ -10,7 +10,7 @@ PreserveModelOutput ./call_PreserveModelOutput.sh
 OnObsError	-999
 
 BeginFilePairs    
-nc_multiplier.tpl; nc_multiplier.txt
+param_factor.tpl; param_factor.txt
 EndFilePairs
 
 #Parameter/DV Specification

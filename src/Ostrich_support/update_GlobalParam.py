@@ -17,8 +17,25 @@
 
 import os
 import netCDF4 as nc4
+import xarray as xr
+import pandas as pd
 import numpy as np
 import sys, subprocess, shutil, pathlib
+
+
+def change_param_value(vold, factor, method):
+    vold_mean = np.nanmean(vold)
+    if method == 'Multiplicative':
+        vnew = vold * factor
+    elif method == 'Additive':
+        vnew = vold + factor
+    else:
+        sys.exit('Unknown method!')
+    vnew_mean = np.nanmean(vnew)
+    return vold_mean, vnew, vnew_mean
+
+
+
 
 print('#'* 50)
 print('Updating parameters ...')
@@ -30,82 +47,159 @@ if len(sys.argv) != 5:
     print("The number of input argument is wrong!")
     sys.exit(0)
 
-infile_multiplier = sys.argv[1]  # multipliers of parameters
-infile_oldparam = sys.argv[2]  # old (or reference or base ...) parameter file
-outfile_newparam = sys.argv[3]  # output updated param file = infile_oldparam * infile_multiplier
-file_user_nl_clm = sys.argv[4] # let CLM use updated parameter file
 
-print('infile_multiplier:', infile_multiplier)
-print('infile_oldparam:', infile_oldparam)
-print('outfile_newparam:', outfile_newparam)
+infile_param_info = sys.argv[1]  # multipliers of parameters
+inpath_CTSMcase = sys.argv[2] # CTSM case
+infile_factor_value = sys.argv[3] # factor value
+
+print('infile_param_info:', infile_param_info)
+print('inpath_CTSMcase:', inpath_CTSMcase)
+print('infile_factor_value:', infile_factor_value)
 
 ########################################################################################################################
-# Read parameter names and multipliers
+# read parameter information (names, methods (e.g., multiplicative _mtp or additive _add, and factor values)
 
-# read multipliers and parameter names
-param_multipliers = []
+df_calibparam = pd.read_csv(infile_param_info)
+df_calibparam['factor'] = 0.0
+
+# read parameter factors
+param_factors = []
 param_var_names = [] # variable name in param file
-with open(infile_multiplier, 'r') as f:
+with open(infile_factor_value, 'r') as f:
     for line in f:
         line = line.strip()
         if line and not line.startswith('!') and not line.startswith("'"):
             splits = line.split('|')
-            param_var_names.append(splits[0].strip())
-            param_multipliers.append(float(splits[1].strip()))
+            df_calibparam.loc[df_calibparam['Parameter'] == splits[0].strip(), 'factor'] = float(splits[1].strip())
+
+########################################################################################################################
+# check if there is any binded variable
+# if there is, add binded variables to df_calibparam
+
+df_bind = pd.DataFrame()
+for i in range(len(df_calibparam)):
+    bindvari = df_calibparam.iloc[i]['Binding']
+    if bindvari != 'None':
+        bindvari = bindvari.split(',')
+        for bv in bindvari:
+            dftmp = df_calibparam.iloc[[i]].copy()
+            dftmp['Parameter'] = bv
+            df_bind = pd.concat([df_bind, dftmp])
+
+########################################################################################################################
+# Read parameter and file information
+
+
+# CTSM files
+file_user_nl_clm = f'{inpath_CTSMcase}/user_nl_clm'
+with open(file_user_nl_clm, 'r') as f:
+    lines_nlclm = f.readlines()
+
+
+# flag: whether to change some files
+change_param = False
+change_surfdata = False
+change_nlclm = False
 
 ########################################################################################################################
 # update parameters
 
-# # don't use xarray which will cause error when running CTSM
-# ds_param = xr.load_dataset(infile_oldparam)
-# for pn, pm in zip(param_names, param_multipliers):
-#     if not pn in ds_param.data_vars:
-#         print(f'Error!!! Variable {pn} is not find in parameter file {infile_oldparam}!!!')
-#         sys.exit()
-#     else:
-#         vold = ds_param[pn].values.mean()
-#         ds_param[pn].values = vold * pm
-#         vnew = ds_param[pn].values.mean()
-#         print(f'  -- Updating parameter {pn}: old mean value {vold} * multiplier {pm} = new mean value {vnew}')
-# ds_param.to_netcdf(outfile_newparam)
+## 1. parameter file
+param1 = df_calibparam[df_calibparam['Source']=='Param']['Parameter'].values
+if len(param1) > 0:
+    file_param_base = df_calibparam[df_calibparam['Source']=='Param']['Source_file'].values[0]
+    outfile_newparam = df_calibparam[df_calibparam['Source'] == 'Param']['OstrichTrial_file'].values[0]
+    ds_param = xr.load_dataset(file_param_base)
+    for pn, pm in zip(param_var_names, param_factors):
+        if pn in param1:
+            if not pn in ds_param.data_vars:
+                print(f'Error!!! Variable {pn} is not find in parameter file {file_param_base}!!!')
+                sys.exit()
+            else:
+                method = df_calibparam.loc[df_calibparam['Parameter'] == pn]['Method'].values
+                bindvar = df_calibparam.loc[df_calibparam['Parameter'] == pn]['Binding'].values
+                vold = ds_param[pn].values
+                vold_mean, vnew, vnew_mean = change_param_value(vold, pm, method)
+                ds_param[pn].values = vnew
+                print(f'  -- Updating parameter {pn}: old mean value {vold_mean} * multiplier {pm} = new mean value {vnew_mean}')
+                change_param = True
 
+if change_param == True:
+    ds_param.to_netcdf(outfile_newparam, format='NETCDF3_CLASSIC')
 
-# apply multipliers to existing HRU values
-outpath_newparam = str(pathlib.Path(outfile_newparam).parent)
-os.makedirs(outpath_newparam, exist_ok=True)
-_ = shutil.copyfile(infile_oldparam, outfile_newparam)
+## 2. surface data file
+param2 = df_calibparam[df_calibparam['Source']=='Surfdata']['Parameter'].values
+if len(param2) > 0:
+    file_surfdata_base = df_calibparam[df_calibparam['Source']=='Surfdata']['Source_file'].values[0]
+    outfile_newsurf = df_calibparam[df_calibparam['Source']=='Surfdata']['OstrichTrial_file'].values[0]
+    ds_surf = xr.load_dataset(file_surfdata_base)
+    for pn, pm in zip(param_var_names, param_factors):
+        if pn in param2:
+            if not pn in ds_surf.data_vars:
+                print(f'Error!!! Variable {pn} is not find in parameter file {file_surfdata_base}!!!')
+                sys.exit()
+            else:
+                method = df_calibparam.loc[df_calibparam['Parameter'] == pn]['Method'].values
+                bindvar = df_calibparam.loc[df_calibparam['Parameter'] == pn]['Binding'].values
+                vold = ds_surf[pn].values
+                vold_mean, vnew, vnew_mean = change_param_value(vold, pm, method)
+                ds_surf[pn].values = vnew
+                print(f'  -- Updating parameter {pn}: old mean value {vold_mean} * multiplier {pm} = new mean value {vnew_mean}')
+                change_surfdata = True
 
-dataset_pattern = nc4.Dataset(infile_oldparam ,'r')
-dataset = nc4.Dataset(outfile_newparam ,'r+')
+if change_surfdata == True:
+    ds_surf.to_netcdf(outfile_newsurf, format='NETCDF3_CLASSIC')
 
-for i in range(len(param_var_names)):
-    var_name = param_var_names[i]
-    marr = dataset.variables[var_name][:]
-    vold = np.nanmean(marr)
-    pm = param_multipliers[i]
-    arr_value = marr.data * pm
-    dataset.variables[var_name][:] = np.ma.array(arr_value, mask=np.ma.getmask(marr), fill_value=marr.get_fill_value())
-    vnew = np.nanmean(dataset.variables[var_name][:])
-    print(f'  -- Updating parameter {var_name}: old mean value {vold} * multiplier {pm} = new mean value {vnew}')
+# check if new parameter name is already in the user_nl_clm file
+for i in range(len(lines_nlclm)):
+    if outfile_newparam in lines_nlclm[i]:
+        # already in ...
+        break
+    if i == len(lines_nlclm) - 1:
+        # not in
+        lines_nlclm.append(f"\nparamfile='{outfile_newparam}'\n")
+        change_nlclm = True
 
-dataset.close()
-dataset_pattern.close()
+## 3. namelist
+param3 = df_calibparam[df_calibparam['Source']=='Namelist']['Parameter'].values
+if len(param3) > 0:
+    file_lndin_base = df_calibparam[df_calibparam['Source'] == 'Namelist']['Source_file'].values[0]
+    with open(file_lndin_base, 'r') as f:
+        lines_lndin = f.readlines()
+        varname_lndin = [l.split('=')[0].strip() for l in lines_lndin]
+    for pn, pm in zip(param_var_names, param_factors):
+        if pn in param3:
+            if not pn in varname_lndin:
+                print(f'Error!!! Variable {pn} is not find in parameter file {file_lndin_base}!!!')
+                sys.exit()
+            else:
+                vold = np.nan
+                for line in lines_lndin:
+                    line = line.strip()
+                    if line.startswith(pn):
+                        vold = np.array(float(line.split('=')[-1].strip().replace('\'', '').split('d')[0]))
+                        break
+                method = df_calibparam.loc[df_calibparam['Parameter'] == pn]['Method'].values
+                bindvar = df_calibparam.loc[df_calibparam['Parameter'] == pn]['Binding'].values
+                vold_mean, vnew, vnew_mean = change_param_value(vold, pm, method)
+                # write to user_nl_clm
+                flag = False
+                for i in range(len(lines_nlclm)):
+                    line = lines_nlclm[i].strip()
+                    if line.startswith(pn):
+                        lines_nlclm[i] = f'{pn} = {vnew}/n'
+                        flag = True
+                if flag == False:
+                    lines_nlclm.append(f'/n{pn} = {vnew}/n')
+                print(f'  -- Updating parameter {pn}: old mean value {vold_mean} * multiplier {pm} = new mean value {vnew_mean}')
+                change_nlclm = True
 
 ########################################################################################################################
-
-# write filename
-with open(file_user_nl_clm, 'r') as f:
-    lines = f.readlines()
-
-flag = True
-for line in lines:
-    if outfile_newparam in line:
-        flag = False
-        break
-
-if flag == True:
-    with open(file_user_nl_clm, 'a') as f:
-        f.write(f"paramfile='{outfile_newparam}'\n")
+# write to user_nl_clm with changes
+if change_nlclm == True:
+    with open(file_user_nl_clm, 'w') as f:
+        for line in lines_nlclm:
+            f.write(line)
 
 
 print('#'* 50)

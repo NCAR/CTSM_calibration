@@ -13,9 +13,16 @@ pathCTSMcase="/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/CAMELS_LumpCalib"
 # pathOstrich: everything related to Ostrich is saved
 pathOstrich="/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/CAMELS_LumpCalib_Ostrich"
 
-# paramfile_priori:
+# parameter file: parameter nc
 paramfile_priori="/glade/p/cesmdata/cseg/inputdata/lnd/clm2/paramdata/ctsm51_params.c211112.nc"
 paramfile_ostrich="${pathOstrich}/tempdir/ctsm51_params.c211112_Ostrich.nc"
+
+# parameter file: lnd_in namelist
+lndinfile_priori="${pathCTSMcase}/Buildconf/clmconf/lnd_in"
+lndinfile_ostrich="${pathOstrich}/tempdir/lnd_in"
+
+# calib parameter information
+file_param_info="${pathOstrich}/parameters/"
 
 # Evaluation period (could be different from calibration period)
 DateEvalStart="2000-01-01"      # start date for calculating statistics
@@ -36,11 +43,14 @@ ostrichRunDir="${pathOstrich}/run"  # calib directory
 
 file_trial_stats="$ostrichRunDir/trial_stats.txt" # statistics of simulated runoff
 
-# param_txtfile_tpl="$ostrichRunDir/nc_multiplier.tpl"      # template files containing variable names
-param_txtfile_ost="$ostrichRunDir/nc_multiplier.txt"      # multiplier values
+# param_txtfile_tpl="$ostrichRunDir/param_factor.tpl"      # template files containing variable names
+param_txtfile_ost="$ostrichRunDir/param_factor.txt"      # multiplier values
 
 # user_nl_clm file: change settings
 file_user_nl_clm="${pathCTSMcase}/user_nl_clm"
+
+# parameter info (e.g., method, source)
+file_ostin_source="$ostrichRunDir/ostIn_source.csv"
 
 ########################################################################################################################
 # ========= start main function ===============================
@@ -55,7 +65,7 @@ date | awk '{printf("%s: ---- executing new trial ----\n",$0)}' >> $ostrichRunDi
 # the script will also change paramfile path in the first trial
 
 date | awk '{printf("%s: updating params\n",$0)}' >> $ostrichRunDir/timetrack.log
-python ${script_updateparam} $param_txtfile_ost $paramfile_priori $paramfile_ostrich ${file_user_nl_clm}
+python ${script_updateparam} ${pathCTSMcase} ${param_txtfile_ost}
 echo " "
 
 

@@ -1,6 +1,5 @@
 # Create a PBS script to submit Ostrich calibration
 # Here, we incorporate case.submit ntask settings in this step. therefore, case.submit needs to be run first (no need to finish running)
-# deal with both multiplier and addition (mtp and add)
 
 import os, pathlib, sys, shutil, subprocess
 import toml
@@ -85,14 +84,10 @@ script_gen_ostIn = f'{path_script_Ostrich}/auxiliary_create_ostin.py'
 script_save_file = f'{path_script_Ostrich}/save_Ostrich_trial_outputs.py'
 
 infile_lndin = f'{path_CTSM_case}/Buildconf/clmconf/lnd_in'
+infile_lndin_base = f'{ostrichParam}/base_lnd_in'
+infile_param_link = f'{ostrichParam}/base_parameters.nc'
 
-outfile_lndin_base = f'{ostrichParam}/base_lnd_in'
-outfile_param_base = f'{ostrichParam}/base_parameters.nc'
-outfile_surfdata_base = f'{ostrichParam}/base_surfdata.nc'
-outfile_nlclm_base = f'{ostrichParam}/base_user_nl_clm'
 outfile_param_ost = f'{ostrichParam}/ostrich_trial_parameters.nc'
-outfile_surfdata_ost = f'{ostrichParam}/ostrich_trial_surfdata.nc'
-outfile_param_info = f'{ostrichParam}/calib_parameter_info.csv'
 
 exeOstrich = "/glade/u/home/guoqiang/model_sources/Ostrich_v17.12.19/Source/OstrichGCC"
 
@@ -102,63 +97,40 @@ os.makedirs(ostrichRefDir, exist_ok=True)
 os.makedirs(ostrichParam, exist_ok=True)
 
 ########################################################################################################################
-# back-up original parameter files (parameter nc file, lnd_in text file, user_nl_clm file) which will be used as base parameter source
+# what parameters to calibrate
 
-# parameter nc file
-if not os.path.isfile(outfile_param_base):
+# back-up original parameter and lnd_in files which will be used as base parameter source
+if not os.path.isfile(infile_param_link):
     with open(infile_lndin, 'r') as f:
         for line in f:
             line = line.strip()
             if line.startswith('paramfile'):
                 infile_param = line.split('=')[-1].strip().replace('\'', '')
-    _ = subprocess.run(f'ln -s {infile_param} {outfile_param_base}', shell=True)
-
-_ = shutil.copy(infile_param, outfile_param_ost)
-
-
-# surfdata file
-infile_user_nl_clm = path_CTSM_case + '/user_nl_clm'
-if not os.path.isfile(outfile_surfdata_base):
-    with open(infile_lndin, 'r') as f:
-        for line in f:
-            line = line.strip()
-            if line.startswith('fsurdat'):
-                infile_surfdata = line.split('=')[-1].strip().replace('\'', '')
-    with open(infile_user_nl_clm) as f:
-        for line in f:
-            line = line.strip()
-            if line.startswith('fsurdat'):
-                infile_surfdata = line.split('=')[-1].strip().replace('\'', '')
-    _ = subprocess.run(f'ln -s {infile_surfdata} {outfile_surfdata_base}', shell=True)
-
-_ = shutil.copy(infile_surfdata, outfile_surfdata_ost)
+                break
+    _ = subprocess.run(f'ln -s {infile_param} {infile_param_link}', shell=True)
 
 
-# lnd_in file
-if not os.path.isfile(outfile_lndin_base):
-    _ = subprocess.run(f'cp {infile_lndin} {outfile_lndin_base}', shell=True)
+if not os.path.isfile(infile_lndin_base):
+    _ = subprocess.run(f'cp {infile_lndin} {infile_lndin_base}', shell=True)
 
-# user_nl_clm file
-if not os.path.isfile(outfile_nlclm_base):
-    _ = subprocess.run(f'cp {infile_user_nl_clm} {outfile_nlclm_base}', shell=True)
-
-########################################################################################################################
-# select parameters that can be found in parameter source files
-
+# only calibrate parameters that can be found in parameter and lnd_in files
 df_calibparam = pd.read_csv(file_calib_param)
 flags = np.zeros(len(df_calibparam))
 
-with open(outfile_lndin_base, 'r') as f:
+with open(infile_lndin_base, 'r') as f:
     lines = f.readlines()
     varname_lndin = [l.split('=')[0].strip() for l in lines]
 
-with xr.open_dataset(outfile_param_base) as ds_param:
+with xr.open_dataset(infile_param_link) as ds_param:
     for i in range(len(df_calibparam)):
         parami_name = df_calibparam.iloc[i]['Parameter']
         if (parami_name in ds_param.data_vars) or (parami_name in varname_lndin):
             flags[i] = 1
 
 df_calibparam = df_calibparam[flags == 1]
+
+# copy raw parameters to calibrate parameters
+_ = shutil.copy(infile_param, outfile_param_ost)
 
 ########################################################################################################################
 # Create Ostrich setting files
@@ -169,53 +141,16 @@ _ = subprocess.run(f'ln -sf {exeOstrich} {ostrichRunDir}/', shell=True)
 
 #############
 # create nc_multiplier.tpl
-df_calibparam['Parameter_Ost'] = ''
-df_calibparam['Source_file'] = ''
-df_calibparam['OstrichTrial_file'] = ''
-
-outfile_param_tpl = f'{ostrichRunDir}/param_factor.tpl'
-with open(outfile_param_tpl, 'w') as f:
-    for i in range(len(df_calibparam)):
-
-        if df_calibparam.loc[i]['Method'] == 'Multiplicative':
-            suffix1 = 'mtp'
-        elif df_calibparam.loc[i]['Method'] == 'Additive':
-            suffix1 = 'add'
-        else:
-            sys.exit('Error! Method must be Multiplicative or Additive.')
-
-        if df_calibparam.loc[i]['Source'] == 'Param':
-            suffix2 = 'P'
-            df_calibparam.at[i, 'Source_file'] = outfile_param_base
-            df_calibparam.at[i, 'OstrichTrial_file'] = outfile_param_ost
-        elif df_calibparam.loc[i]['Method'] == 'Namelist':
-            suffix2 = 'N'
-            df_calibparam.at[i, 'Source_file'] = outfile_lndin_base
-            df_calibparam.at[i, 'OstrichTrial_file'] = infile_user_nl_clm
-        elif df_calibparam.loc[i]['Method'] == 'Surfdata':
-            suffix2 = 'S'
-            df_calibparam.at[i, 'Source_file'] = outfile_surfdata_base
-            df_calibparam.at[i, 'OstrichTrial_file'] = outfile_surfdata_ost
-        else:
-            sys.exit('Error! Source must be Param, Namelist, or Surfdata.')
-
-        suffix = f'{suffix2}_{suffix1}'
-        # suffix = 'fct'
-
-        p_raw = df_calibparam.iloc[i]['Parameter'].values
-        p_ost = f'{p_raw}_{suffix}'
-        df_calibparam.at[i, 'Parameter_Ost'] = p_ost
-
-        linep = f'{p_raw:50} | {p_ost}\n'
+outfile_mtp_tpl = f'{ostrichRunDir}/nc_multiplier.tpl'
+with open(outfile_mtp_tpl, 'w') as f:
+    for p in df_calibparam['Parameter'].values:
+        linep = f'{p:30} |  {p}_mtp\n'
         _ = f.write(linep)
-
-# save for later use
-df_calibparam.to_csv(outfile_param_info, index=False)
 
 #############
 # create ostIn.txt
 outfile_ostin_txt = f'{ostrichRunDir}/ostIn.txt'
-_ = subprocess.run(f'python {script_gen_ostIn} {infile_lndin} {infile_ostin_template} {outfile_param_info} {outfile_ostin_txt}', shell=True)
+_ = subprocess.run(f'python {script_gen_ostIn} {infile_lndin} {infile_ostin_template} {file_calib_param} {outfile_ostin_txt}', shell=True)
 
 #############
 # create CTSM_run_trial.sh
@@ -225,14 +160,9 @@ _ = shutil.copy(infile_runtrial_template, outfile_runtrial)
 runtrial_setting = {}
 runtrial_setting['pathCTSMcase'] = path_CTSM_case
 runtrial_setting['pathOstrich'] = outpathOstCalib
-runtrial_setting['paramfile_priori'] = outfile_param_base
+runtrial_setting['paramfile_priori'] = infile_param_link
 runtrial_setting['paramfile_ostrich'] = outfile_param_ost
-runtrial_setting['lndinfile_priori'] = infile_lndin
-runtrial_setting['lndinfile_ostrich'] = outfile_lndin_base
 runtrial_setting['ostrichRunDir'] = ostrichRunDir
-runtrial_setting['file_param_info'] = outfile_param_info
-
-
 
 # evaluation period
 DateEvalStart = (pd.Timestamp(RUN_STARTDATE) + pd.offsets.DateOffset(months=ignore_month)).strftime('%Y-%m-%d') # ignor the first year when evaluating model

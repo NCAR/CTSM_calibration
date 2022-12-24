@@ -17,7 +17,6 @@
 
 import os
 import netCDF4 as nc4
-import xarray as xr
 import numpy as np
 import sys, subprocess, shutil, pathlib
 
@@ -57,39 +56,40 @@ with open(infile_multiplier, 'r') as f:
 ########################################################################################################################
 # update parameters
 
-ds_param = xr.load_dataset(infile_oldparam)
-for pn, pm in zip(param_var_names, param_multipliers):
-    if not pn in ds_param.data_vars:
-        print(f'Error!!! Variable {pn} is not find in parameter file {infile_oldparam}!!!')
-        sys.exit()
-    else:
-        vold = ds_param[pn].values.mean()
-        ds_param[pn].values = vold * pm
-        vnew = ds_param[pn].values.mean()
-        print(f'  -- Updating parameter {pn}: old mean value {vold} * multiplier {pm} = new mean value {vnew}')
-ds_param.to_netcdf(outfile_newparam, format='NETCDF3_CLASSIC')
+# # don't use xarray which will cause error when running CTSM
+# ds_param = xr.load_dataset(infile_oldparam)
+# for pn, pm in zip(param_names, param_multipliers):
+#     if not pn in ds_param.data_vars:
+#         print(f'Error!!! Variable {pn} is not find in parameter file {infile_oldparam}!!!')
+#         sys.exit()
+#     else:
+#         vold = ds_param[pn].values.mean()
+#         ds_param[pn].values = vold * pm
+#         vnew = ds_param[pn].values.mean()
+#         print(f'  -- Updating parameter {pn}: old mean value {vold} * multiplier {pm} = new mean value {vnew}')
+# ds_param.to_netcdf(outfile_newparam)
 
 
-# # apply multipliers to existing HRU values
-# outpath_newparam = str(pathlib.Path(outfile_newparam).parent)
-# os.makedirs(outpath_newparam, exist_ok=True)
-# _ = shutil.copyfile(infile_oldparam, outfile_newparam)
-#
-# dataset_pattern = nc4.Dataset(infile_oldparam ,'r')
-# dataset = nc4.Dataset(outfile_newparam ,'r+')
-#
-# for i in range(len(param_var_names)):
-#     var_name = param_var_names[i]
-#     marr = dataset.variables[var_name][:]
-#     vold = np.nanmean(marr)
-#     pm = param_multipliers[i]
-#     arr_value = marr.data * pm
-#     dataset.variables[var_name][:] = np.ma.array(arr_value, mask=np.ma.getmask(marr), fill_value=marr.get_fill_value())
-#     vnew = np.nanmean(dataset.variables[var_name][:])
-#     print(f'  -- Updating parameter {var_name}: old mean value {vold} * multiplier {pm} = new mean value {vnew}')
-#
-# dataset.close()
-# dataset_pattern.close()
+# apply multipliers to existing HRU values
+outpath_newparam = str(pathlib.Path(outfile_newparam).parent)
+os.makedirs(outpath_newparam, exist_ok=True)
+_ = shutil.copyfile(infile_oldparam, outfile_newparam)
+
+dataset_pattern = nc4.Dataset(infile_oldparam ,'r')
+dataset = nc4.Dataset(outfile_newparam ,'r+')
+
+for i in range(len(param_var_names)):
+    var_name = param_var_names[i]
+    marr = dataset.variables[var_name][:]
+    vold = np.nanmean(marr)
+    pm = param_multipliers[i]
+    arr_value = marr.data * pm
+    dataset.variables[var_name][:] = np.ma.array(arr_value, mask=np.ma.getmask(marr), fill_value=marr.get_fill_value())
+    vnew = np.nanmean(dataset.variables[var_name][:])
+    print(f'  -- Updating parameter {var_name}: old mean value {vold} * multiplier {pm} = new mean value {vnew}')
+
+dataset.close()
+dataset_pattern.close()
 
 ########################################################################################################################
 
@@ -111,5 +111,3 @@ if flag == True:
 print('#'* 50)
 print('Successfully update parameters!')
 print('#'* 50)
-
-

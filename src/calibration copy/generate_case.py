@@ -1,0 +1,125 @@
+# An independent basin
+
+# Create a CTSM model case
+# Settings based on single basin files
+# Note: manual check of settings are needed before running this script
+
+import sys, subprocess, time, os, toml
+
+
+
+config_file_CTSMcase = sys.argv[1]
+
+print('Create CTSM case ...')
+print('Reading configuration from:', config_file_CTSMcase)
+
+########################################################################################################################
+# settings used for create CTSE case
+
+##############
+# parse settings
+
+config_CTSMcase = toml.load(config_file_CTSMcase)
+
+# for key,val in config_CTSMcase.items():
+#         exec(key + '=val')
+
+# more straitforward
+path_CTSM_source = config_CTSMcase['path_CTSM_source']
+path_CTSM_case = config_CTSMcase['path_CTSM_case']
+path_CTSM_CIMEout = config_CTSMcase['path_CTSM_CIMEout']
+file_CTSM_mesh = config_CTSMcase['file_CTSM_mesh']
+file_CTSM_surfdata = config_CTSMcase['file_CTSM_surfdata']
+
+createcase = config_CTSMcase['createcase']
+RUN_STARTDATE = config_CTSMcase['RUN_STARTDATE']
+STOP_N = config_CTSMcase['STOP_N']
+STOP_OPTION = config_CTSMcase['STOP_OPTION']
+NTASKS = config_CTSMcase['NTASKS']
+casebuild = config_CTSMcase['casebuild']
+projectCode = config_CTSMcase['projectCode']
+
+
+#####################
+# Model settings to be changed: list
+user_nl_clm_settings = [f"fsurdat = '{file_CTSM_surfdata}'",
+                        "hist_nhtfrq = 0,-24",
+                        "hist_mfilt = 1,365",
+                        "hist_fincl2 = 'QRUNOFF','H2OSNO','ZWT','SOILWATER_10CM','EFLX_LH_TOT','QDRAI','QOVER','RAIN'",
+                        ]
+
+xmlchange_settings = [f"ATM_DOMAIN_MESH={file_CTSM_mesh}",
+                      f"LND_DOMAIN_MESH={file_CTSM_mesh}",
+                      f"MASK_MESH={file_CTSM_mesh}",
+                      # build/run parent path
+                      f"CIME_OUTPUT_ROOT={path_CTSM_CIMEout}",
+                      # turn off MOSART_MODE to save time
+                      "MOSART_MODE=NULL",
+                      # change forcing data
+                      "DATM_MODE=CLMNLDAS2",
+                      # change the run time of mode case
+                      f"STOP_N={STOP_N}",
+                      f"RUN_STARTDATE={RUN_STARTDATE}",
+                      f"STOP_OPTION={STOP_OPTION}",
+                      # change computation resource requirement if needed
+                      # NTASKS: the total number of MPI tasks, a negative value indicates nodes rather than tasks
+                      f"NTASKS={NTASKS}",
+                      ]
+
+if NTASKS == 1:
+    xmlchange_settings2 = [# one cpu one job
+                           "COST_PES=1",
+                           "TOTALPES=1",
+                           "MAX_TASKS_PER_NODE=1",
+                           "MAX_MPITASKS_PER_NODE=1",
+                           "COST_PES=1",
+                          ]
+    xmlchange_settings = xmlchange_settings + xmlchange_settings2
+
+xmlquery_settings = 'ATM_DOMAIN_MESH,LND_DOMAIN_MESH,MASK_MESH,RUNDIR,DOUT_S_ROOT,MOSART_MODE,DATM_MODE,RUN_STARTDATE,STOP_N,STOP_OPTION,NTASKS,NTASKS_PER_INST'
+
+########################################################################################################################
+# create model cases
+
+pwd = os.getcwd()
+
+################################
+# (1) create new case
+newcase_settings = f"{createcase} --project {projectCode}"
+_ = subprocess.run(f'{path_CTSM_source}/cime/scripts/create_newcase --case {path_CTSM_case} {newcase_settings}', shell=True)
+
+################################
+# (2) change dir
+os.chdir(path_CTSM_case)
+
+################################
+# (3) change settings (optional)
+
+# change user_nl_clm
+with open('user_nl_clm', 'a') as f:
+    for s in user_nl_clm_settings:
+        _ = f.write(s+'\n')
+
+# change land domain and MESH files
+for s in xmlchange_settings:
+    _ = subprocess.run(f'./xmlchange {s}', shell=True)
+
+# xmlquery
+_ = subprocess.run(f'./xmlquery {xmlquery_settings}', shell=True)
+
+################################
+# (4) compile the model
+# _ = subprocess.run('./case.setup --reset', shell=True)
+_ = subprocess.run('./case.setup', shell=True)
+_ = subprocess.run('./case.build --clean-all', shell=True)
+if casebuild == 'qcmd':
+    _ = subprocess.run(f'qcmd -l select=1:ncpus=1:mpiprocs=1 -l walltime=0:20:00 -A {projectCode} -q share -- ./case.build', shell=True)
+elif casebuild == 'direct':
+    _ = subprocess.run(f'./case.build', shell=True)
+else:
+    sys.exit('Unknown casebuild')
+
+################################
+# (5) submit jobs (optional)
+# Can be used to check whether the case can be successfully run before calibration
+# _ = subprocess.run('./case.submit', shell=True)
