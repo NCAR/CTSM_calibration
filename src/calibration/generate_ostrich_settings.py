@@ -112,8 +112,7 @@ if not os.path.isfile(outfile_param_base):
             if line.startswith('paramfile'):
                 infile_param = line.split('=')[-1].strip().replace('\'', '')
     _ = subprocess.run(f'ln -s {infile_param} {outfile_param_base}', shell=True)
-
-_ = shutil.copy(infile_param, outfile_param_ost)
+    _ = shutil.copy(infile_param, outfile_param_ost)
 
 
 # surfdata file
@@ -130,8 +129,7 @@ if not os.path.isfile(outfile_surfdata_base):
             if line.startswith('fsurdat'):
                 infile_surfdata = line.split('=')[-1].strip().replace('\'', '')
     _ = subprocess.run(f'ln -s {infile_surfdata} {outfile_surfdata_base}', shell=True)
-
-_ = shutil.copy(infile_surfdata, outfile_surfdata_ost)
+    _ = shutil.copy(infile_surfdata, outfile_surfdata_ost)
 
 
 # lnd_in file
