@@ -235,7 +235,7 @@ runtrial_setting['lndinfile_priori'] = infile_lndin
 runtrial_setting['lndinfile_ostrich'] = outfile_lndin_base
 runtrial_setting['ostrichRunDir'] = ostrichRunDir
 runtrial_setting['file_param_info'] = outfile_param_info
-
+runtrial_setting['ostrichScriptDir'] = path_script_Ostrich
 
 
 # evaluation period

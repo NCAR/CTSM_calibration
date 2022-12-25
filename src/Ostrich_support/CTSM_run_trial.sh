@@ -50,7 +50,7 @@ param_txtfile_ost="$ostrichRunDir/param_factor.txt"      # multiplier values
 file_user_nl_clm="${pathCTSMcase}/user_nl_clm"
 
 # parameter info (e.g., method, source)
-file_ostin_source="${pathOstrich}/parameters/calib_parameter_info.csv"
+file_param_info="${pathOstrich}/parameters/calib_parameter_info.csv"
 
 ########################################################################################################################
 # ========= start main function ===============================
@@ -65,7 +65,7 @@ date | awk '{printf("%s: ---- executing new trial ----\n",$0)}' >> $ostrichRunDi
 # the script will also change paramfile path in the first trial
 
 date | awk '{printf("%s: updating params\n",$0)}' >> $ostrichRunDir/timetrack.log
-python ${script_updateparam} ${file_ostin_source} ${pathCTSMcase} ${param_txtfile_ost}
+python ${script_updateparam} ${file_param_info} ${pathCTSMcase} ${param_txtfile_ost}
 echo " "
 
 

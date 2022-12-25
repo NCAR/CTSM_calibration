@@ -63,8 +63,6 @@ df_calibparam = pd.read_csv(infile_param_info)
 df_calibparam['factor'] = 0.0
 
 # read parameter factors
-param_factors = []
-param_var_names = [] # variable name in param file
 with open(infile_factor_value, 'r') as f:
     for line in f:
         line = line.strip()
@@ -105,47 +103,50 @@ change_nlclm = False
 # update parameters
 
 ## 1. parameter file
-param1 = df_calibparam[df_calibparam['Source']=='Param']['Parameter'].values
-if len(param1) > 0:
+
+df_param1 = df_calibparam[df_calibparam['Source']=='Param']
+if len(df_param1) > 0:
     file_param_base = df_calibparam[df_calibparam['Source']=='Param']['Source_file'].values[0]
     outfile_newparam = df_calibparam[df_calibparam['Source'] == 'Param']['OstrichTrial_file'].values[0]
     ds_param = xr.load_dataset(file_param_base)
-    for pn, pm in zip(param_var_names, param_factors):
-        if pn in param1:
-            if not pn in ds_param.data_vars:
-                print(f'Error!!! Variable {pn} is not find in parameter file {file_param_base}!!!')
-                sys.exit()
-            else:
-                method = df_calibparam.loc[df_calibparam['Parameter'] == pn]['Method'].values
-                bindvar = df_calibparam.loc[df_calibparam['Parameter'] == pn]['Binding'].values
-                vold = ds_param[pn].values
-                vold_mean, vnew, vnew_mean = change_param_value(vold, pm, method)
-                ds_param[pn].values = vnew
-                print(f'  -- Updating parameter {pn}: old mean value {vold_mean} * multiplier {pm} = new mean value {vnew_mean}')
-                change_param = True
+    for i in range(len(df_param1)):
+        pn = df_param1.iloc[i]['Parameter']
+        pm = df_param1.iloc[i]['factor']
+        if not pn in ds_param.data_vars:
+            print(f'Error!!! Variable {pn} is not find in parameter file {file_param_base}!!!')
+            sys.exit()
+        else:
+            method = df_calibparam.loc[df_calibparam['Parameter'] == pn]['Method'].values
+            bindvar = df_calibparam.loc[df_calibparam['Parameter'] == pn]['Binding'].values
+            vold = ds_param[pn].values
+            vold_mean, vnew, vnew_mean = change_param_value(vold, pm, method)
+            ds_param[pn].values = vnew
+            print(f'  -- Updating parameter {pn}: old mean value {vold_mean} * multiplier {pm} = new mean value {vnew_mean}')
+            change_param = True
 
 if change_param == True:
     ds_param.to_netcdf(outfile_newparam, format='NETCDF3_CLASSIC')
 
 ## 2. surface data file
-param2 = df_calibparam[df_calibparam['Source']=='Surfdata']['Parameter'].values
-if len(param2) > 0:
+df_param2 = df_calibparam[df_calibparam['Source']=='Surfdata']
+if len(df_param2) > 0:
     file_surfdata_base = df_calibparam[df_calibparam['Source']=='Surfdata']['Source_file'].values[0]
     outfile_newsurf = df_calibparam[df_calibparam['Source']=='Surfdata']['OstrichTrial_file'].values[0]
     ds_surf = xr.load_dataset(file_surfdata_base)
-    for pn, pm in zip(param_var_names, param_factors):
-        if pn in param2:
-            if not pn in ds_surf.data_vars:
-                print(f'Error!!! Variable {pn} is not find in parameter file {file_surfdata_base}!!!')
-                sys.exit()
-            else:
-                method = df_calibparam.loc[df_calibparam['Parameter'] == pn]['Method'].values
-                bindvar = df_calibparam.loc[df_calibparam['Parameter'] == pn]['Binding'].values
-                vold = ds_surf[pn].values
-                vold_mean, vnew, vnew_mean = change_param_value(vold, pm, method)
-                ds_surf[pn].values = vnew
-                print(f'  -- Updating parameter {pn}: old mean value {vold_mean} * multiplier {pm} = new mean value {vnew_mean}')
-                change_surfdata = True
+    for i in range(len(df_param2)):
+        pn = df_param2.iloc[i]['Parameter']
+        pm = df_param2.iloc[i]['factor']
+        if not pn in ds_surf.data_vars:
+            print(f'Error!!! Variable {pn} is not find in parameter file {file_surfdata_base}!!!')
+            sys.exit()
+        else:
+            method = df_calibparam.loc[df_calibparam['Parameter'] == pn]['Method'].values
+            bindvar = df_calibparam.loc[df_calibparam['Parameter'] == pn]['Binding'].values
+            vold = ds_surf[pn].values
+            vold_mean, vnew, vnew_mean = change_param_value(vold, pm, method)
+            ds_surf[pn].values = vnew
+            print(f'  -- Updating parameter {pn}: old mean value {vold_mean} * multiplier {pm} = new mean value {vnew_mean}')
+            change_surfdata = True
 
 if change_surfdata == True:
     ds_surf.to_netcdf(outfile_newsurf, format='NETCDF3_CLASSIC')
@@ -161,38 +162,39 @@ for i in range(len(lines_nlclm)):
         change_nlclm = True
 
 ## 3. namelist
-param3 = df_calibparam[df_calibparam['Source']=='Namelist']['Parameter'].values
-if len(param3) > 0:
+df_param3 = df_calibparam[df_calibparam['Source']=='Namelist']
+if len(df_param3) > 0:
     file_lndin_base = df_calibparam[df_calibparam['Source'] == 'Namelist']['Source_file'].values[0]
     with open(file_lndin_base, 'r') as f:
         lines_lndin = f.readlines()
         varname_lndin = [l.split('=')[0].strip() for l in lines_lndin]
-    for pn, pm in zip(param_var_names, param_factors):
-        if pn in param3:
-            if not pn in varname_lndin:
-                print(f'Error!!! Variable {pn} is not find in parameter file {file_lndin_base}!!!')
-                sys.exit()
-            else:
-                vold = np.nan
-                for line in lines_lndin:
-                    line = line.strip()
-                    if line.startswith(pn):
-                        vold = np.array(float(line.split('=')[-1].strip().replace('\'', '').split('d')[0]))
-                        break
-                method = df_calibparam.loc[df_calibparam['Parameter'] == pn]['Method'].values
-                bindvar = df_calibparam.loc[df_calibparam['Parameter'] == pn]['Binding'].values
-                vold_mean, vnew, vnew_mean = change_param_value(vold, pm, method)
-                # write to user_nl_clm
-                flag = False
-                for i in range(len(lines_nlclm)):
-                    line = lines_nlclm[i].strip()
-                    if line.startswith(pn):
-                        lines_nlclm[i] = f'{pn} = {vnew}/n'
-                        flag = True
-                if flag == False:
-                    lines_nlclm.append(f'/n{pn} = {vnew}/n')
-                print(f'  -- Updating parameter {pn}: old mean value {vold_mean} * multiplier {pm} = new mean value {vnew_mean}')
-                change_nlclm = True
+    for i in range(len(df_param3)):
+        pn = df_param3.iloc[i]['Parameter']
+        pm = df_param3.iloc[i]['factor']
+        if not pn in varname_lndin:
+            print(f'Error!!! Variable {pn} is not find in parameter file {file_lndin_base}!!!')
+            sys.exit()
+        else:
+            vold = np.nan
+            for line in lines_lndin:
+                line = line.strip()
+                if line.startswith(pn):
+                    vold = np.array(float(line.split('=')[-1].strip().replace('\'', '').split('d')[0]))
+                    break
+            method = df_calibparam.loc[df_calibparam['Parameter'] == pn]['Method'].values
+            bindvar = df_calibparam.loc[df_calibparam['Parameter'] == pn]['Binding'].values
+            vold_mean, vnew, vnew_mean = change_param_value(vold, pm, method)
+            # write to user_nl_clm
+            flag = False
+            for i in range(len(lines_nlclm)):
+                line = lines_nlclm[i].strip()
+                if line.startswith(pn):
+                    lines_nlclm[i] = f'{pn} = {vnew}\n'
+                    flag = True
+            if flag == False:
+                lines_nlclm.append(f'{pn} = {vnew}\n')
+            print(f'  -- Updating parameter {pn}: old mean value {vold_mean} * multiplier {pm} = new mean value {vnew_mean}')
+            change_nlclm = True
 
 ########################################################################################################################
 # write to user_nl_clm with changes
