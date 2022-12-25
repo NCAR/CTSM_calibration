@@ -15,12 +15,10 @@
 #     ds[v].encoding = ec
 # ds.to_netcdf(outfile, format='NETCDF3_CLASSIC')
 
-import os
-import netCDF4 as nc4
 import xarray as xr
 import pandas as pd
 import numpy as np
-import sys, subprocess, shutil, pathlib
+import sys
 
 
 def change_param_value(vold, factor, method):

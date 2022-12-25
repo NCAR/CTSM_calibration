@@ -37,8 +37,6 @@ def update_txt_file(file, newsettings, start, sep, comment):
         shutil.move(file_new, file)
 
 
-
-
 config_file_Ostrich = sys.argv[1]
 
 print('Create Ostrich settings ...')
@@ -140,10 +138,29 @@ if not os.path.isfile(outfile_lndin_base):
 if not os.path.isfile(outfile_nlclm_base):
     _ = subprocess.run(f'cp {infile_user_nl_clm} {outfile_nlclm_base}', shell=True)
 
+
+########################################################################################################################
+# read and check parameter information file
+df_calibparam = pd.read_csv(file_calib_param)
+
+cols_required = ['Parameter', 'Lower', 'Upper']
+for col in cols_required:
+    if not (col in df_calibparam.columns):
+        sys.exit(f'Error! Parameter info file {file_calib_param} does not contain column {col}!')
+
+cols_auxiliary = ['Source', 'Method', 'Binding']
+cols_aux_fill = ['Param', 'Multiplicative', 'None']
+for col, fillv in zip(cols_auxiliary, cols_aux_fill):
+    if not (col in df_calibparam.columns):
+        print(f'Warning! Parameter info file {file_calib_param} does not contain column {col}.')
+        print(f'Fill the column {col} using default value: {fillv}. Check if this is right!')
+        df_calibparam[col] = fillv
+
+# cols_others = ['Default', 'Type', 'etc'] # not necessary but can provide some useful infromation
+
 ########################################################################################################################
 # select parameters that can be found in parameter source files
 
-df_calibparam = pd.read_csv(file_calib_param)
 flags = np.zeros(len(df_calibparam))
 
 with open(outfile_lndin_base, 'r') as f:
