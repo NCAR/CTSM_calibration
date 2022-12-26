@@ -80,10 +80,14 @@ for i in range(len(df_calibparam)):
         for bv in bindvari:
             dftmp = df_calibparam.iloc[[i]].copy()
             dftmp['Parameter'] = bv
+            # mask other cols
+            for col in ['Default', 'Lower', 'Upper', 'Binding', 'Parameter_Ost']:
+                if col in dftmp.columns:
+                    dftmp[col] = 'None'
             df_bind = pd.concat([df_bind, dftmp])
 
 df_calibparam = pd.concat([df_calibparam, df_bind])
-df_calibparam.index = np.arange(df_calibparam)
+df_calibparam.index = np.arange(len(df_calibparam))
 
 ########################################################################################################################
 # Read parameter and file information
