@@ -82,6 +82,9 @@ for i in range(len(df_calibparam)):
             dftmp['Parameter'] = bv
             df_bind = pd.concat([df_bind, dftmp])
 
+df_calibparam = pd.concat([df_calibparam, df_bind])
+df_calibparam.index = np.arange(df_calibparam)
+
 ########################################################################################################################
 # Read parameter and file information
 
