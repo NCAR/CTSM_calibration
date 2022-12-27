@@ -12,3 +12,6 @@ The calibration settings are in the .toml configuration file. Currently, it only
 1. Define parameters
 2. Prepare configuration files
 3. Run main.py
+
+# Issues
+Each basin will have a subset of forcing files, resulting in a large number of files. If this is not recommended, forcing file merging can be added.
