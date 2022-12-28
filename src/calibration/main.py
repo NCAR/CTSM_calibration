@@ -49,6 +49,7 @@ def parse_Ostrich_config(config):
 def parse_SubForc_config(config):
     config_SubForc = {'path_CTSM_case': config['CTSM']['files']['path_CTSM_case'],
                       'subset_length': config['CTSM']['settings']['subset_length'],
+                      'forcing_YearStep': config['CTSM']['settings']['forcing_YearStep'],
                       }
     file_config_SubForc = config['path_config_file'] + '/_' + config['name_config_file'].replace('.toml', '') + '_SubForc.toml'
     with open(file_config_SubForc, 'w') as f:

@@ -29,6 +29,7 @@ STOP_OPTION = "nmonths"
 NTASKS = 1
 casebuild = 'direct' # direct or qcmd. no need to use qcmd if this script is submitted through qbs
 subset_length = 'existing' # existing: files exist in datm.streams.xml; all: all files in the source folder. existing is shorter than all
+forcing_YearStep = 5 # >0: time merging subset forcing to the period; <=0: no time merging
 
 [CTSM.AddToNamelist]
 user_nl_datm_streams = ["topo.observed:meshfile=/glade/work/swensosc/topo_data/ESMFmesh_ctsm_elev_Conus_0.125d_210810.cdf5.nc",

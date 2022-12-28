@@ -4,6 +4,7 @@ import xarray as xr
 import numpy as np
 import xmltodict, subprocess
 import os, time, sys, glob, pathlib
+import timemerge
 
 def subset_forcing(infile, lat_range, lon_range):
     # gridded forcing
@@ -113,6 +114,50 @@ def subset_allfiles(datm_xml_dict, keyword_data, outpathSubset, ncformat, subset
     return inout_maplist, keyword_data_complete
 
 
+# mergetime
+def get_inputfiles_from_datm_streams(file_datmstreams, keywords = ['Solar:datafiles', 'Precip:datafiles', 'TPQW:datafiles']):
+    # back up
+    file_datmstreams_backup = f'{file_datmstreams}_beforeTimeMerge'
+    if not os.path.isfile(file_datmstreams_backup):
+        _ = subprocess.run(f'cp {file_datmstreams} {file_datmstreams_backup}', shell=True)
+
+    # get file lists
+    with open(file_datmstreams, 'r') as f:
+        datm_streams = f.readlines()
+
+    infile_lists = []
+    for kw in keywords:
+        flag = False
+        for line in datm_streams:
+            if not line.strip().startswith('!'):
+                if kw in line:
+                    files = line.strip().split('=')[1].split(',')
+                    files = [f.strip() for f in files]
+                    infile_lists.append(files)
+                    flag = True
+                    break
+        if flag == False:
+            sys.exit(f'Error! Cannot find {kw} in {file_datmstreams}.')
+
+    return infile_lists
+
+# generate new user_nl_datm_streams
+def update_datastreams_datafiles(file_datastreams, all_outfiles, keyword):
+
+    with open(file_datastreams, 'r') as f:
+        datm_streams = f.readlines()
+
+    for i in range(len(datm_streams)):
+        linei = datm_streams[i]
+        if keyword in linei:
+            lineis = linei.strip().split('=')
+            datm_streams[i] = lineis[0] + '=' + all_outfiles + '\n'
+            break
+
+    with open(file_datastreams, 'w') as f:
+        for line in datm_streams:
+            _ = f.write(line)
+
 
 config_file_SubForc = sys.argv[1]
 
@@ -129,6 +174,7 @@ config_SubForc = toml.load(config_file_SubForc)
 
 path_CTSM_case = config_SubForc['path_CTSM_case']
 subset_length = config_SubForc['subset_length']
+forcing_YearStep = config_SubForc['forcing_YearStep'] # number of years (e.g., 2 means that files are saved at a 2-y step. <=0: no time merging
 
 ##############
 # default settings
@@ -216,3 +262,22 @@ for i in range(len(keyword_data_complete)):
 with open(user_nl_datm_streams, 'w') as f:
     for l in contents:
         _ = f.write(l)
+
+########################################################################################################################
+# post-processing: merge files in a folder to the target time step to reduce the number of files
+
+if forcing_YearStep > 0:
+
+    print(f'Start time mering to forcing_YearStep {forcing_YearStep}')
+
+    keywords = ['Solar:datafiles', 'Precip:datafiles', 'TPQW:datafiles']
+    infile_lists = get_inputfiles_from_datm_streams(user_nl_datm_streams, keywords)
+
+    for i in range(len(infile_lists)):
+        infile_list = np.array(infile_lists[i])
+        # subset
+        all_outfiles, maplist_infile, maplist_outfile = timemerge.highlevel_cdo_mergetime(infile_list, forcing_YearStep)
+        # update datastreams files
+        update_datastreams_datafiles(user_nl_datm_streams, all_outfiles, keywords[i])
+        # finish
+        print('Sucessful mergetime!')
