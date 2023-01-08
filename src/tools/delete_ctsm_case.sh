@@ -3,7 +3,7 @@ pathcase=/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib/
 pathout=/glade/scratch/guoqiang/CTSM_outputs/CAMELS_Calib/Lump_calib/
 
 
-for bnum in {1..3}
+for bnum in {0..3}
 do
   rm -r ${pathcase}/CAMELS_${bnum}
   rm -r ${pathcase}/CAMELS_${bnum}_OstCalib

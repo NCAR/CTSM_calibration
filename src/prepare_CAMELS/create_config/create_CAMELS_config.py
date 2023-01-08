@@ -66,8 +66,8 @@ config_CTSM['files'] = {}
 config_CTSM['files']['path_CTSM_source'] = '/glade/u/home/guoqiang/CTSM_repos/CTSM'
 config_CTSM['files']['path_CTSM_case'] = f'{outpath_case}/CAMELS_{basin_num}'
 config_CTSM['files']['path_CTSM_CIMEout'] = f'{outpath_out}/CAMELS_{basin_num}'
-config_CTSM['files']['file_CTSM_mesh'] = f'/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_basin_mask/ESMFmesh_ctsm_HCDN_nhru_final_671_v0_8e-3_basin{basin_num}.nc'
-config_CTSM['files']['file_CTSM_surfdata'] = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/shared_data_Sean/surfdata_CAMELS_hist_78pfts_CMIP6_simyr2000_c221004.nc'
+config_CTSM['files']['file_CTSM_mesh'] = f'/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_basin_mask/ESMFmesh_ctsm_HCDN_nhru_final_671.buff_fix_holes_polygons_simplified_5e-4_no_nested_basin{basin_num}.nc'
+config_CTSM['files']['file_CTSM_surfdata'] = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/shared_data_Sean/shared_data_Sean/surfdata_CAMELS_hist_78pfts_CMIP6_simyr2000_no_nested_c221218.nc'
 
 config_CTSM['settings'] = {}
 config_CTSM['settings']['createcase'] = "--compset I2000Clm51Sp --driver nuopc --compiler intel --res f09_g16 --handle-preexisting-dirs r --run-unsupported"
@@ -80,8 +80,8 @@ config_CTSM['settings']['subset_length'] = 'existing'
 config_CTSM['settings']['forcing_YearStep'] = 5
 
 config_CTSM['AddToNamelist'] = {}
-config_CTSM['AddToNamelist']['user_nl_datm_streams'] = ['topo.observed:meshfile=/glade/work/swensosc/topo_data/ESMFmesh_ctsm_elev_Conus_0.125d_210810.cdf5.nc',
-                                                        'topo.observed:datafiles=/glade/work/swensosc/topo_data/ctsm_elev_Conus_0.125d.cdf5.nc']
+config_CTSM['AddToNamelist']['user_nl_datm_streams'] = ['topo.observed:meshfile=/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/shared_data_Sean/topo_data/ESMFmesh_ctsm_elev_Conus_0.125d_210810.cdf5.nc',
+                                                        'topo.observed:datafiles=/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/shared_data_Sean/topo_data/ctsm_elev_Conus_0.125d.cdf5.nc']
 config_CTSM['AddToNamelist']['user_nl_datm'] = ['']
 config_CTSM['AddToNamelist']['user_nl_clm'] = ['']
 

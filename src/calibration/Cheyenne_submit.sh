@@ -8,6 +8,7 @@
 #PBS -J 0-2:1
 
 module load conda
+module load cdo
 conda activate npl-2022b-tgq
 
 configfile=/glade/u/home/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib/configuration/CAMELS-${PBS_ARRAY_INDEX}_config.toml

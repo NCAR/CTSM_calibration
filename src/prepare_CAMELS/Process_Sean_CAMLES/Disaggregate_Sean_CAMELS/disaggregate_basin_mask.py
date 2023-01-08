@@ -3,7 +3,7 @@
 import netCDF4 as nc4
 import xarray as xr
 import numpy as np
-import os, sys
+import os, sys, pathlib
 
 
 def save_to_netcdf(ds, outfile, format):
@@ -21,7 +21,7 @@ def save_to_netcdf(ds, outfile, format):
 ########################################################################################################################
 # Basin domain file
 
-infile_basins = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/shared_data_Sean/ESMFmesh_ctsm_HCDN_nhru_final_671_v0_8e-3.nc'
+infile_basins = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/shared_data_Sean/ESMFmesh_ctsm_HCDN_nhru_final_671.buff_fix_holes_polygons_simplified_5e-4_no_nested.nc'
 outpath = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_basin_mask'
 os.makedirs(outpath, exist_ok=True)
 
@@ -35,8 +35,11 @@ with nc4.Dataset(infile_basins) as ncd:
 dsall = xr.load_dataset(infile_basins)
 numbasin = dsall.elementCount.size
 
+name = pathlib.Path(infile_basins).name
+
 for i in range(numbasin):
-    outfilei = f'{outpath}/ESMFmesh_ctsm_HCDN_nhru_final_671_v0_8e-3_basin{i}.nc'
+    namei = name.replace('.nc', f'_basin{i}.nc')
+    outfilei = f'{outpath}/{namei}'
     elementMask = dsall.elementMask.values
     elementMask[:] = 0
     elementMask[i] = 1
