@@ -14,4 +14,5 @@ The calibration settings are in the .toml configuration file. Currently, it only
 3. Run main.py
 
 # Issues
-Each basin will have a subset of forcing files, resulting in a large number of files. If this is not recommended, forcing file merging can be added.
+Each basin will have a subset of forcing files, resulting in a large number of files. If this is not recommended, forcing file merging can be added.  
+Some inelegant functions are not added to the workflow. They are named as outworkflow_XXX.py, which can be run after the workflow is complete. In the future, they can be wrapped up if there are too many outworkflow functions.   

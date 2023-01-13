@@ -37,6 +37,7 @@ script_calculate_stats="${ostrichScriptDir}/cal_metrics_NoRouting.py"
 ########################### inactive settings (depending on information from pre-defined folder structures)
 # reference data for calibration
 ref_flow_file="${pathOstrich}/refdata/streamflow_data.csv"
+add_flow_file="file1,file2,file3" # this setting can be ignored unless split basin strategy is used which is uncommon
 
 # ostrich run folders and files
 ostrichRunDir="${pathOstrich}/run"  # calib directory
@@ -99,7 +100,7 @@ echo "calculating statistics"
 date | awk '{printf("%s: calculating statistics\n",$0)}' >> timetrack.log
 
 \rm $file_trial_stats
-python ${script_calculate_stats} $file_trial_stats ${pathCTSMcase} $DateEvalStart $DateEvalEnd $ref_flow_file
+python ${script_calculate_stats} $file_trial_stats ${pathCTSMcase} $DateEvalStart $DateEvalEnd $ref_flow_file $add_flow_file
 
 
 date >> trial_stats_allrecords.txt

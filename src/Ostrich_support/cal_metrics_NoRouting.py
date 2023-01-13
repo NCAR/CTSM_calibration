@@ -15,6 +15,16 @@ warnings.filterwarnings("ignore")
 ########################################################################################################################
 # define functions for calculating metrics
 
+def ismember(a, b):
+    bind = {}
+    for i, elt in enumerate(b):
+        if elt not in bind:
+            bind[elt] = i
+    ind = np.array([bind.get(itm, np.nan) for itm in a])
+    ind1 = np.where(~np.isnan(ind))[0]
+    ind2 = ind[ind1]
+    return ind1.astype(int), ind2.astype(int) # None can be replaced by any other "not in b" value
+
 def get_modified_KGE(obs,sim):
     sim[sim<0] = np.nan
     obs[obs<0] = np.nan
@@ -113,6 +123,10 @@ if __name__ == '__main__':
     # reference files (streamflow, snow cover). if a file cannot be found, it won't be inclulded in the calibration
     ref_streamflow = sys.argv[5]
 
+    # add_flow_file. sometimes upstream flow needs to be added to the incremental downstream area runoff
+    add_flow_file = sys.argv[6]
+
+
     ######## default variable names
     clm_q_name = 'QRUNOFF' # default runoff variable name
     clm_q_sdim = 'lndgrid' # spatial dim name
@@ -182,6 +196,39 @@ if __name__ == '__main__':
             ds_q_obs[coli] = xr.DataArray(df_q_obs[coli].values, dims=['time'])  # flexible time
         else:
             break
+
+    ########################################################################################################################
+    # add upstream flows to simulated streamflow
+
+    add_flow_file = [f for f in add_flow_file.split(',') if len(f)>0]
+    if len(add_flow_file) > 0:
+        add_flow_file2 = []
+        for f in add_flow_file:
+            if not os.path.isfile(f):
+                print('File does not exist:', f)
+                print('Remove it from add flow file list')
+            else:
+                add_flow_file2.append(f)
+        add_flow_file = add_flow_file2
+
+    if len(add_flow_file) > 0:
+        print('Flow files will be added to the incremental downstream basin:', add_flow_file)
+        q_dd = np.zeros(len(ds_simu.time))
+        num = np.zeros(len(ds_simu.time))
+        time0 = ds_simu.time.values
+        for i in range(len(add_flow_file)):
+            df_addi = pd.read_csv(add_flow_file[i])
+            timei = pd.to_datetime(df_addi[ref_q_date].values)
+            ind1, ind2 = ismember(np.array(timei), time0)
+            q_dd[ind2] = q_dd[ind2] + df_addi[ref_q_name].values[ind1]
+            num[ind2] = num[ind2] + 1
+        q_dd[num==0] = np.nan
+
+        ds_simu[clm_q_name].values = ds_simu[clm_q_name].values + q_dd
+        ratio = np.sum(~np.isnan(ds_simu[clm_q_name].values)) / len(ds_simu[clm_q_name].values)
+        if ratio < 0.5:
+            print('Warning!!!')
+        print(f'The valid ratio of simulated streamflow is {ratio}')
 
     ########################################################################################################################
     # evaluation
