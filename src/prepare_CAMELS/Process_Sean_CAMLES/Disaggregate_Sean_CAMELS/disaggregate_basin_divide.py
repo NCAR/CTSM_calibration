@@ -21,8 +21,8 @@ def save_to_netcdf(ds, outfile, format):
 ########################################################################################################################
 # Basin domain file
 
-infile_basins = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/shared_data_Sean/ESMFmesh_ctsm_HCDN_nhru_final_671.buff_fix_holes_polygons_simplified_5e-4_no_nested.nc'
-outpath = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_basin_divide'
+infile_basins = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/shared_data_Sean/ESMFmesh_ctsm_HCDN_nhru_final_671.buff_fix_holes_polygons_simplified_5e-4_split_nested.nc'
+outpath = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_basin_divide_split_nest'
 os.makedirs(outpath, exist_ok=True)
 
 # get netcdf file format

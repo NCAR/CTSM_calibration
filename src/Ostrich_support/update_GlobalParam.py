@@ -126,7 +126,7 @@ if len(df_param1) > 0:
             vold = ds_param[pn].values
             vold_mean, vnew, vnew_mean = change_param_value(vold, pm, method)
             ds_param[pn].values = vnew
-            print(f'  -- Updating parameter {pn}: old mean value {vold_mean} * multiplier {pm} = new mean value {vnew_mean}')
+            print(f'  -- Updating parameter {pn}: old mean value is {vold_mean}. Adjustment factor is {pm}. Method is {method}. New mean value {vnew_mean}')
             change_param = True
 
 if change_param == True:
@@ -150,7 +150,7 @@ if len(df_param2) > 0:
             vold = ds_surf[pn].values
             vold_mean, vnew, vnew_mean = change_param_value(vold, pm, method)
             ds_surf[pn].values = vnew
-            print(f'  -- Updating parameter {pn}: old mean value {vold_mean} * multiplier {pm} = new mean value {vnew_mean}')
+            print(f'  -- Updating parameter {pn}: old mean value is {vold_mean}. Adjustment factor is {pm}. Method is {method}. New mean value {vnew_mean}')
             change_surfdata = True
 
 if change_surfdata == True:
@@ -198,7 +198,7 @@ if len(df_param3) > 0:
                     flag = True
             if flag == False:
                 lines_nlclm.append(f'{pn} = {vnew}\n')
-            print(f'  -- Updating parameter {pn}: old mean value {vold_mean} * multiplier {pm} = new mean value {vnew_mean}')
+            print(f'  -- Updating parameter {pn}: old mean value is {vold_mean}. Adjustment factor is {pm}. Method is {method}. New mean value {vnew_mean}')
             change_nlclm = True
 
 ########################################################################################################################

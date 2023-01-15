@@ -106,6 +106,16 @@ def get_target_archive_files_from_archivefolder(pathCTSM, keyword):
     filelist.sort()
     return filelist
 
+def read_CAMELS_Q(file_Qobs):
+    df_q_in = pd.read_csv(file_Qobs, delim_whitespace=True, header=None)
+    years = df_q_in[1].values
+    months = df_q_in[2].values
+    days = df_q_in[3].values
+    dates = [f'{years[i]}-{months[i]:02}-{days[i]:02}' for i in range(len(years))]
+    q_obs = df_q_in[4].values * 0.028316847  # cfs to cms
+    q_obs[q_obs < 0] = -9999.0
+    df_q_out = pd.DataFrame({'Date': dates, 'Runoff_cms': q_obs})
+    return df_q_out
 
 # main
 if __name__ == '__main__':
@@ -217,7 +227,8 @@ if __name__ == '__main__':
         num = np.zeros(len(ds_simu.time))
         time0 = ds_simu.time.values
         for i in range(len(add_flow_file)):
-            df_addi = pd.read_csv(add_flow_file[i])
+            df_addi = read_CAMELS_Q(add_flow_file[i])
+            # df_addi = pd.read_csv(add_flow_file[i])
             timei = pd.to_datetime(df_addi[ref_q_date].values)
             ind1, ind2 = ismember(np.array(timei), time0)
             q_dd[ind2] = q_dd[ind2] + df_addi[ref_q_name].values[ind1]

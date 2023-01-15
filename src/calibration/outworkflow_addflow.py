@@ -38,12 +38,12 @@ def update_txt_file(file, newsettings, start, sep, comment):
 
 
 infile_basin_info = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/shared_data_Sean/info_ESMFmesh_ctsm_HCDN_nhru_final_671.buff_fix_holes_polygons_simplified_5e-4_split_nested.csv'
-outpath_parent = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib'
+outpath_parent = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib_split_nest'
 
 df_info = pd.read_csv(infile_basin_info)
 for i in range(len(df_info)):
-    filei = f'{outpath_parent}/CAMELS_{i}_OstCalib/CAMELS_{i}_OstCalib/run/CTSM_run_trial.sh'
-    if os.path.isfile(filei):
+    filei = f'{outpath_parent}/CAMELS_{i}_OstCalib/run/CTSM_run_trial.sh'
+    if os.path.isfile(filei) and isinstance(df_info.iloc[i]['file_obsQ_indup'], str):
         file_obsQ_indup = [f for f in df_info.iloc[i]['file_obsQ_indup'].split(',') if os.path.isfile(f)]
         if len(file_obsQ_indup) > 0:
             file_obsQ_indup = ','.join(file_obsQ_indup)

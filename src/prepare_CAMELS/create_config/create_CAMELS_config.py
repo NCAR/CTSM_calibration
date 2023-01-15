@@ -8,12 +8,12 @@ import decide_CalibValid_periods as decidePeriod
 
 ########################################################################################################################
 # settings
-basin_num = int(sys.argv[1])
-# basin_num = 33
-infile_basin_info = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/shared_data_Sean/Sean_MESH_CAMELS_basin_info.csv'
+# basin_num = int(sys.argv[1])
+basin_num = 469
+infile_basin_info = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/shared_data_Sean/info_ESMFmesh_ctsm_HCDN_nhru_final_671.buff_fix_holes_polygons_simplified_5e-4_split_nested.csv'
 
-outpath_case = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib'
-outpath_out = '/glade/scratch/guoqiang/CTSM_outputs/CAMELS_Calib/Lump_calib'
+outpath_case = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib_split_nest'
+outpath_out = '/glade/scratch/guoqiang/CTSM_outputs/CAMELS_Calib/Lump_calib_split_nest'
 outpath_config = f'{outpath_case}/configuration'
 outfile_config = f'{outpath_config}/CAMELS-{basin_num}_config.toml'
 
@@ -66,8 +66,8 @@ config_CTSM['files'] = {}
 config_CTSM['files']['path_CTSM_source'] = '/glade/u/home/guoqiang/CTSM_repos/CTSM'
 config_CTSM['files']['path_CTSM_case'] = f'{outpath_case}/CAMELS_{basin_num}'
 config_CTSM['files']['path_CTSM_CIMEout'] = f'{outpath_out}/CAMELS_{basin_num}'
-config_CTSM['files']['file_CTSM_mesh'] = f'/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_basin_mask/ESMFmesh_ctsm_HCDN_nhru_final_671.buff_fix_holes_polygons_simplified_5e-4_no_nested_basin{basin_num}.nc'
-config_CTSM['files']['file_CTSM_surfdata'] = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/shared_data_Sean/surfdata_CAMELS_no_nested_hist_78pfts_CMIP6_simyr2000_c221223.nc'
+config_CTSM['files']['file_CTSM_mesh'] = f'/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_basin_mask_split_nest/ESMFmesh_ctsm_HCDN_nhru_final_671.buff_fix_holes_polygons_simplified_5e-4_split_nested_basin{basin_num}.nc'
+config_CTSM['files']['file_CTSM_surfdata'] = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/shared_data_Sean/surfdata_CAMELS_split_nested_hist_78pfts_CMIP6_simyr2000_c230105.nc'
 
 config_CTSM['settings'] = {}
 config_CTSM['settings']['createcase'] = "--compset I2000Clm51Sp --driver nuopc --compiler intel --res f09_g16 --handle-preexisting-dirs r --run-unsupported"
