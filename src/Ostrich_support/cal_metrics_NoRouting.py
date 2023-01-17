@@ -99,10 +99,9 @@ def get_target_archive_files_from_archivefolder(pathCTSM, keyword):
     return filelist
 
 
-def main_read_CTSM_streamflow(pathCTSM, keyword, date_start, date_end, clm_q_name, clm_q_sdim):
+def main_read_CTSM_streamflow(pathCTSM, CTSMfilelist, date_start, date_end, clm_q_name, clm_q_sdim):
     ########################################################################################################################
     # read files
-    CTSMfilelist = get_target_archive_files_from_archivefolder(pathCTSM, keyword)
     ds_simu = xr.open_mfdataset(CTSMfilelist)
     ds_simu = ds_simu[[clm_q_name]]
 
@@ -250,7 +249,8 @@ if __name__ == '__main__':
 
     ########################################################################################################################
     # load CTSM streamflow (m3/s)
-    ds_simu = main_read_CTSM_streamflow(pathCTSM, keyword, date_start, date_end, clm_q_name, clm_q_sdim)
+    CTSMfilelist = get_target_archive_files_from_archivefolder(pathCTSM, keyword)
+    ds_simu = main_read_CTSM_streamflow(pathCTSM, CTSMfilelist, date_start, date_end, clm_q_name, clm_q_sdim)
 
     ########################################################################################################################
     # load CAMELS observation streamflow (m3/s)
