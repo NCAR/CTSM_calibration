@@ -49,3 +49,4 @@ for i in range(len(df_info)):
             file_obsQ_indup = ','.join(file_obsQ_indup)
             runtrial_setting = {'add_flow_file': file_obsQ_indup}
             update_txt_file(filei, runtrial_setting, start='', sep='=', comment='#')
+            _ = os.system(f'chmod +x {filei}')

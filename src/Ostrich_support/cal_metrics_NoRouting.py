@@ -58,16 +58,8 @@ def get_mean_error(obs,sim):
     abs_err = np.nanmean(np.absolute(sim - obs))
     return bias_err, abs_err
 
-def get_month_mean_flow(obs,sim,sim_time):
-    month = [dt.month for dt in sim_time]
-
-    data = {'sim':sim, 'obs':obs, 'month':month} 
-    df = pd.DataFrame(data, index = sim_time)
-    
-    gdf = df.groupby(['month'])
-    sim_month_mean = gdf.aggregate({'sim':np.nanmean})
-    obs_month_mean = gdf.aggregate({'obs':np.nanmean})
-    return obs_month_mean, sim_month_mean
+########################################################################################################################
+# define functions for reading CTSM outputs
 
 def get_target_archive_files_from_starchive(pathCTSM, keyword):
     # get the list of archived files of the latest model run
@@ -106,44 +98,8 @@ def get_target_archive_files_from_archivefolder(pathCTSM, keyword):
     filelist.sort()
     return filelist
 
-def read_CAMELS_Q(file_Qobs):
-    df_q_in = pd.read_csv(file_Qobs, delim_whitespace=True, header=None)
-    years = df_q_in[1].values
-    months = df_q_in[2].values
-    days = df_q_in[3].values
-    dates = [f'{years[i]}-{months[i]:02}-{days[i]:02}' for i in range(len(years))]
-    q_obs = df_q_in[4].values * 0.028316847  # cfs to cms
-    q_obs[q_obs < 0] = -9999.0
-    df_q_out = pd.DataFrame({'Date': dates, 'Runoff_cms': q_obs})
-    return df_q_out
 
-# main
-if __name__ == '__main__':
-
-    ########################################################################################################################
-    # input arguments
-    # future improvements can use more advanced argparse. currently, only sys is used
-
-    ######## required input arguments
-    outfile_statistics = sys.argv[1]
-    pathCTSM = sys.argv[2] # CTSM model case
-    date_start = sys.argv[3] # '%Y-%m-%d' or 'default'. if default, the date from control_file_summa will be used
-    date_end = sys.argv[4]
-
-    # reference files (streamflow, snow cover). if a file cannot be found, it won't be inclulded in the calibration
-    ref_streamflow = sys.argv[5]
-
-    # add_flow_file. sometimes upstream flow needs to be added to the incremental downstream area runoff
-    add_flow_file = sys.argv[6]
-
-
-    ######## default variable names
-    clm_q_name = 'QRUNOFF' # default runoff variable name
-    clm_q_sdim = 'lndgrid' # spatial dim name
-    ref_q_name = 'Runoff_cms'
-    ref_q_date = 'Date'
-    keyword = ".clm2.h1."
-
+def main_read_CTSM_streamflow(pathCTSM, keyword, date_start, date_end, clm_q_name, clm_q_sdim):
     ########################################################################################################################
     # read files
     CTSMfilelist = get_target_archive_files_from_archivefolder(pathCTSM, keyword)
@@ -151,7 +107,8 @@ if __name__ == '__main__':
     ds_simu = ds_simu[[clm_q_name]]
 
     if date_start == 'default' or date_end == 'default':
-        print('Either date_start or date_end is default. Evaluation period will be the overlapped period of referene data and simulations')
+        print(
+            'Either date_start or date_end is default. Evaluation period will be the overlapped period of referene data and simulations')
     else:
         ds_simu = ds_simu.sel(time=slice(date_start, date_end))
 
@@ -176,10 +133,10 @@ if __name__ == '__main__':
     fsurdat = ''
     with open(file, 'r') as f:
         for line in f:
-            line=line.strip()
+            line = line.strip()
             if line.startswith('fsurdat'):
                 fsurdat = line.split('=')[-1].strip()
-                fsurdat = fsurdat.replace('\'','')
+                fsurdat = fsurdat.replace('\'', '')
 
     if not os.path.isfile(fsurdat):
         sys.exit(f'File not found! fsurdat: {fsurdat}')
@@ -187,12 +144,30 @@ if __name__ == '__main__':
     with xr.open_dataset(fsurdat) as ds_surdat:
         area = ds_surdat.AREA.values
 
-
     # calculate streamflow: although mean is used, for Sean's setting, only one basin should be allowed effective in the calibration
     # streamflow? Use mean for this test
-    ds_simu[clm_q_name].values = (ds_simu[clm_q_name].values / 1000) * (area * 1e6) # raw q: mm/s; raw area km2; target: m3/s
+    ds_simu[clm_q_name].values = (ds_simu[clm_q_name].values / 1000) * (
+                area * 1e6)  # raw q: mm/s; raw area km2; target: m3/s
     ds_simu = ds_simu.mean(dim=clm_q_sdim, skipna=True)
 
+    return ds_simu
+
+
+########################################################################################################################
+# define functions for reading CAMELS data
+
+def read_CAMELS_Q(file_Qobs):
+    df_q_in = pd.read_csv(file_Qobs, delim_whitespace=True, header=None)
+    years = df_q_in[1].values
+    months = df_q_in[2].values
+    days = df_q_in[3].values
+    dates = [f'{years[i]}-{months[i]:02}-{days[i]:02}' for i in range(len(years))]
+    q_obs = df_q_in[4].values * 0.028316847  # cfs to cms
+    q_obs[q_obs < 0] = -9999.0
+    df_q_out = pd.DataFrame({'Date': dates, 'Runoff_cms': q_obs})
+    return df_q_out
+
+def read_CAMELS_Q_and_to_xarray(ref_streamflow, ref_q_date, ref_q_name):
     ########################################################################################################################
     # load observation streamflow
     print('Use streamflow reference file:', ref_streamflow)
@@ -206,7 +181,10 @@ if __name__ == '__main__':
             ds_q_obs[coli] = xr.DataArray(df_q_obs[coli].values, dims=['time'])  # flexible time
         else:
             break
+    return ds_q_obs
 
+
+def add_upstream_flow(add_flow_file, ds_simu, ref_q_date, ref_q_name, clm_q_name):
     ########################################################################################################################
     # add upstream flows to simulated streamflow
 
@@ -239,7 +217,48 @@ if __name__ == '__main__':
         ratio = np.sum(~np.isnan(ds_simu[clm_q_name].values)) / len(ds_simu[clm_q_name].values)
         if ratio < 0.5:
             print('Warning!!!')
-        print(f'The valid ratio of simulated streamflow is {ratio}')
+        print(f'The valid ratio of simulated streamflow is {ratio} after add upstream flow')
+
+    return ds_simu
+
+# main
+if __name__ == '__main__':
+
+    ########################################################################################################################
+    # input arguments
+    # future improvements can use more advanced argparse. currently, only sys is used
+
+    ######## required input arguments
+    outfile_statistics = sys.argv[1]
+    pathCTSM = sys.argv[2] # CTSM model case
+    date_start = sys.argv[3] # '%Y-%m-%d' or 'default'. if default, the date from control_file_summa will be used
+    date_end = sys.argv[4]
+
+    # reference files (streamflow, snow cover). if a file cannot be found, it won't be inclulded in the calibration
+    ref_streamflow = sys.argv[5]
+
+    # add_flow_file. sometimes upstream flow needs to be added to the incremental downstream area runoff
+    add_flow_file = sys.argv[6]
+
+
+    ######## default variable names
+    clm_q_name = 'QRUNOFF' # default runoff variable name
+    clm_q_sdim = 'lndgrid' # spatial dim name
+    ref_q_name = 'Runoff_cms'
+    ref_q_date = 'Date'
+    keyword = ".clm2.h1."
+
+    ########################################################################################################################
+    # load CTSM streamflow (m3/s)
+    ds_simu = main_read_CTSM_streamflow(pathCTSM, keyword, date_start, date_end, clm_q_name, clm_q_sdim)
+
+    ########################################################################################################################
+    # load CAMELS observation streamflow (m3/s)
+    ds_q_obs = read_CAMELS_Q_and_to_xarray(ref_streamflow, ref_q_date, ref_q_name)
+
+    ########################################################################################################################
+    # add upstream flows to simulated streamflow
+    ds_simu = add_upstream_flow(add_flow_file, ds_simu, ref_q_date, ref_q_name, clm_q_name)
 
     ########################################################################################################################
     # evaluation
