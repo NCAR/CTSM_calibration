@@ -89,10 +89,10 @@ for period in config['periods']:
     rundir = get_xmlquery_output('RUNDIR')
     archivedir = get_xmlquery_output('DOUT_S_ROOT')
     _ = subprocess.run(f'rm {rundir}/*.nc', shell=True)
-    _ = subprocess.run(f'rm {archivedir}/*.nc', shell=True)
+    _ = subprocess.run(f'rm {archivedir}/lnd/hist/*.nc', shell=True)
 
     # model simulation
-    _ = subprocess.run('./case.submit --no-batch')
+    _ = subprocess.run('./case.submit --no-batch', shell=True)
 
     # archive files
     savefile = config['savefile']
