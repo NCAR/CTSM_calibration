@@ -2,7 +2,7 @@
 import toml, os
 
 # input config file
-config_file = './example.simu.config.toml'
+config_file = '/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/simulation/example.simu.config.toml'
 # config_file = sys.argv[1]
 
 

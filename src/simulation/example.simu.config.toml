@@ -1,4 +1,3 @@
-
 # CTSM case
 path_CTSM_case = "/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib_split_nest/CAMELS_468"
 
@@ -12,7 +11,7 @@ paramfile_Surf = ""
 pramfile_NL = ""
 
 # there can be multiple simulation periods: [RUN_STARTDATE, STOP_OPTION, STOP_N]
-periods = [['2004-01-01', 12, 'nmonths'], ['2010-01-01', 12, 'nmonths'], ]
+periods = [['2004-01-01', '12', 'nmonths'], ['2010-01-01', '12', 'nmonths'], ]
 
 # save what files. archive: is in the DOUT_S_ROOT folder, run: is in the RUNDIR
 savefile = ["archive:lnd/hist/*.clm2.h1.*", "run:*.clm2.r.*.nc"]
@@ -20,4 +19,4 @@ savefile = ["archive:lnd/hist/*.clm2.h1.*", "run:*.clm2.r.*.nc"]
 # hpc
 projectCode = "P08010000"
 jobsetting = ['#PBS -N OstrichCalib', '#PBS -q share', '#PBS -l walltime=6:00:00']
-script_simu = "CTSM_simulation.py"
+script_simu = "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/simulation/CTSM_simulation.py"
