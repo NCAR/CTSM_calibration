@@ -36,6 +36,9 @@ config_HPC = {'projectCode': 'P08010000'}
 
 df_info = pd.read_csv(infile_basin_info)
 infile_Qobs = df_info.iloc[basin_num]['file_obsQ']
+df_q = decidePeriod.read_raw_CAMELS_Q_to_df(infile_Qobs)
+date = df_q['date']
+data = df_q['Qobs'].values
 
 # # method-1
 # settings = {}
@@ -43,7 +46,7 @@ infile_Qobs = df_info.iloc[basin_num]['file_obsQ']
 # settings['calibyears'] = 5 # how many years are used to calibrate the model
 # settings['validratio'] = 0.8 # ratio of valid Q records during the period
 # settings['trial_start_date'] = '1985-10-01' # only use data after this period. month can be used to define the start of a water year
-# RUN_STARTDATE, STOP_N, STOP_OPTION, STOP_DATE = decidePeriod.calibration_period_CTSMformat(infile_Qobs, settings)
+# RUN_STARTDATE, STOP_N, STOP_OPTION, STOP_DATE = decidePeriod.calibration_period_CTSMformat(data, date, settings)
 
 # # method-2
 # settings = {}
@@ -51,7 +54,7 @@ infile_Qobs = df_info.iloc[basin_num]['file_obsQ']
 # settings['startmonth'] = 10 #  the start of a year (e.g., 1 or 10)
 # settings['periodlength'] = 5 # calib years
 # settings['window'] = 5 # years of rolling mean
-# RUN_STARTDATE, STOP_N, STOP_OPTION, STOP_DATE = decidePeriod.calibration_period_CTSMformat(infile_Qobs, settings)
+# RUN_STARTDATE, STOP_N, STOP_OPTION, STOP_DATE = decidePeriod.calibration_period_CTSMformat(data, date, settings)
 
 # Method-3: default start period to utilize the existing restart file
 STOP_OPTION = 'nmonths'

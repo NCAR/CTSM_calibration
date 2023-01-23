@@ -62,17 +62,7 @@ def get_most_extreme_periods(period_stat):
     return period_extreme
 
 
-def cal_period_extreme(infile_q, startmonth=10, periodlength=5, window=5):
-    df_q = read_raw_CAMELS_Q_to_df(infile_q)
-    date = df_q['date']
-    data = df_q['Qobs'].values
-    period_stat = time_series_anomaly_analysis(data, date, startmonth, periodlength, window)
-    period_extreme = get_most_extreme_periods(period_stat)
-    return period_extreme
-
-
-
-def calib_period_QBeginning(infile_q, calibyears, validratio, trial_start_date, col_date = 'date', col_qobs = 'Qobs'):
+def calib_period_Beginning(data, date, calibyears, validratio, trial_start_date):
     # find the period from the beginning of the series
 
     # df_q: dataframe of Q. It must contain two columns: date and Qobs
@@ -96,9 +86,9 @@ def calib_period_QBeginning(infile_q, calibyears, validratio, trial_start_date, 
             trial_start_date = trial_start_date + pd.offsets.DateOffset(years=1)
         else:
             trial_start_date2 = trial_start_date + pd.offsets.DateOffset(years=1)
-            index = (df_q[col_date] >= trial_start_date) & (df_q[col_date] <= trial_start_date2)
+            index = (date >= trial_start_date) & (date <= trial_start_date2)
             if np.sum(index) > 180:
-                qtrial = df_q[col_qobs].values[index]
+                qtrial = data[index]
                 if np.sum(qtrial>=0)/len(qtrial) >= validratio:
                     flag = False
                 else:
@@ -111,9 +101,9 @@ def calib_period_QBeginning(infile_q, calibyears, validratio, trial_start_date, 
     flag = True
     while flag:
         trial_start_date2 = trial_start_date + pd.offsets.DateOffset(years=calibyears)
-        index = (df_q[col_date] >= trial_start_date) & (df_q[col_date] <= trial_start_date2)
+        index = (date >= trial_start_date) & (date <= trial_start_date2)
         if np.sum(index) > calibyears*365*validratio:
-            qtrial = df_q[col_qobs].values[index]
+            qtrial = data[index]
             if np.sum(qtrial >= 0) / len(qtrial) >= validratio:
                 flag = False
             else:
@@ -129,7 +119,7 @@ def calib_period_QBeginning(infile_q, calibyears, validratio, trial_start_date, 
     return trial_start_date.strftime('%Y-%m-%d'), trial_end_date.strftime('%Y-%m-%d')
 
 
-def calibration_period_CTSMformat(infile_Qobs, settings, method=1):
+def calibration_period_CTSMformat(data, date, settings):
     if settings['method'] == 1:
         print('Decide calibration period using streamflow data')
         #### Method-1
@@ -140,9 +130,7 @@ def calibration_period_CTSMformat(infile_Qobs, settings, method=1):
         calibyears = settings['calibyears']
         validratio = settings['validratio']
         trial_start_date = settings['trial_start_date']
-        date_start, date_end = calib_period_QBeginning(infile_Qobs, calibyears, validratio, trial_start_date)
-        RUN_STARTDATE = date_start
-        STOP_DATE = date_end
+        RUN_STARTDATE, STOP_DATE = calib_period_Beginning(data, date, calibyears, validratio, trial_start_date)
         STOP_OPTION = 'nmonths'
         STOP_N = calibyears * 12 # for STOP_OPTION: nmonths
     elif settings['method'] == 2:
@@ -153,8 +141,10 @@ def calibration_period_CTSMformat(infile_Qobs, settings, method=1):
         # window = 5 # years of rolling mean
         startmonth = settings['startmonth']
         periodlength = settings['periodlength']
+        # trial_start_date = settings['trial_start_date']
         window = settings['window']
-        period_extreme = cal_period_extreme(infile_Qobs, startmonth, periodlength, window)
+        period_stat = time_series_anomaly_analysis(data, date, startmonth, periodlength, window)
+        period_extreme = get_most_extreme_periods(period_stat)
         RUN_STARTDATE = period_extreme['date_start'].loc['min']
         STOP_DATE = period_extreme['date_end'].loc['min']
         # diff = pd.Timestamp(STOP_DATE).to_period('M') - pd.Timestamp(RUN_STARTDATE).to_period('M')
@@ -167,9 +157,12 @@ def calibration_period_CTSMformat(infile_Qobs, settings, method=1):
 
 if __name__ == '__main__':
     infile_q='/glade/p/ral/hap/common_data/camels/obs_flow_met/basin_dataset_public_v1p2/usgs_streamflow/all/01022500_streamflow_qc.txt'
+    df_q = read_raw_CAMELS_Q_to_df(infile_q)
+    date = df_q['date']
+    data = df_q['Qobs'].values
     # method-1:
     print('Method-1')
-    trial_start_date, trial_end_date = calib_period_QBeginning(infile_q, calibyears=5, validratio=0.8, trial_start_date='1980-01-01', col_date='date', col_qobs='Qobs')
+    trial_start_date, trial_end_date = calib_period_Beginning(data, date, calibyears=5, validratio=0.8, trial_start_date='1980-01-01')
     # method-2:
     print('#'*50)
     print('Method-2')
