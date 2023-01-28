@@ -8,8 +8,9 @@ import decide_CalibValid_periods as decidePeriod
 
 ########################################################################################################################
 # settings
-# basin_num = int(sys.argv[1])
-basin_num = 0
+basin_num = int(sys.argv[1])
+# basin_num = 0
+
 infile_basin_info = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/shared_data_Sean/info_ESMFmesh_ctsm_HCDN_nhru_final_671.buff_fix_holes_polygons_simplified_5e-4_split_nested.csv'
 inpath_camels_data = '/glade/scratch/guoqiang/CAMELS_data/basin_timeseries_v1p2_metForcing_obsFlow/basin_dataset_public_v1p2'
 
@@ -30,7 +31,7 @@ config_intro = {'author': 'Guoqiang Tang',
                 'date': '2023-01',
                 'affiliation': 'NCAR CGD'}
 
-create_case_settings = "--machine casper --compset I2000Clm51Sp --driver nuopc --compiler intel --res f09_g16 --handle-preexisting-dirs r --run-unsupported"
+create_case_settings = "--machine cheyenne --compset I2000Clm51Sp --driver nuopc --compiler intel --res f09_g16 --handle-preexisting-dirs r --run-unsupported"
 
 config_HPC = {'projectCode': 'P08010000'}
 
@@ -96,12 +97,12 @@ config_calib['files'] = {}
 config_calib['files']['path_script_calib'] = '/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/calibration'
 config_calib['files']['path_script_Ostrich'] = '/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/Ostrich_support'
 config_calib['files']['file_calib_param'] = '/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/parameter/param_ASG_20221206.csv'
-config_calib['files']['file_Qobs'] = infile_Qobs
+config_calib['files']['file_Qobs'] = df_info['file_obsQ']
 config_calib['eval'] = {}
 config_calib['eval']['ignore_month'] = 12
 config_calib['job'] = {}
-# config_calib['job']['jobsetting'] = ['#PBS -N OstrichCalib', '#PBS -q share', '#PBS -l walltime=6:00:00']
-config_calib['job']['jobsetting'] = ['#PBS -N OstrichCalib', '#PBS -q casper', '#PBS -l walltime=24:00:00']
+config_calib['job']['jobsetting'] = ['#PBS -N OstrichCalib', '#PBS -q share', '#PBS -l walltime=6:00:00']
+# config_calib['job']['jobsetting'] = ['#PBS -N OstrichCalib', '#PBS -q casper', '#PBS -l walltime=24:00:00']
 
 ########################################################################################################################
 # spinup configurations
