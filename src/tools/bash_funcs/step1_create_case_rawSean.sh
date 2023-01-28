@@ -15,7 +15,7 @@ conda activate npl-2022b
 pathCTSMrepo="/glade/u/home/guoqiang/CTSM_repos/CTSM"
 
 # pathParent: everything of the model will be saved here
-pathParent="/glade/work/guoqiang/CTSM_cases/CAMELS_Calib"
+pathParent="/glade/work/guoqiang/CTSM_cases/CAMELS_Calib2"
 
 # pathBasinData: basin domain information, surface data information ...
 # pathBasinData_source: where do the basin data come from? This case is based on Sean's data. Not necessary if pathBasinData already contains files needed
@@ -23,7 +23,7 @@ pathBasinData_source="/glade/work/guoqiang/CTSM_cases/CAMELS_Sean/shared_data_Se
 pathBasinData="${pathParent}/shared_data_Sean"
 
 # pathCTSMcase: CTSM model case folder
-pathCTSMcase="${pathParent}/CAMELS_LumpCalib"
+pathCTSMcase="${pathParent}/CAMELS_LumpCalib22"
 
 # projectCode: a project is needed to run on Cheyenne
 projectCode="P08010000"
@@ -41,7 +41,7 @@ cp -r ${pathBasinData_source}/* ${pathBasinData}
 ################################
 
 # (1) create new case
-newcase_settings="--compset I2000Clm51Sp --driver nuopc --compiler intel --res f09_g16 --run-unsupported --project ${projectCode}"
+newcase_settings="--compset I2000Clm51Sp --driver nuopc --compiler intel --res f09_g16 --run-unsupported --project ${projectCode} --machine cheyenne"
 ${pathCTSMrepo}/cime/scripts/create_newcase --case ${pathCTSMcase} ${newcase_settings}
 
 cd ${pathCTSMcase} || exit
@@ -89,7 +89,7 @@ echo "hist_fincl2 = 'QRUNOFF','H2OSNO','ZWT','SOILWATER_10CM','EFLX_LH_TOT','QDR
 # (4) compile the model
 ./case.setup --reset
 ./case.build --clean-all
-qcmd -l select=1:ncpus=1 -l walltime=1:00:00 -A P08010000 -q share -- ./case.build
+qcmd -l select=1:ncpus=1 -l walltime=1:00:00 -A P08010000 -q casper -- ./case.build
 
 ################################
 # (5) submit jobs (optional)

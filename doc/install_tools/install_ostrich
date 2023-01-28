@@ -10,6 +10,7 @@ rm Ostrich_v17.12.19.zip
 
 2. Compile
 cd Ostrich_v17.12.19/Source
+make -f makefile GCC
 
 3. Check output
 ll -h OstrichGCC

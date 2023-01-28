@@ -113,8 +113,7 @@ df_info = pd.read_csv(infile_info)
 
 pdf = matplotlib.backends.backend_pdf.PdfPages("CAMELS_MetFlow.pdf")
 
-# for i in range(len(df_info)):
-for i in range(3):
+for i in range(len(df_info)):
     id = df_info.iloc[i]['hru_id']
 
     # load prcp/tmean
@@ -130,10 +129,12 @@ for i in range(3):
     # load q
     infilei_q = f'{inpath_camels}/usgs_streamflow/{id:08}_streamflow_qc.txt'
     df_q = read_raw_CAMELS_Q_to_df(infilei_q)
+    df0 = pd.DataFrame(date, columns=['date'])
+    df_q = df_q.merge(df0, how='outer', on='date')
 
     fig, ax = plt.subplots(3, 1, figsize=[8, 8])
 
-    ax[0], indexmin, indexmax  =plot_series(tmeani, date, ax[0], [], [])
+    ax[0], indexmin, indexmax = plot_series(tmeani, date, ax[0], [], [])
     ax[0].set_title(f'(a) {id:08}: Tmean (period base)')
 
     ax[1], indexmin, indexmax = plot_series(prcpi, date, ax[1], indexmin, indexmax)
@@ -149,3 +150,43 @@ for i in range(3):
     pdf.savefig(fig)
 
 pdf.close()
+
+
+# spatial distribution of min/max periods
+year_minmax = np.zeros([len(df_info), 2])
+for i in range(len(df_info)):
+    id = df_info.iloc[i]['hru_id']
+    # load prcp/tmean
+    infilei = f'{inpath_camels}/basin_mean_forcing/nldas/all/{id:08}_lump_nldas_forcing_leap.txt'
+    dfi = pd.read_csv(infilei, skiprows=3, delim_whitespace=True)
+    dfi = dfi.rename(columns={'Mnth':'Month'})
+    date = pd.to_datetime(dfi[['Year', 'Month', 'Day']])
+    prcpi = dfi['PRCP(mm/day)'].values
+    tmini = dfi['Tmin(C)'].values
+    tmaxi = dfi['Tmax(C)'].values
+    tmeani = (tmini + tmaxi) / 2
+
+    data_stat, rolling_anomaly, annual_anomaly, years = time_series_anomaly_analysis(tmeani, date, startmonth=10, periodlength=5, window=5)
+    data_minmax = get_most_extreme_periods(data_stat)
+    year1 = int(data_minmax['date_start'].loc['min'][:4])
+    year2 = int(data_minmax['date_end'].loc['min'][:4])
+    year_minmax[i, 0] = (year1+year2)/2
+    year1 = int(data_minmax['date_start'].loc['max'][:4])
+    year2 = int(data_minmax['date_end'].loc['max'][:4])
+    year_minmax[i, 1] = (year1 + year2) / 2
+
+fig, ax = plt.subplots(1, 2, figsize=[12, 4])
+lat = df_info['lat_cen'].values
+lon = df_info['lon_cen'].values
+
+p = ax[0].scatter(lon, lat, 10, year_minmax[:,0], cmap='cool', vmin=1985, vmax=2014)
+ax[0].set_title('Coldest year')
+plt.colorbar(p, ax=ax[0])
+
+p = ax[1].scatter(lon, lat, 10, year_minmax[:,1], cmap='cool', vmin=1985, vmax=2014)
+ax[1].set_title('Warmest year')
+plt.colorbar(p, ax=ax[1])
+
+plt.tight_layout()
+# plt.show()
+plt.savefig('map_warmcold.png', dpi=600, facecolor='w', bbox_inches='tight',pad_inches = 0)

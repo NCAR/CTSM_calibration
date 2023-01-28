@@ -9,8 +9,9 @@ import decide_CalibValid_periods as decidePeriod
 ########################################################################################################################
 # settings
 # basin_num = int(sys.argv[1])
-basin_num = 469
+basin_num = 0
 infile_basin_info = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/shared_data_Sean/info_ESMFmesh_ctsm_HCDN_nhru_final_671.buff_fix_holes_polygons_simplified_5e-4_split_nested.csv'
+inpath_camels_data = '/glade/scratch/guoqiang/CAMELS_data/basin_timeseries_v1p2_metForcing_obsFlow/basin_dataset_public_v1p2'
 
 outpath_case = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib_split_nest'
 outpath_out = '/glade/scratch/guoqiang/CTSM_outputs/CAMELS_Calib/Lump_calib_split_nest'
@@ -26,8 +27,10 @@ os.makedirs(outpath_config, exist_ok=True)
 config_intro = {'author': 'Guoqiang Tang',
                 'version': '0.0.1',
                 'name': 'CTSM calibration',
-                'date': '2022-12',
+                'date': '2023-01',
                 'affiliation': 'NCAR CGD'}
+
+create_case_settings = "--machine casper --compset I2000Clm51Sp --driver nuopc --compiler intel --res f09_g16 --handle-preexisting-dirs r --run-unsupported"
 
 config_HPC = {'projectCode': 'P08010000'}
 
@@ -35,26 +38,24 @@ config_HPC = {'projectCode': 'P08010000'}
 # decide calibration period
 
 df_info = pd.read_csv(infile_basin_info)
-infile_Qobs = df_info.iloc[basin_num]['file_obsQ']
-df_q = decidePeriod.read_raw_CAMELS_Q_to_df(infile_Qobs)
-date = df_q['date']
-data = df_q['Qobs'].values
+id = df_info.iloc[basin_num]['hru_id']
+data, date = decidePeriod.get_tmean_series_masked_by_q(inpath_camels_data, id)
 
-# # method-1
-# settings = {}
-# settings['method'] = 1
-# settings['calibyears'] = 5 # how many years are used to calibrate the model
-# settings['validratio'] = 0.8 # ratio of valid Q records during the period
-# settings['trial_start_date'] = '1985-10-01' # only use data after this period. month can be used to define the start of a water year
-# RUN_STARTDATE, STOP_N, STOP_OPTION, STOP_DATE = decidePeriod.calibration_period_CTSMformat(data, date, settings)
+# method-1
+settings = {}
+settings['method'] = 1
+settings['calibyears'] = 5 # how many years are used to calibrate the model
+settings['validratio'] = 0.8 # ratio of valid Q records during the period
+settings['trial_start_date'] = '1985-10-01' # only use data after this period. month can be used to define the start of a water year
+RUN_STARTDATE, STOP_N, STOP_OPTION, STOP_DATE = decidePeriod.calibration_period_CTSMformat(data, date, settings)
 
-# # method-2
-# settings = {}
-# settings['method'] = 2
-# settings['startmonth'] = 10 #  the start of a year (e.g., 1 or 10)
-# settings['periodlength'] = 5 # calib years
-# settings['window'] = 5 # years of rolling mean
-# RUN_STARTDATE, STOP_N, STOP_OPTION, STOP_DATE = decidePeriod.calibration_period_CTSMformat(data, date, settings)
+# method-2
+settings = {}
+settings['method'] = 2
+settings['startmonth'] = 10 #  the start of a year (e.g., 1 or 10)
+settings['periodlength'] = 5 # calib years
+settings['window'] = 5 # years of rolling mean
+RUN_STARTDATE, STOP_N, STOP_OPTION, STOP_DATE = decidePeriod.calibration_period_CTSMformat(data, date, settings)
 
 # Method-3: default start period to utilize the existing restart file
 STOP_OPTION = 'nmonths'
@@ -73,7 +74,7 @@ config_CTSM['files']['file_CTSM_mesh'] = f'/glade/work/guoqiang/CTSM_cases/CAMEL
 config_CTSM['files']['file_CTSM_surfdata'] = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/shared_data_Sean/surfdata_CAMELS_split_nested_hist_78pfts_CMIP6_simyr2000_c230105.nc'
 
 config_CTSM['settings'] = {}
-config_CTSM['settings']['createcase'] = "--compset I2000Clm51Sp --driver nuopc --compiler intel --res f09_g16 --handle-preexisting-dirs r --run-unsupported"
+config_CTSM['settings']['createcase'] = create_case_settings
 config_CTSM['settings']['RUN_STARTDATE'] = RUN_STARTDATE
 config_CTSM['settings']['STOP_N'] = STOP_N
 config_CTSM['settings']['STOP_OPTION'] = STOP_OPTION
@@ -99,8 +100,8 @@ config_calib['files']['file_Qobs'] = infile_Qobs
 config_calib['eval'] = {}
 config_calib['eval']['ignore_month'] = 12
 config_calib['job'] = {}
-config_calib['job']['jobsetting'] = ['#PBS -N OstrichCalib', '#PBS -q share', '#PBS -l walltime=6:00:00']
-# config_calib['job']['jobsetting'] = ['#PBS -N OstrichCalib', '#PBS -q casper', '#PBS -l walltime=24:00:00']
+# config_calib['job']['jobsetting'] = ['#PBS -N OstrichCalib', '#PBS -q share', '#PBS -l walltime=6:00:00']
+config_calib['job']['jobsetting'] = ['#PBS -N OstrichCalib', '#PBS -q casper', '#PBS -l walltime=24:00:00']
 
 ########################################################################################################################
 # spinup configurations

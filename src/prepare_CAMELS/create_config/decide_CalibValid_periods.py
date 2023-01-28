@@ -16,6 +16,29 @@ def read_raw_CAMELS_Q_to_df(infile_q):
     return df_q
 
 
+def get_tmean_series_masked_by_q(inpath_camels_data, id):
+    # load prcp/tmean
+
+    infilei = f'{inpath_camels_data}/basin_mean_forcing/nldas/all/{id:08}_lump_nldas_forcing_leap.txt'
+    df_met = pd.read_csv(infilei, skiprows=3, delim_whitespace=True)
+    df_met = df_met.rename(columns={'Mnth': 'Month'})
+    df_met['date'] = pd.to_datetime(df_met[['Year', 'Month', 'Day']])
+    df_met['Tmean(C)'] = (df_met['Tmin(C)'].values + df_met['Tmax(C)'].values) / 2
+
+    # load q
+    infilei_q = f'{inpath_camels_data}/usgs_streamflow/{id:08}_streamflow_qc.txt'
+    df_q = read_raw_CAMELS_Q_to_df(infilei_q)
+    df_all = df_q.merge(df_met, how='outer', on='date')
+    df_all = df_all.sort_values(by='date')
+
+    # choose a variable to decide periods
+    data = df_all['Tmean(C)'].values
+    q = df_all['Qobs'].values
+    data[np.isnan(q)] = np.nan # ensure period is consistent with streamflow
+    date = df_all['date'].values
+
+    return data, date
+
 def cal_shift_annual_mean(data, date, startmonth=1):
     # startmonth: the start of a year (e.g., 1 or 10)
     years = np.unique(pd.DatetimeIndex(date).year.values)
@@ -73,16 +96,16 @@ def calib_period_Beginning(data, date, calibyears, validratio, trial_start_date)
 
     print('Decide calibration period')
 
-    df_q = read_raw_CAMELS_Q_to_df(infile_q)
+    # df_q = read_raw_CAMELS_Q_to_df(infile_q)
 
     # decide the trial start date
     trial_start_date = pd.Timestamp(trial_start_date)
-    if pd.Timestamp(trial_start_date) > df_q['date'].values[-1]:
+    if pd.Timestamp(trial_start_date) > date[-1]:
         sys.exit('Error!!! trial_start_date is too large!')
 
     flag = True
     while flag:
-        if pd.Timestamp(trial_start_date) < df_q['date'].values[0]:
+        if pd.Timestamp(trial_start_date) < date[0]:
             trial_start_date = trial_start_date + pd.offsets.DateOffset(years=1)
         else:
             trial_start_date2 = trial_start_date + pd.offsets.DateOffset(years=1)
