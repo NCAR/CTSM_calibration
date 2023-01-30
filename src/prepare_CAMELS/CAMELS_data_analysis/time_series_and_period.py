@@ -6,6 +6,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.backends.backend_pdf
 
+
+
 def read_raw_CAMELS_Q_to_df(infile_q):
     # read streamflow fom raw CAMELS text files, and change column names
     df_q = pd.read_csv(infile_q, delim_whitespace=True, header=None)
@@ -17,6 +19,29 @@ def read_raw_CAMELS_Q_to_df(infile_q):
     return df_q
 
 
+def get_tmean_series_masked_by_q(inpath_camels_data, id):
+    # load prcp/tmean
+
+    infilei = f'{inpath_camels_data}/basin_mean_forcing/nldas/all/{id:08}_lump_nldas_forcing_leap.txt'
+    df_met = pd.read_csv(infilei, skiprows=3, delim_whitespace=True)
+    df_met = df_met.rename(columns={'Mnth': 'Month'})
+    df_met['date'] = pd.to_datetime(df_met[['Year', 'Month', 'Day']])
+    df_met['Tmean(C)'] = (df_met['Tmin(C)'].values + df_met['Tmax(C)'].values) / 2
+
+    # load q
+    infilei_q = f'{inpath_camels_data}/usgs_streamflow/{id:08}_streamflow_qc.txt'
+    df_q = read_raw_CAMELS_Q_to_df(infilei_q)
+    df_all = df_q.merge(df_met, how='outer', on='date')
+    df_all = df_all.sort_values(by='date')
+
+    # choose a variable to decide periods
+    data = df_all['Tmean(C)'].values
+    q = df_all['Qobs'].values
+    data[np.isnan(q)] = np.nan # ensure period is consistent with streamflow
+    date = df_all['date'].values
+
+    return data, date
+
 def cal_shift_annual_mean(data, date, startmonth=1):
     # startmonth: the start of a year (e.g., 1 or 10)
     years = np.unique(pd.DatetimeIndex(date).year.values)
@@ -26,7 +51,7 @@ def cal_shift_annual_mean(data, date, startmonth=1):
         date_start = pd.Timestamp(f'{yeari}-{startmonth}-1')
         date_end = date_start + pd.offsets.DateOffset(years=1) - pd.offsets.DateOffset(hours=1)
         datai = data[(date>=date_start) & (date<=date_end)]
-        if np.sum(~np.isnan(datai))/len(datai) >= 0.9: # valid ratio during this period
+        if np.sum(~np.isnan(datai))/len(datai) >= 0.9:
             values[i] = np.nanmean(datai)
     return years, values
 
@@ -54,14 +79,15 @@ def time_series_anomaly_analysis(data, date, startmonth=1, periodlength=5, windo
     tmean_stat.index = np.arange(len(tmean_stat))
     return tmean_stat, rolling_anomaly, annual_anomaly, years
 
-def get_most_extreme_periods(tmean_stat):
-    data_minmax = pd.DataFrame()
-    indmin = tmean_stat['mean'].values.argmin()
-    data_minmax = pd.concat([data_minmax, tmean_stat[indmin:indmin + 1]])
-    indmax = tmean_stat['mean'].values.argmax()
-    data_minmax = pd.concat([data_minmax, tmean_stat[indmax:indmax + 1]])
-    data_minmax.index = ['min', 'max']
-    return data_minmax
+def get_most_extreme_periods(period_stat):
+    period_extreme = pd.DataFrame()
+    indmin = period_stat['mean'].values.argmin()
+    period_extreme = pd.concat([period_extreme, period_stat[indmin:indmin + 1]])
+    indmax = period_stat['mean'].values.argmax()
+    period_extreme = pd.concat([period_extreme, period_stat[indmax:indmax + 1]])
+    period_extreme.index = ['min', 'max']
+    return period_extreme
+
 
 
 def plot_series(data, date, ax, indexmin, indexmax):
@@ -111,6 +137,7 @@ infile_info = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/shared_data_Sean/inf
 df_info = pd.read_csv(infile_info)
 
 
+# plot series for all basins
 pdf = matplotlib.backends.backend_pdf.PdfPages("CAMELS_MetFlow.pdf")
 
 for i in range(len(df_info)):
@@ -118,30 +145,37 @@ for i in range(len(df_info)):
 
     # load prcp/tmean
     infilei = f'{inpath_camels}/basin_mean_forcing/nldas/all/{id:08}_lump_nldas_forcing_leap.txt'
-    dfi = pd.read_csv(infilei, skiprows=3, delim_whitespace=True)
-    dfi = dfi.rename(columns={'Mnth':'Month'})
-    date = pd.to_datetime(dfi[['Year', 'Month', 'Day']])
-    prcpi = dfi['PRCP(mm/day)'].values
-    tmini = dfi['Tmin(C)'].values
-    tmaxi = dfi['Tmax(C)'].values
-    tmeani = (tmini + tmaxi) / 2
+    df_met = pd.read_csv(infilei, skiprows=3, delim_whitespace=True)
+    df_met = df_met.rename(columns={'Mnth':'Month'})
+    df_met['date'] = pd.to_datetime(df_met[['Year', 'Month', 'Day']])
+    df_met['Tmean(C)'] = (df_met['Tmin(C)'].values + df_met['Tmax(C)'].values) / 2
+    # prcpi = df_met['PRCP(mm/day)'].values
+    # tmini = df_met['Tmin(C)'].values
+    # tmaxi = df_met['Tmax(C)'].values
 
     # load q
     infilei_q = f'{inpath_camels}/usgs_streamflow/{id:08}_streamflow_qc.txt'
     df_q = read_raw_CAMELS_Q_to_df(infilei_q)
-    df0 = pd.DataFrame(date, columns=['date'])
-    df_q = df_q.merge(df0, how='outer', on='date')
 
+    # merge df
+    df_all = df_q.merge(df_met, how='outer', on='date')
+    df_all = df_all.sort_values(by='date')
+
+    tmeani = df_all['Tmean(C)'].values.copy()
+    tmeani[np.isnan(df_all['Qobs'].values)] = np.nan
+    date = df_all['date']
+
+    # plot
     fig, ax = plt.subplots(3, 1, figsize=[8, 8])
 
     ax[0], indexmin, indexmax = plot_series(tmeani, date, ax[0], [], [])
     ax[0].set_title(f'(a) {id:08}: Tmean (period base)')
 
-    ax[1], indexmin, indexmax = plot_series(prcpi, date, ax[1], indexmin, indexmax)
+    ax[1], indexmin, indexmax = plot_series(df_all['PRCP(mm/day)'].values, date, ax[1], indexmin, indexmax)
     ax[1].set_title(f'(b) {id:08}: Precipitation')
     ax[1].get_legend().remove()
 
-    ax[2], indexmin, indexmax = plot_series(df_q['Qobs'].values, df_q['date'].values, ax[2], indexmin, indexmax)
+    ax[2], indexmin, indexmax = plot_series(df_all['Qobs'].values, df_all['date'].values, ax[2], indexmin, indexmax)
     ax[2].set_title(f'(c) {id:08}: Streamflow')
     ax[2].get_legend().remove()
 
@@ -156,15 +190,25 @@ pdf.close()
 year_minmax = np.zeros([len(df_info), 2])
 for i in range(len(df_info)):
     id = df_info.iloc[i]['hru_id']
+
     # load prcp/tmean
     infilei = f'{inpath_camels}/basin_mean_forcing/nldas/all/{id:08}_lump_nldas_forcing_leap.txt'
-    dfi = pd.read_csv(infilei, skiprows=3, delim_whitespace=True)
-    dfi = dfi.rename(columns={'Mnth':'Month'})
-    date = pd.to_datetime(dfi[['Year', 'Month', 'Day']])
-    prcpi = dfi['PRCP(mm/day)'].values
-    tmini = dfi['Tmin(C)'].values
-    tmaxi = dfi['Tmax(C)'].values
-    tmeani = (tmini + tmaxi) / 2
+    df_met = pd.read_csv(infilei, skiprows=3, delim_whitespace=True)
+    df_met = df_met.rename(columns={'Mnth':'Month'})
+    df_met['date'] = pd.to_datetime(df_met[['Year', 'Month', 'Day']])
+    df_met['Tmean(C)'] = (df_met['Tmin(C)'].values + df_met['Tmax(C)'].values) / 2
+
+    # load q
+    infilei_q = f'{inpath_camels}/usgs_streamflow/{id:08}_streamflow_qc.txt'
+    df_q = read_raw_CAMELS_Q_to_df(infilei_q)
+
+    # merge df
+    df_all = df_q.merge(df_met, how='outer', on='date')
+    df_all = df_all.sort_values(by='date')
+
+    tmeani = df_all['Tmean(C)'].values.copy()
+    tmeani[np.isnan(df_all['Qobs'].values)] = np.nan
+    date = df_all['date']
 
     data_stat, rolling_anomaly, annual_anomaly, years = time_series_anomaly_analysis(tmeani, date, startmonth=10, periodlength=5, window=5)
     data_minmax = get_most_extreme_periods(data_stat)

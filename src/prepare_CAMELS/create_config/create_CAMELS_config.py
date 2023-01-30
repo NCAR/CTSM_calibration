@@ -40,6 +40,7 @@ config_HPC = {'projectCode': 'P08010000'}
 
 df_info = pd.read_csv(infile_basin_info)
 id = df_info.iloc[basin_num]['hru_id']
+file_Qobs = df_info.iloc[basin_num]['file_obsQ']
 data, date = decidePeriod.get_tmean_series_masked_by_q(inpath_camels_data, id)
 
 # method-1
@@ -97,7 +98,7 @@ config_calib['files'] = {}
 config_calib['files']['path_script_calib'] = '/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/calibration'
 config_calib['files']['path_script_Ostrich'] = '/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/Ostrich_support'
 config_calib['files']['file_calib_param'] = '/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/parameter/param_ASG_20221206.csv'
-config_calib['files']['file_Qobs'] = df_info['file_obsQ']
+config_calib['files']['file_Qobs'] = file_Qobs
 config_calib['eval'] = {}
 config_calib['eval']['ignore_month'] = 12
 config_calib['job'] = {}
