@@ -50,7 +50,7 @@ user_nl_clm_settings = [f"fsurdat = '{file_CTSM_surfdata}'",
                         ]
 
 # no need to re compile
-xmlchange_settings1 = [f"ATM_DOMAIN_MESH={file_CTSM_mesh}",
+xmlchange_settings = [f"ATM_DOMAIN_MESH={file_CTSM_mesh}",
                       f"LND_DOMAIN_MESH={file_CTSM_mesh}",
                       f"MASK_MESH={file_CTSM_mesh}",
                       # build/run parent path
@@ -77,10 +77,19 @@ if NTASKS == 1:
                            "MAX_MPITASKS_PER_NODE=1",
                            "COST_PES=1",
                           ]
-else:
-    xmlchange_settings2 = []
+    xmlchange_settings = xmlchange_settings + xmlchange_settings2
+
+# if clone is used, only change these settings to avoid recompiling
+select_settings_if_clone = ['ATM_DOMAIN_MESH', 'LND_DOMAIN_MESH', 'MASK_MESH', 'DATM_MODE', 'STOP_N', 'RUN_STARTDATE', 'STOP_OPTION']
+tmp = []
+for s1 in xmlchange_settings:
+    for s2 in select_settings_if_clone:
+        if s2 in s1:
+            tmp.append(s1)
+            break
 
 xmlquery_settings = 'ATM_DOMAIN_MESH,LND_DOMAIN_MESH,MASK_MESH,RUNDIR,DOUT_S_ROOT,MOSART_MODE,DATM_MODE,RUN_STARTDATE,STOP_N,STOP_OPTION,NTASKS,NTASKS_PER_INST'
+
 
 ########################################################################################################################
 # create model cases
@@ -96,6 +105,7 @@ if not os.path.isdir(CLONEROOT):
     _ = subprocess.run(f'{path_CTSM_source}/cime/scripts/create_newcase --case {path_CTSM_case} {newcase_settings}', shell=True)
     flag_clone = False
 else:
+    print(f'Use create_clone because CLONEROOT {CLONEROOT} exists')
     clone_settings = f"--cime-output-root {path_CTSM_CIMEout} {CLONEsettings} --project {projectCode}"
     _ = subprocess.run(f'{path_CTSM_source}/cime/scripts/create_clone --case {path_CTSM_case} --clone {CLONEROOT} {clone_settings}', shell=True)
     flag_clone = True
@@ -113,11 +123,6 @@ with open('user_nl_clm', 'a') as f:
         _ = f.write(s+'\n')
 
 # change land domain and MESH files
-if flag_clone == False:
-    xmlchange_settings = xmlchange_settings1 + xmlchange_settings2
-else:
-    xmlchange_settings = xmlchange_settings1
-
 for s in xmlchange_settings:
     _ = subprocess.run(f'./xmlchange {s}', shell=True)
 
