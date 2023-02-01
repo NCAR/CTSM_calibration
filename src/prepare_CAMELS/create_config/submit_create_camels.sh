@@ -7,5 +7,3 @@ do
   echo "processing basin $i"
   python create_CAMELS_config.py $i
 done
-
-

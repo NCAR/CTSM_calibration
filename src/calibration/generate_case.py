@@ -38,7 +38,8 @@ STOP_OPTION = config_CTSMcase['STOP_OPTION']
 NTASKS = config_CTSMcase['NTASKS']
 casebuild = config_CTSMcase['casebuild']
 projectCode = config_CTSMcase['projectCode']
-
+CLONEROOT = config_CTSMcase['CLONEROOT']
+CLONEsettings = config_CTSMcase['CLONEsettings']
 
 #####################
 # Model settings to be changed: list
@@ -48,7 +49,8 @@ user_nl_clm_settings = [f"fsurdat = '{file_CTSM_surfdata}'",
                         "hist_fincl2 = 'QRUNOFF','H2OSNO','ZWT','SOILWATER_10CM','EFLX_LH_TOT','QDRAI','QOVER','RAIN'",
                         ]
 
-xmlchange_settings = [f"ATM_DOMAIN_MESH={file_CTSM_mesh}",
+# no need to re compile
+xmlchange_settings1 = [f"ATM_DOMAIN_MESH={file_CTSM_mesh}",
                       f"LND_DOMAIN_MESH={file_CTSM_mesh}",
                       f"MASK_MESH={file_CTSM_mesh}",
                       # build/run parent path
@@ -67,6 +69,7 @@ xmlchange_settings = [f"ATM_DOMAIN_MESH={file_CTSM_mesh}",
                       ]
 
 if NTASKS == 1:
+    # need to recompile
     xmlchange_settings2 = [# one cpu one job
                            "COST_PES=1",
                            "TOTALPES=1",
@@ -74,7 +77,8 @@ if NTASKS == 1:
                            "MAX_MPITASKS_PER_NODE=1",
                            "COST_PES=1",
                           ]
-    xmlchange_settings = xmlchange_settings + xmlchange_settings2
+else:
+    xmlchange_settings2 = []
 
 xmlquery_settings = 'ATM_DOMAIN_MESH,LND_DOMAIN_MESH,MASK_MESH,RUNDIR,DOUT_S_ROOT,MOSART_MODE,DATM_MODE,RUN_STARTDATE,STOP_N,STOP_OPTION,NTASKS,NTASKS_PER_INST'
 
@@ -85,8 +89,16 @@ pwd = os.getcwd()
 
 ################################
 # (1) create new case
-newcase_settings = f"{createcase} --project {projectCode}"
-_ = subprocess.run(f'{path_CTSM_source}/cime/scripts/create_newcase --case {path_CTSM_case} {newcase_settings}', shell=True)
+
+if not os.path.isdir(CLONEROOT):
+    print(f'Use create_newcase because CLONEROOT {CLONEROOT} does not exist')
+    newcase_settings = f"{createcase} --project {projectCode}"
+    _ = subprocess.run(f'{path_CTSM_source}/cime/scripts/create_newcase --case {path_CTSM_case} {newcase_settings}', shell=True)
+    flag_clone = False
+else:
+    clone_settings = f"--cime-output-root {path_CTSM_CIMEout} {CLONEsettings} --project {projectCode}"
+    _ = subprocess.run(f'{path_CTSM_source}/cime/scripts/create_clone --case {path_CTSM_case} --clone {CLONEROOT} {clone_settings}', shell=True)
+    flag_clone = True
 
 ################################
 # (2) change dir
@@ -101,6 +113,11 @@ with open('user_nl_clm', 'a') as f:
         _ = f.write(s+'\n')
 
 # change land domain and MESH files
+if flag_clone == False:
+    xmlchange_settings = xmlchange_settings1 + xmlchange_settings2
+else:
+    xmlchange_settings = xmlchange_settings1
+
 for s in xmlchange_settings:
     _ = subprocess.run(f'./xmlchange {s}', shell=True)
 
@@ -109,15 +126,17 @@ _ = subprocess.run(f'./xmlquery {xmlquery_settings}', shell=True)
 
 ################################
 # (4) compile the model
-# _ = subprocess.run('./case.setup --reset', shell=True)
-_ = subprocess.run('./case.setup', shell=True)
-_ = subprocess.run('./case.build --clean-all', shell=True)
-if casebuild == 'qcmd':
-    _ = subprocess.run(f'qcmd -l select=1:ncpus=1:mpiprocs=1 -l walltime=0:20:00 -A {projectCode} -q share -- ./case.build', shell=True)
-elif casebuild == 'direct':
-    _ = subprocess.run(f'./case.build', shell=True)
-else:
-    sys.exit('Unknown casebuild')
+
+if flag_clone == False:
+    # _ = subprocess.run('./case.setup --reset', shell=True)
+    _ = subprocess.run('./case.setup', shell=True)
+    _ = subprocess.run('./case.build --clean-all', shell=True)
+    if casebuild == 'qcmd':
+        _ = subprocess.run(f'qcmd -l select=1:ncpus=1:mpiprocs=1 -l walltime=0:20:00 -A {projectCode} -q share -- ./case.build', shell=True)
+    elif casebuild == 'direct':
+        _ = subprocess.run(f'./case.build', shell=True)
+    else:
+        sys.exit('Unknown casebuild')
 
 ################################
 # (5) submit jobs (optional)

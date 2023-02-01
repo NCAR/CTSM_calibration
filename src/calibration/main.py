@@ -12,12 +12,16 @@ def parse_CTSMcase_config(config):
                        'path_CTSM_CIMEout': config['CTSM']['files']['path_CTSM_CIMEout'],
                        'file_CTSM_mesh': config['CTSM']['files']['file_CTSM_mesh'],
                        'file_CTSM_surfdata': config['CTSM']['files']['file_CTSM_surfdata'],
+
+                       'CLONEROOT': config['CTSM']['settings']['CLONEROOT'],
+                       'CLONEsettings': config['CTSM']['settings']['CLONEsettings'],
                        'createcase': config['CTSM']['settings']['createcase'],
                        'RUN_STARTDATE': config['CTSM']['settings']['RUN_STARTDATE'],
                        'STOP_N': config['CTSM']['settings']['STOP_N'],
                        'STOP_OPTION': config['CTSM']['settings']['STOP_OPTION'],
                        'NTASKS': config['CTSM']['settings']['NTASKS'],
                        'casebuild': config['CTSM']['settings']['casebuild'],
+
                        'projectCode': config['HPC']['projectCode'],
                        }
     # # simpler but less obvious
@@ -82,9 +86,19 @@ def parse_spinup_config(config):
 # config_file = './example.cstm.config.toml'
 config_file = sys.argv[1]
 
+# all: build case and do following task
+# only: only build cases, don't do other tasks
+# except: do all tasks except building cases
+buildcase_option = 'all' # default is doing all jobs
+if len(sys.argv[1]) == 3:
+    buildcase_option = 'only'
+    if buildcase_option in ['all', 'only', 'except']:
+        print('buildcase_option:', buildcase_option)
+    else:
+        sys.exit('Unknown buildcase_option!')
+
 # remove intermediate configuration files (.e.g., _cstm.config_CTMScase.toml)
 rm_interconfig = False
-
 
 ########################################################################################################################
 print(f"Settings are read from {config_file}")
@@ -95,37 +109,39 @@ config['name_config_file'] = pathlib.Path(config_file).name
 ########################################################################################################################
 # step-1: Create model case
 
-script_CTSMcase = config['calib']['files']['path_script_calib'] + '/' + 'generate_case.py'
-file_config_CTSMcase = parse_CTSMcase_config(config)
-_ = subprocess.run(f'python {script_CTSMcase} {file_config_CTSMcase}', shell=True)
+if buildcase_option in ['all', 'only']:
+    script_CTSMcase = config['calib']['files']['path_script_calib'] + '/' + 'generate_case.py'
+    file_config_CTSMcase = parse_CTSMcase_config(config)
+    _ = subprocess.run(f'python {script_CTSMcase} {file_config_CTSMcase}', shell=True)
 
-########################################################################################################################
-# step-2: Create Ostrich settings
+if buildcase_option in ['all', 'except']:
+    ########################################################################################################################
+    # step-2: Create Ostrich settings
 
-script_GenOstrich = config['calib']['files']['path_script_calib'] + '/' + 'generate_ostrich_settings.py'
-file_config_Ostrich = parse_Ostrich_config(config)
-_ = subprocess.run(f'python {script_GenOstrich} {file_config_Ostrich}', shell=True)
+    script_GenOstrich = config['calib']['files']['path_script_calib'] + '/' + 'generate_ostrich_settings.py'
+    file_config_Ostrich = parse_Ostrich_config(config)
+    _ = subprocess.run(f'python {script_GenOstrich} {file_config_Ostrich}', shell=True)
 
-########################################################################################################################
-# step-3: Create forcing subsets and change model settings
+    ########################################################################################################################
+    # step-3: Create forcing subsets and change model settings
 
-script_SubForc = config['calib']['files']['path_script_calib'] + '/' + 'generate_forcing_subset.py'
-file_config_SubForc = parse_SubForc_config(config)
-_ = subprocess.run(f'python {script_SubForc} {file_config_SubForc}', shell=True)
+    script_SubForc = config['calib']['files']['path_script_calib'] + '/' + 'generate_forcing_subset.py'
+    file_config_SubForc = parse_SubForc_config(config)
+    _ = subprocess.run(f'python {script_SubForc} {file_config_SubForc}', shell=True)
 
-########################################################################################################################
-# step-4: Modify namelist
+    ########################################################################################################################
+    # step-4: Modify namelist
 
-script_NL = config['calib']['files']['path_script_calib'] + '/' + 'generate_namelist.py'
-file_config_NL = parse_namelist_config(config)
-_ = subprocess.run(f'python {script_NL} {file_config_NL}', shell=True)
+    script_NL = config['calib']['files']['path_script_calib'] + '/' + 'generate_namelist.py'
+    file_config_NL = parse_namelist_config(config)
+    _ = subprocess.run(f'python {script_NL} {file_config_NL}', shell=True)
 
-########################################################################################################################
-# step-5: Model spin up
+    ########################################################################################################################
+    # step-5: Model spin up
 
-script_spinup = config['calib']['files']['path_script_calib'] + '/' + 'generate_spinup.py'
-file_config_spinup = parse_spinup_config(config)
-_ = subprocess.run(f'python {script_spinup} {file_config_spinup}', shell=True)
+    script_spinup = config['calib']['files']['path_script_calib'] + '/' + 'generate_spinup.py'
+    file_config_spinup = parse_spinup_config(config)
+    _ = subprocess.run(f'python {script_spinup} {file_config_spinup}', shell=True)
 
 ########################################################################################################################
 # finally ...

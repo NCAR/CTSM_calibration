@@ -76,6 +76,15 @@ config_CTSM['files']['file_CTSM_mesh'] = f'/glade/work/guoqiang/CTSM_cases/CAMEL
 config_CTSM['files']['file_CTSM_surfdata'] = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/shared_data_Sean/surfdata_CAMELS_split_nested_hist_78pfts_CMIP6_simyr2000_c230105.nc'
 
 config_CTSM['settings'] = {}
+
+if basin_num == 0:
+    print('Will create new CTSM case from scratch.')
+    config_CTSM['settings']['CLONEROOT'] = ''
+else:
+    print('Will clone CTSM case from basin 0 using --keepexe')
+    config_CTSM['settings']['CLONEROOT'] = f'{outpath_case}/CAMELS_0'
+
+config_CTSM['settings']['CLONEsettings'] = "--keepexe"
 config_CTSM['settings']['createcase'] = create_case_settings
 config_CTSM['settings']['RUN_STARTDATE'] = RUN_STARTDATE
 config_CTSM['settings']['STOP_N'] = STOP_N
