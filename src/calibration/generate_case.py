@@ -87,6 +87,7 @@ for s1 in xmlchange_settings:
         if s2 in s1:
             tmp.append(s1)
             break
+xmlchange_settings = tmp
 
 xmlquery_settings = 'ATM_DOMAIN_MESH,LND_DOMAIN_MESH,MASK_MESH,RUNDIR,DOUT_S_ROOT,MOSART_MODE,DATM_MODE,RUN_STARTDATE,STOP_N,STOP_OPTION,NTASKS,NTASKS_PER_INST'
 
