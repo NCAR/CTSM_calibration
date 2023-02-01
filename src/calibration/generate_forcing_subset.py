@@ -68,7 +68,7 @@ def subset_allfiles(datm_xml_dict, keyword_data, outpathSubset, ncformat, subset
                         infilelist0.sort()
                         infilelist = []
                         for i in range(len(infilelist0)):
-                            if len(pathlib.Path(infilelist0[i])) == len(inname0): # make sure this is real forcing
+                            if len(pathlib.Path(infilelist0[i]).name) == len(inname0): # make sure this is real forcing
                                 infilelist.append(infilelist0[i])
                     else:
                         sys.exit(f'subset_length must be existing or all. {subset_length} is unknown.')
