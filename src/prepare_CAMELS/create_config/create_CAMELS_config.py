@@ -91,7 +91,7 @@ config_CTSM['settings']['STOP_N'] = STOP_N
 config_CTSM['settings']['STOP_OPTION'] = STOP_OPTION
 config_CTSM['settings']['NTASKS'] = 1
 config_CTSM['settings']['casebuild'] = 'direct'
-config_CTSM['settings']['subset_length'] = 'existing'
+config_CTSM['settings']['subset_length'] = 'all'
 config_CTSM['settings']['forcing_YearStep'] = 5
 
 config_CTSM['AddToNamelist'] = {}

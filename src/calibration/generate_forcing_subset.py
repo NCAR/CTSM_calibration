@@ -61,6 +61,7 @@ def subset_allfiles(datm_xml_dict, keyword_data, outpathSubset, ncformat, subset
                     if subset_length == 'existing':
                         pass
                     elif subset_length == 'all':
+                        # although files are changed, changing foo:year_first = integer / foo:year_last = integer / foo:year_align = integer does not seem necessary in the namelist file
                         infile0 = infilelist[0]
                         inpath0 = pathlib.Path(infile0).parent
                         inname0 = pathlib.Path(infile0).name

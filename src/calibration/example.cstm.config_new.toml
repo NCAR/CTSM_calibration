@@ -1,0 +1,70 @@
+# configuration file used to run the CTSM calibration tool
+# this configuration is generated using a Python script
+
+# change the settings to xmlchange, user_nl_datm, etc, so the settings can be agnostic
+
+[intro] # Not needed for model run
+author = "Guoqiang Tang"
+version = "0.0.1"
+name = "CTSM calibration"
+date = "2022-12"
+affiliation = "NCAR CGD"
+
+
+[HPC]
+projectCode = "P08010000"
+
+
+[CTSM]
+[CTSM.files]
+path_CTSM_source = "/glade/u/home/guoqiang/CTSM_repos/CTSM"
+path_CTSM_case = "/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib/CAMELS_10"
+path_CTSM_CIMEout = "/glade/scratch/guoqiang/CTSM_outputs/CAMELS_Calib/Lump_calib/CAMELS_10"
+file_CTSM_mesh = "/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_basin_mask/ESMFmesh_ctsm_HCDN_nhru_final_671_v0_8e-3_basin10.nc"
+file_CTSM_surfdata = "/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/shared_data_Sean/surfdata_CAMELS_hist_78pfts_CMIP6_simyr2000_c221004.nc"
+
+[CTSM.settings]
+CLONEROOT = "if this folder exists, create_newcase will be replaced by create_clone"
+CLONEsettings = "--keepexe"
+
+createcase = "--compset I2000Clm51Sp --driver nuopc --compiler intel --res f09_g16 --handle-preexisting-dirs r --run-unsupported"
+RUN_STARTDATE = "2000-01-01"
+STOP_N = 36
+STOP_OPTION = "nmonths"
+NTASKS = 1
+casebuild = 'direct' # direct or qcmd. no need to use qcmd if this script is submitted through qbs
+subset_length = 'all' # existing: files exist in datm.streams.xml; all: all files in the source folder. existing is shorter than all
+forcing_YearStep = 5 # >0: time merging subset forcing to the period; <=0: no time merging
+
+
+[CTSM.AddToNamelist]
+user_nl_datm_streams = ["topo.observed:meshfile=/glade/work/swensosc/topo_data/ESMFmesh_ctsm_elev_Conus_0.125d_210810.cdf5.nc",
+                        "topo.observed:datafiles=/glade/work/swensosc/topo_data/ctsm_elev_Conus_0.125d.cdf5.nc"]
+user_nl_datm = ['']
+user_nl_clm = ['']
+
+[calib]
+[calib.files]
+path_script_calib = "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/calibration"
+path_script_Ostrich = "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/Ostrich_support"
+file_calib_param = "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/parameter/param_yifan.csv"
+file_Qobs = "..."
+
+[calib.eval]
+ignore_month = 12 # the first part of simulation is ignored when evaluating the model for better spin up
+
+[calib.job]
+#jobsetting = ['#PBS -N OstrichCalib', '#PBS -q casper', '#PBS -l walltime=24:00:00']
+jobsetting = ['#PBS -N OstrichCalib', '#PBS -q share', '#PBS -l walltime=6:00:00']
+
+[spinup]
+spinup_mode = "continuous" # continuous: period before RUN_STARTDATE. No other option for now
+spinup_month = 60 # 5-year spin up
+force_Jan_start = true # CTSM default initial conditions start at Jan 1st. So, using Jan as the start date could be better
+update_restart = true # after spin-up is done, add the restart file to user_nl_clm
+
+
+
+
+
+
