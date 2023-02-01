@@ -86,16 +86,11 @@ def parse_spinup_config(config):
 # config_file = './example.cstm.config.toml'
 config_file = sys.argv[1]
 
-# all: build case and do following task
-# only: only build cases, don't do other tasks
-# except: do all tasks except building cases
-buildcase_option = 'all' # default is doing all jobs
-if len(sys.argv[1]) == 3:
-    buildcase_option = 'only'
-    if buildcase_option in ['all', 'only', 'except']:
-        print('buildcase_option:', buildcase_option)
-    else:
-        sys.exit('Unknown buildcase_option!')
+# tasks that will be executed. by default, all tasks will be run
+runtasks = "Build,Ostrich,SubForc,NameList,SpinUp"
+if len(sys.argv) == 3:
+    runtasks = sys.argv[2]
+print('Run tasks:', runtasks)
 
 # remove intermediate configuration files (.e.g., _cstm.config_CTMScase.toml)
 rm_interconfig = False
@@ -109,45 +104,53 @@ config['name_config_file'] = pathlib.Path(config_file).name
 ########################################################################################################################
 # step-1: Create model case
 
-if buildcase_option in ['all', 'only']:
+if 'Build' in runtasks:
     script_CTSMcase = config['calib']['files']['path_script_calib'] + '/' + 'generate_case.py'
     file_config_CTSMcase = parse_CTSMcase_config(config)
     _ = subprocess.run(f'python {script_CTSMcase} {file_config_CTSMcase}', shell=True)
+else:
+    print('No need to build case')
 
-if buildcase_option in ['all', 'except']:
-    ########################################################################################################################
-    # step-2: Create Ostrich settings
 
+########################################################################################################################
+# step-2: Create Ostrich settings
+if 'Ostrich' in runtasks:
     script_GenOstrich = config['calib']['files']['path_script_calib'] + '/' + 'generate_ostrich_settings.py'
     file_config_Ostrich = parse_Ostrich_config(config)
     _ = subprocess.run(f'python {script_GenOstrich} {file_config_Ostrich}', shell=True)
+else:
+    print('No need to create Ostrich settings')
 
-    ########################################################################################################################
-    # step-3: Create forcing subsets and change model settings
-
+########################################################################################################################
+# step-3: Create forcing subsets and change model settings
+if 'SubForc' in runtasks:
     script_SubForc = config['calib']['files']['path_script_calib'] + '/' + 'generate_forcing_subset.py'
     file_config_SubForc = parse_SubForc_config(config)
     _ = subprocess.run(f'python {script_SubForc} {file_config_SubForc}', shell=True)
+else:
+    print('No need to subset forcing')
 
-    ########################################################################################################################
-    # step-4: Modify namelist
-
+########################################################################################################################
+# step-4: Modify namelist
+if 'NameList' in runtasks:
     script_NL = config['calib']['files']['path_script_calib'] + '/' + 'generate_namelist.py'
     file_config_NL = parse_namelist_config(config)
     _ = subprocess.run(f'python {script_NL} {file_config_NL}', shell=True)
+else:
+    print('No need to modify namelist')
 
-    ########################################################################################################################
-    # step-5: Model spin up
-
+########################################################################################################################
+# step-5: Model spin up
+if 'SpinUp' in runtasks:
     script_spinup = config['calib']['files']['path_script_calib'] + '/' + 'generate_spinup.py'
     file_config_spinup = parse_spinup_config(config)
     _ = subprocess.run(f'python {script_spinup} {file_config_spinup}', shell=True)
+else:
+    print('No need to spin up model')
 
 ########################################################################################################################
 # finally ...
-
 if rm_interconfig == True:
     _ = subprocess.run('rm _*.toml', shell=True)
-
 
 print('Model creation successful!')
