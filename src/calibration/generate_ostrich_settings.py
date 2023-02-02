@@ -94,6 +94,8 @@ outfile_param_info = f'{ostrichParam}/calib_parameter_info.csv'
 
 exeOstrich = "/glade/u/home/guoqiang/model_sources/Ostrich_v17.12.19/Source/OstrichGCC"
 
+_ = subprocess.run(f'rm -r {outpathOstCalib}', shell=True)
+
 os.makedirs(ostrichRunDir, exist_ok=True)
 os.makedirs(ostrichArchive, exist_ok=True)
 os.makedirs(ostrichRefDir, exist_ok=True)

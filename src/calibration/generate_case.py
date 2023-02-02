@@ -1,5 +1,5 @@
 # An independent basin
-
+import shutil
 # Create a CTSM model case
 # Settings based on single basin files
 # Note: manual check of settings are needed before running this script
@@ -81,13 +81,6 @@ if NTASKS == 1:
 
 # if clone is used, only change these settings to avoid recompiling
 select_settings_if_clone = ['ATM_DOMAIN_MESH', 'LND_DOMAIN_MESH', 'MASK_MESH', 'DATM_MODE', 'STOP_N', 'RUN_STARTDATE', 'STOP_OPTION']
-tmp = []
-for s1 in xmlchange_settings:
-    for s2 in select_settings_if_clone:
-        if s2 in s1:
-            tmp.append(s1)
-            break
-xmlchange_settings = tmp
 
 xmlquery_settings = 'ATM_DOMAIN_MESH,LND_DOMAIN_MESH,MASK_MESH,RUNDIR,DOUT_S_ROOT,MOSART_MODE,DATM_MODE,RUN_STARTDATE,STOP_N,STOP_OPTION,NTASKS,NTASKS_PER_INST'
 
@@ -96,6 +89,10 @@ xmlquery_settings = 'ATM_DOMAIN_MESH,LND_DOMAIN_MESH,MASK_MESH,RUNDIR,DOUT_S_ROO
 # create model cases
 
 pwd = os.getcwd()
+
+################################
+# (0) delete raw folders
+_ = subprocess.run(f'rm -r {path_CTSM_case}', shell=True)
 
 ################################
 # (1) create new case
@@ -124,6 +121,15 @@ with open('user_nl_clm', 'a') as f:
         _ = f.write(s+'\n')
 
 # change land domain and MESH files
+if flag_clone == True:
+    tmp = []
+    for s1 in xmlchange_settings:
+        for s2 in select_settings_if_clone:
+            if s2 in s1:
+                tmp.append(s1)
+                break
+    xmlchange_settings = tmp
+
 for s in xmlchange_settings:
     _ = subprocess.run(f'./xmlchange {s}', shell=True)
 

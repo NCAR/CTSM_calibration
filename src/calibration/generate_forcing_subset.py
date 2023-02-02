@@ -182,6 +182,7 @@ if __name__ == '__main__':
     # default settings
 
     outpathSubset = path_CTSM_case + '_SubsetForcing'
+    _ = subprocess.run(f'rm -r {outpathSubset}', shell=True)
     os.makedirs(outpathSubset, exist_ok=True)
 
     ncformat = 'NETCDF3_CLASSIC'
