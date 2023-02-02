@@ -43,13 +43,13 @@ id = df_info.iloc[basin_num]['hru_id']
 file_Qobs = df_info.iloc[basin_num]['file_obsQ']
 data, date = decidePeriod.get_tmean_series_masked_by_q(inpath_camels_data, id)
 
-# method-1
-settings = {}
-settings['method'] = 1
-settings['calibyears'] = 5 # how many years are used to calibrate the model
-settings['validratio'] = 0.8 # ratio of valid Q records during the period
-settings['trial_start_date'] = '1985-10-01' # only use data after this period. month can be used to define the start of a water year
-RUN_STARTDATE, STOP_N, STOP_OPTION, STOP_DATE = decidePeriod.calibration_period_CTSMformat(data, date, settings)
+# # method-1
+# settings = {}
+# settings['method'] = 1
+# settings['calibyears'] = 5 # how many years are used to calibrate the model
+# settings['validratio'] = 0.8 # ratio of valid Q records during the period
+# settings['trial_start_date'] = '1985-10-01' # only use data after this period. month can be used to define the start of a water year
+# RUN_STARTDATE, STOP_N, STOP_OPTION, STOP_DATE = decidePeriod.calibration_period_CTSMformat(data, date, settings)
 
 # method-2
 settings = {}
@@ -59,11 +59,11 @@ settings['periodlength'] = 5 # calib years
 settings['window'] = 5 # years of rolling mean
 RUN_STARTDATE, STOP_N, STOP_OPTION, STOP_DATE = decidePeriod.calibration_period_CTSMformat(data, date, settings)
 
-# Method-3: default start period to utilize the existing restart file
-STOP_OPTION = 'nmonths'
-STOP_N = 36 # 3 years
-RUN_STARTDATE = '2000-01-01'
-STOP_DATE = '2002-12-31'
+# # Method-3: default start period to utilize the existing restart file
+# STOP_OPTION = 'nmonths'
+# STOP_N = 36 # 3 years
+# RUN_STARTDATE = '2000-01-01'
+# STOP_DATE = '2002-12-31'
 
 ########################################################################################################################
 # CTSM configurations
