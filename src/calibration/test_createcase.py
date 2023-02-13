@@ -7,7 +7,7 @@
 import sys, subprocess, time, os
 
 
-bnum = 20
+bnum = 1
 
 # more straitforward
 path_CTSM_source = '/glade/u/home/guoqiang/CTSM_repos/CTSM'
@@ -16,7 +16,7 @@ path_CTSM_CIMEout = f'/glade/scratch/guoqiang/CTSM_outputs/CAMELS_Calib/Lump_cal
 file_CTSM_mesh = f'/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_basin_mask_split_nest/ESMFmesh_ctsm_HCDN_nhru_final_671.buff_fix_holes_polygons_simplified_5e-4_split_nested_basin{bnum}.nc'
 file_CTSM_surfdata = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/shared_data_Sean/surfdata_CAMELS_split_nested_hist_78pfts_CMIP6_simyr2000_c230105.nc'
 
-createcase = "--machine casper --compset I2000Clm51Sp --driver nuopc --compiler intel --res f09_g16 --handle-preexisting-dirs r --run-unsupported"
+createcase = "--machine cheyenne --ninst 5 --compset I2000Clm51Sp --driver nuopc --compiler intel --res f09_g16 --handle-preexisting-dirs r --run-unsupported"
 RUN_STARTDATE = '2000-01-01'
 STOP_N = 36
 STOP_OPTION = 'nmonths'

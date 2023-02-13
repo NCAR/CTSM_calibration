@@ -1,0 +1,45 @@
+How to use the workflow
+1.
+configfile=/glade/u/home/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib_split_nest/configuration/CAMELS-${id}_config.toml
+echo "Configuration file is $configfile"
+python main.py $configfile Build
+
+2.
+For cases 1-670, create_clone based on 1, and create configurations (ostrich, spinup etc).
+
+3.
+configure 1 because it is better to clone based on a clean case
+
+
+
+
+Compiling notes
+GNU parallel
+4 tasks, GMAKE_J=8: compiling time is ~10 min
+9 tasks, GMAKE_J=8: compiling time is ~13 min
+18 or 36 tasks, GMAKE_J=8: compiling is > 30 or 60 mins, after which I just stopped the job
+18 tasks, GMAKE_J=2: compiling time is ~20 min
+36 tasks, GMAKE_J=1: compiling time is ~40 min
+
+./case.submit --no-batch
+if I require 36 CPUs, and run 36 tasks, they cannot be run
+if I run 3 tasks, each task is very slow compared to single task
+if I run one task, the speed is normal
+So, each "./case.submit --no-batch" requires one node?
+
+use python multiprocess is just the same.
+directly run .case.run is the same
+
+Use share queue can run parallel simulation (up to 18 cores), but other queues like regular cannot
+
+Paralle simulation notes
+For Cheyenne, "regular" and "share" queues have different environment variables. To run parallel simulation of many cases using the regular queue, use
+"export MPI_DSM_DISTRIBUTE=0"
+
+Two parallel methods on Cheyenne:
+GNU parallel
+Cheyenne cmd file parallel syntax
+
+
+
+

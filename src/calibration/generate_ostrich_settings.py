@@ -308,8 +308,10 @@ cwd = os.getcwd()
 os.chdir(path_CTSM_case)
 out = subprocess.run('./xmlquery DOUT_S_ROOT', shell=True, capture_output=True)
 DOUT_S_ROOT = out.stdout.decode().strip().split(' ')[-1]
+out = subprocess.run('./xmlquery RUNDIR', shell=True, capture_output=True)
+RUNDIR = out.stdout.decode().strip().split(' ')[-1]
 os.chdir(cwd)
-lines3 = ['\n', f'rm -r {DOUT_S_ROOT}/*']
+lines3 = ['\n', f'rm -r {DOUT_S_ROOT}/*\n', f'rm -r {RUNDIR}/*.nc']
 
 lines4 = ['\n', 'module load conda/latest', 'conda activate npl-2022b', '\n', './OstrichGCC']
 

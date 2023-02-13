@@ -117,6 +117,9 @@ _ = subprocess.run(f'cp {file_surfdata} {pathOstrichSave}', shell=True)
 _ = subprocess.run(f'cp {file_lnd_in} {pathOstrichSave}', shell=True)
 _ = subprocess.run(f'cp {file_user_nl_clm} {pathOstrichSave}', shell=True)
 
+# save OstModel
+_ = subprocess.run(f'cp {pathOstrichRun}/OstModel0.txt {pathOstrichSave}', shell=True)
+
 if mode == 'PreserveBestModel':
     # save Ostrich outputs
     files_in_pathOstrichRun = ['nc_multiplier.txt', 'trial_stats*.txt', 'Ost*.txt', 'timetrack.log']

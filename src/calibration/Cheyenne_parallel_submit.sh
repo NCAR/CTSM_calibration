@@ -14,6 +14,9 @@ module load cdo
 module load parallel
 conda activate npl-2022b-tgq
 
+# necessary for the regular queue to run CTSM model in parallel. The share queue already has this setting.
+export MPI_DSM_DISTRIBUTE=0
+
 parallel --jobs 36 "python main.py {}" ::: /glade/u/home/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib_split_nest/configuration/CAMELS-${PBS_ARRAY_INDEX}*_config.toml
 
 

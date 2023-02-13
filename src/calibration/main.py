@@ -132,6 +132,7 @@ else:
 
 ########################################################################################################################
 # step-4: Modify namelist
+# will be add to other sections
 if 'NameList' in runtasks:
     script_NL = config['calib']['files']['path_script_calib'] + '/' + 'generate_namelist.py'
     file_config_NL = parse_namelist_config(config)
