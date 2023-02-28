@@ -1,0 +1,1 @@
+/glade/p/cesmdata/cseg/inputdata/atm/datm7/atm_forcing.datm7.NLDAS2.0.125d.v1/Precip/ctsmforc.NLDAS2.0.125d.v1.Prec.1980-01.nc
