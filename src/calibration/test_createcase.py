@@ -7,7 +7,7 @@
 import sys, subprocess, time, os
 
 
-bnum = 1
+bnum = 999
 
 # more straitforward
 path_CTSM_source = '/glade/u/home/guoqiang/CTSM_repos/CTSM'
@@ -96,7 +96,7 @@ _ = subprocess.run(f'./xmlquery {xmlquery_settings}', shell=True)
 # (4) compile the model
 # _ = subprocess.run('./case.setup --reset', shell=True)
 _ = subprocess.run('./case.setup', shell=True)
-_ = subprocess.run('./case.build --clean-all', shell=True)
+_ = subprocess.run(' q', shell=True)
 if casebuild == 'qcmd':
     _ = subprocess.run(f'qcmd -l select=1:ncpus=1:mpiprocs=1 -l walltime=0:20:00 -A {projectCode} -q share -- ./case.build', shell=True)
 elif casebuild == 'direct':
