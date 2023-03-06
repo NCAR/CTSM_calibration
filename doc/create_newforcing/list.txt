@@ -1,3 +1,0 @@
-/glade/p/cgd/tss/CTSM_datm_forcing_data/atm_forcing.datm7.cruncep_qianFill.0.5d.v7.c160715/Solar6Hrly/clmforc.cruncep.V7.c2016.0.5d.Solr.1991-02.nc
-/glade/p/cgd/tss/CTSM_datm_forcing_data/atm_forcing.datm7.cruncep_qianFill.0.5d.v7.c160715/Precip6Hrly/clmforc.cruncep.V7.c2016.0.5d.Prec.1991-02.nc
-/glade/p/cgd/tss/CTSM_datm_forcing_data/atm_forcing.datm7.cruncep_qianFill.0.5d.v7.c160715/TPHWL6Hrly/clmforc.cruncep.V7.c2016.0.5d.TPQWL.1991-01.nc
