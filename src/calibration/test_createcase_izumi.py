@@ -7,23 +7,21 @@
 import sys, subprocess, time, os
 
 
-bnum = 999
+bnum = 120
 
 # more straitforward
-path_CTSM_source = '/glade/u/home/guoqiang/CTSM_repos/CTSM'
-path_CTSM_case = f'/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib_split_nest/CAMELS_{bnum}'
-path_CTSM_CIMEout = f'/glade/scratch/guoqiang/CTSM_outputs/CAMELS_Calib/Lump_calib_split_nest/CAMELS_{bnum}'
-file_CTSM_mesh = f'/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_basin_mask_split_nest/ESMFmesh_ctsm_HCDN_nhru_final_671.buff_fix_holes_polygons_simplified_5e-4_split_nested_basin{bnum}.nc'
-file_CTSM_surfdata = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/shared_data_Sean/surfdata_CAMELS_split_nested_hist_78pfts_CMIP6_simyr2000_c230105.nc'
+path_CTSM_source = '/home/guoqiang/CTSM'
+path_CTSM_case = f'/project/tss/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib_split_nest/CAMELS_{bnum}'
+# path_CTSM_CIMEout = f'/scratch/cluster/guoqiang/CTSM_CIMEout/CAMELS_{bnum}'
+file_CTSM_mesh = f'/project/tss/guoqiang/CTSM_cases/CAMELS_Calib/Lump_basin_mask_split_nest/ESMFmesh_ctsm_HCDN_nhru_final_671.buff_fix_holes_polygons_simplified_5e-4_split_nested_basin{bnum}.nc'
+file_CTSM_surfdata = '/project/tss/guoqiang/CTSM_cases/CAMELS_Calib/shared_data_Sean/surfdata_CAMELS_split_nested_hist_78pfts_CMIP6_simyr2000_c230105.nc'
 
-createcase = "--machine cheyenne --ninst 5 --compset I2000Clm51Sp --driver nuopc --compiler intel --res f09_g16 --handle-preexisting-dirs r --run-unsupported"
+createcase = "--machine izumi --compset I2000Clm51Sp --driver nuopc --compiler intel --res f09_g16 --handle-preexisting-dirs r --run-unsupported"
 RUN_STARTDATE = '2000-01-01'
-STOP_N = 36
+STOP_N = 6
 STOP_OPTION = 'nmonths'
 NTASKS = 1
 casebuild = 'direct'
-projectCode = 'P08010000'
-
 
 #####################
 # Model settings to be changed: list
@@ -37,11 +35,11 @@ xmlchange_settings = [f"ATM_DOMAIN_MESH={file_CTSM_mesh}",
                       f"LND_DOMAIN_MESH={file_CTSM_mesh}",
                       f"MASK_MESH={file_CTSM_mesh}",
                       # build/run parent path
-                      f"CIME_OUTPUT_ROOT={path_CTSM_CIMEout}",
+                      # f"CIME_OUTPUT_ROOT={path_CTSM_CIMEout}",
                       # turn off MOSART_MODE to save time
                       "MOSART_MODE=NULL",
                       # change forcing data
-                      "DATM_MODE=CLMNLDAS2",
+                      # "DATM_MODE=CLMNLDAS2",
                       # change the run time of mode case
                       f"STOP_N={STOP_N}",
                       f"RUN_STARTDATE={RUN_STARTDATE}",
@@ -70,8 +68,7 @@ pwd = os.getcwd()
 
 ################################
 # (1) create new case
-newcase_settings = f"{createcase} --project {projectCode}"
-_ = subprocess.run(f'{path_CTSM_source}/cime/scripts/create_newcase --case {path_CTSM_case} {newcase_settings}', shell=True)
+_ = subprocess.run(f'{path_CTSM_source}/cime/scripts/create_newcase --case {path_CTSM_case} {createcase}', shell=True)
 
 ################################
 # (2) change dir
@@ -96,9 +93,9 @@ _ = subprocess.run(f'./xmlquery {xmlquery_settings}', shell=True)
 # (4) compile the model
 # _ = subprocess.run('./case.setup --reset', shell=True)
 _ = subprocess.run('./case.setup', shell=True)
-_ = subprocess.run(' q', shell=True)
+_ = subprocess.run('./case.build --clean-all', shell=True)
 if casebuild == 'qcmd':
-    _ = subprocess.run(f'qcmd -l select=1:ncpus=1:mpiprocs=1 -l walltime=0:20:00 -A {projectCode} -q share -- ./case.build', shell=True)
+    _ = subprocess.run(f'qcmd -l select=1:ncpus=1:mpiprocs=1 -l walltime=0:20:00 -- ./case.build', shell=True)
 elif casebuild == 'direct':
     _ = subprocess.run(f'./case.build', shell=True)
 else:
