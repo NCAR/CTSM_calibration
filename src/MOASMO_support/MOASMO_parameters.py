@@ -95,7 +95,6 @@ def check_and_generate_binded_parameters(df_param, path_CTSM_case):
 
 def read_parameter_csv(file_parameter_list):
     df_calibparam = pd.read_csv(file_parameter_list)
-
     for c in ['Upper', 'Lower', 'Factor', 'Value']:
         if c in df_calibparam.columns:
             if isinstance(df_calibparam.iloc[0][c], str):
@@ -112,7 +111,6 @@ def read_parameter_csv(file_parameter_list):
                         except:
                             arr.append(np.array([-99999]))
                 df_calibparam[c] = arr
-
     return df_calibparam
 
 

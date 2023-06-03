@@ -170,26 +170,26 @@ def update_ctsm_parameters(path_CTSM_case, file_parameter_set):
 if __name__ == '__main__':
 
     # input arguments
-    # script_clone = sys.argv[0]
-    # path_CTSM_base = sys.argv[1]
-    # file_parameter_set = sys.argv[2] # three columns: ['Parameter', 'Value', 'Source']
-    # path_archive = sys.argv[3]
-    # caseflag = sys.argv[4]
-    # date_start = sys.argv[5]
-    # date_end = sys.argv[6]
-    # ref_streamflow = sys.argv[7]
-    # add_flow_file = sys.argv[8]
+    script_clone = sys.argv[1]
+    path_CTSM_base = sys.argv[2]
+    file_parameter_set = sys.argv[3] # three columns: ['Parameter', 'Value', 'Source']
+    path_archive = sys.argv[4]
+    caseflag = sys.argv[5]
+    date_start = sys.argv[6]
+    date_end = sys.argv[7]
+    ref_streamflow = sys.argv[8]
+    add_flow_file = sys.argv[9]
 
-    script_clone = '/glade/u/home/guoqiang/CTSM_repos/CTSM/cime/scripts/create_clone'
-    path_CTSM_base = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib_split_nest_LMWG/CAMELS_100'
-    file_parameter_set = '/glade/scratch/guoqiang/moasmo_test/param_sets/paramset_iter0_trial0.csv'
-    path_archive = '/glade/scratch/guoqiang/moasmo_test/ctsm_outputs'
-    caseflag = 'iter0_trial0'
-
-    date_start = '1994-10-01'
-    date_end = '1998-09-30'
-    ref_streamflow = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib_split_nest_LMWG/CAMELS_100_OstCalib/refdata/streamflow_data.csv'
-    add_flow_file = 'nofile'
+    # script_clone = '/glade/u/home/guoqiang/CTSM_repos/CTSM/cime/scripts/create_clone'
+    # path_CTSM_base = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib_split_nest_LMWG/CAMELS_100'
+    # file_parameter_set = '/glade/scratch/guoqiang/moasmo_test/param_sets/paramset_iter0_trial0.csv'
+    # path_archive = '/glade/scratch/guoqiang/moasmo_test/ctsm_outputs'
+    # caseflag = 'iter0_trial0'
+    #
+    # date_start = '1994-10-01'
+    # date_end = '1998-09-30'
+    # ref_streamflow = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib_split_nest_LMWG/CAMELS_100_OstCalib/refdata/streamflow_data.csv'
+    # add_flow_file = 'nofile'
 
     delete_clone = True
 
