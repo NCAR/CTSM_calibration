@@ -26,8 +26,6 @@ def ismember(a, b):
     return ind1.astype(int), ind2.astype(int) # None can be replaced by any other "not in b" value
 
 def get_modified_KGE(obs,sim):
-    sim[sim<0] = np.nan
-    obs[obs<0] = np.nan
     ind = (~np.isnan(obs)) & (~np.isnan(sim))
     obs = obs[ind]
     sim = sim[ind]
@@ -48,15 +46,16 @@ def get_modified_KGE(obs,sim):
 
 
 def get_RMSE(obs,sim):
-    sim[sim<0] = np.nan
-    obs[obs<0] = np.nan
     rmse = np.sqrt(np.nanmean(np.power((sim - obs),2)))
     return rmse
 
-def get_mean_error(obs,sim):
+def get_mean_error(obs, sim):
     bias_err = np.nanmean(sim - obs)
     abs_err = np.nanmean(np.absolute(sim - obs))
     return bias_err, abs_err
+
+def get_max_abs_error(d1, d2):
+    return np.nanmax(np.abs(d1-d2))
 
 ########################################################################################################################
 # define functions for reading CTSM outputs
@@ -86,8 +85,7 @@ def main_read_CTSM_streamflow(fsurdat, CTSMfilelist, date_start, date_end, clm_q
 
     # calculate streamflow: although mean is used, for Sean's setting, only one basin should be allowed effective in the calibration
     # streamflow? Use mean for this test
-    ds_simu[clm_q_name].values = (ds_simu[clm_q_name].values / 1000) * (
-                area * 1e6)  # raw q: mm/s; raw area km2; target: m3/s
+    ds_simu[clm_q_name].values = (ds_simu[clm_q_name].values / 1000) * (area * 1e6)  # raw q: mm/s; raw area km2; target: m3/s
     ds_simu = ds_simu.mean(dim=clm_q_sdim, skipna=True)
 
     return ds_simu
@@ -187,14 +185,30 @@ def mo_evaluate(outfile_metric, CTSMfilelist, fsurdat, date_start, date_end, ref
     ds_q_obs = ds_q_obs.sel(time=ds_q_obs.time.isin(ds_simu.time))
     ds_simu = ds_simu.sel(time=ds_simu.time.isin(ds_q_obs.time))
 
-    kge_q = get_modified_KGE(obs=ds_q_obs[ref_q_name].values, sim=ds_simu[clm_q_name].values)
-    rmse_q = get_RMSE(obs=ds_q_obs[ref_q_name].values, sim=ds_simu[clm_q_name].values)
-    print(f'Evaluation result: kge_q={kge_q}, rmse_q={rmse_q}')
+    d1 = ds_q_obs[ref_q_name].values
+    d2 = ds_simu[clm_q_name].values
+    d1[d1<0] = np.nan
+    d2[d2<0] = np.nan
+
+    kge_q = get_modified_KGE(obs=d1, sim=d2)
+
+    d1 = ds_q_obs[ref_q_name].groupby('time.month').mean().values
+    d2 = ds_simu[ref_q_name].groupby('time.month').mean()
+    maxabserror_q = get_max_abs_error(d1, d2)
+
+    print(f'Evaluation result: kge_q={kge_q}, maxabserror_q={maxabserror_q}')
+
+    # rmse_q = get_RMSE(obs=ds_q_obs[ref_q_name].values, sim=ds_simu[clm_q_name].values)
+
+    # d1[d1<0.001] = 0.001
+    # d2[d2<0.001] = 0.001
+    # kge_logq = get_modified_KGE(obs=np.log(d1), sim=np.log(d2))
+
+    # print(f'Evaluation result: kge_q={kge_q}, kge_logq={kge_logq}, rmse_q={rmse_q}')
 
     ########################################################################################################################
-    # write metric to file
-    dfout = pd.DataFrame([[kge_q, rmse_q]], columns=['kge_q', 'rmse_q'])
+    # write objective functions to file.
+    # metrics will be minimized during optimization
+    dfout = pd.DataFrame([[1 - kge_q, maxabserror_q]], columns=['metric1', 'metric2'])
     dfout.to_csv(outfile_metric, index=False)
-
-    return kge_q, rmse_q
 

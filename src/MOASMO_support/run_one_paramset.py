@@ -234,4 +234,4 @@ if __name__ == '__main__':
     infilelist.sort()
     fsurdat = get_parameter_from_Namelist_or_lndin('fsurdat', f'{path_CTSM_base}/user_nl_clm', f'{path_CTSM_base}/Buildconf/clmconf/lnd_in', type='str')
     outfile_metric = f'{path_archive}/{caseflag}/evaluation_metric.csv'
-    kge_q, rmse_q = mo_evaluate(outfile_metric, infilelist, fsurdat, date_start, date_end, ref_streamflow, add_flow_file)
+    mo_evaluate(outfile_metric, infilelist, fsurdat, date_start, date_end, ref_streamflow, add_flow_file)

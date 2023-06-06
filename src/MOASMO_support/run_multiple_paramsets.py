@@ -6,11 +6,11 @@ import pandas as pd
 import numpy as np
 from MOASMO_parameters import read_parameter_csv
 
-def generate_and_submit_multi_CTSM_runs(iterflag, path_allruns, path_paramset, path_CTSM_base, path_archive,
+def generate_and_submit_multi_CTSM_runs(iterflag, path_submit, path_paramset, path_CTSM_base, path_archive,
                                         script_singlerun, script_clone, date_start, date_end, ref_streamflow, add_flow_file):
 
     # iterflag = 0
-    # path_allruns = '/glade/scratch/guoqiang/moasmo_test/run_model'
+    # path_submit = '/glade/scratch/guoqiang/moasmo_test/run_model'
     # path_paramset = '/glade/scratch/guoqiang/moasmo_test/param_sets'
     # script_singlerun = '/glade/u/home/guoqiang/CTSM_repos/moasmo_test/run_one_paramset.py'
     # script_clone = '/glade/u/home/guoqiang/CTSM_repos/CTSM/cime/scripts/create_clone'
@@ -22,7 +22,7 @@ def generate_and_submit_multi_CTSM_runs(iterflag, path_allruns, path_paramset, p
     # add_flow_file = 'nofile'
 
     # create command file
-    path_runmodel = f'{path_allruns}/iter{iterflag}'
+    path_runmodel = f'{path_submit}/iter{iterflag}'
     os.makedirs(path_runmodel, exist_ok=True)
 
     param_filelist = glob.glob(f'{path_paramset}/*iter{iterflag}_trial*.csv')
@@ -68,16 +68,17 @@ def check_if_all_runs_are_finsihed(path_archive, iterflag, tarnum, sleep=10):
 
     flag = True
     while flag:
-        folders = glob.glob(f'{path_archive}/*{iterflag}*/')
+        folders = glob.glob(f'{path_archive}/*iter{iterflag}_*/')
         if len(folders) == tarnum:
-            print(f'All runs dones: the number of {path_archive}/*{iterflag}*/ folders equal to {tarnum}')
-            merge_parameter_metric_csv(path_archive, iterflag, tarnum)
+            print(f'All runs dones: the number of {path_archive}/*iter{iterflag}_*/ folders equal to {tarnum}')
+            time.sleep(10) # leave some time for evaluation
+            outfile_metric, outfile_param = merge_parameter_metric_csv(path_archive, iterflag, tarnum)
             flag = False
         else:
             flag = True
             time.sleep(sleep)
 
-    return
+    return outfile_metric, outfile_param
 
 def merge_parameter_metric_csv(path_archive, iterflag, tarnum):
     # merge parameters and metric values from all runs to one csv file
@@ -106,4 +107,4 @@ def merge_parameter_metric_csv(path_archive, iterflag, tarnum):
     dfout = pd.DataFrame(param_meanvalues, columns=param_names)
     dfout.to_csv(outfile_param, index=False)
 
-    return
+    return outfile_metric, outfile_param
