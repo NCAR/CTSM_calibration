@@ -193,7 +193,7 @@ def mo_evaluate(outfile_metric, CTSMfilelist, fsurdat, date_start, date_end, ref
     kge_q = get_modified_KGE(obs=d1, sim=d2)
 
     d1 = ds_q_obs[ref_q_name].groupby('time.month').mean().values
-    d2 = ds_simu[ref_q_name].groupby('time.month').mean()
+    d2 = ds_simu[clm_q_name].groupby('time.month').mean().values
     maxabserror_q = get_max_abs_error(d1, d2)
 
     print(f'Evaluation result: kge_q={kge_q}, maxabserror_q={maxabserror_q}')

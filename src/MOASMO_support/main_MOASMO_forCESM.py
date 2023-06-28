@@ -2,34 +2,51 @@
 # Gong et al., (2015) Multiobjective adaptive surrogate modeling-based optimization for parameter estimation of large, complex geophysical models, WRR
 # https://github.com/gongw03/MO-ASMO
 
+# temporary codes for CESM presentation
+
 import os, sys, subprocess, time
 import toml
 from MOASMO_parameters import generate_initial_parameter_sets, surrogate_model_train_and_pareto_points
 import run_multiple_paramsets
 
-# Four step design following Gong et all., (2015)
+bnum = int(sys.argv[1])
 
 ########################################################################################################################
 # load configurations
 # config_file = 'config.toml'
 # config = toml.load(config_file)
 
+ostrich_file = f'/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib_split_nest_LMWG/CAMELS_{bnum}_OstCalib/run/CTSM_run_trial.sh'
+with open(ostrich_file, 'r') as f:
+    ostlines = f.readlines()
+
 # inputs
 file_parameter_list = '/glade/u/home/guoqiang/CTSM_repos/moasmo_test/param_ASG_20221206_moasmo.csv'
-path_CTSM_base = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib_split_nest_LMWG/CAMELS_100'
+path_CTSM_base = f'/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib_split_nest_LMWG/CAMELS_{bnum}'
 script_singlerun = '/glade/u/home/guoqiang/CTSM_repos/moasmo_test/run_one_paramset.py'
 script_clone = '/glade/u/home/guoqiang/CTSM_repos/CTSM/cime/scripts/create_clone'
-ref_streamflow = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib_split_nest_LMWG/CAMELS_100_OstCalib/refdata/streamflow_data.csv'
-add_flow_file = 'nofile'
+ref_streamflow = f'/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib_split_nest_LMWG/CAMELS_{bnum}_OstCalib/refdata/streamflow_data.csv'
+
+for l in ostlines:
+    if l.startswith('add_flow_file'):
+        add_flow_file = l.strip().split('#')[0].strip().split('=')[1].replace('"', '')
+        break
 
 # outputs
-path_paramset = '/glade/scratch/guoqiang/moasmo_camels100/param_sets'
-path_submit = '/glade/scratch/guoqiang/moasmo_camels100/run_model'
-path_archive = '/glade/scratch/guoqiang/moasmo_camels100/ctsm_outputs'
+path_paramset = f'/glade/work/guoqiang/CTSM_cases/MOASMO_CESM/CAMELS{bnum}/param_sets'
+path_submit = f'/glade/work/guoqiang/CTSM_cases/MOASMO_CESM/CAMELS{bnum}/run_model'
+path_archive = f'/glade/work/guoqiang/CTSM_cases/MOASMO_CESM/CAMELS{bnum}/ctsm_outputs'
 
 # evaluation period
-date_start = '1994-10-01'
-date_end = '1998-09-30'
+for l in ostlines:
+    if l.startswith('DateEvalStart'):
+        date_start = l.strip().split('#')[0].strip().split('=')[1]
+        break
+
+for l in ostlines:
+    if l.startswith('DateEvalEnd'):
+        date_end = l.strip().split('#')[0].strip().split('=')[1]
+        break
 
 # MO-ASMO parameters
 sampling_method = 'glp'
