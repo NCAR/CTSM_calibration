@@ -44,16 +44,22 @@ user_nl_clm = ['']
 [calib]
 [calib.files]
 path_script_calib = "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/calibration"
-path_script_Ostrich = "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/Ostrich_support"
-file_calib_param = "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/parameter/param_yifan.csv"
+path_script_MOASMO = "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support"
+file_calib_param = "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/param_ASG_20221206_moasmo_2param.csv"
 file_Qobs = "..."
 
 [calib.eval]
 ignore_month = 12 # the first part of simulation is ignored when evaluating the model for better spin up
 
 [calib.job]
-#jobsetting = ['#PBS -N OstrichCalib', '#PBS -q casper', '#PBS -l walltime=24:00:00']
-jobsetting = ['#PBS -N OstrichCalib', '#PBS -q share', '#PBS -l walltime=6:00:00']
+cpus_per_iter = 36
+
+[calib.settings]
+sampling_method = 'glp'
+num_init = 72 # initial number of samples
+num_per_iter = 20 # number of selected pareto parameter sets for each iteration
+num_iter = 4 # including the initial iteration
+
 
 [spinup]
 spinup_mode = "continuous" # continuous: period before RUN_STARTDATE. No other option for now
