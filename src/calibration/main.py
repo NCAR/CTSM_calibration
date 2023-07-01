@@ -43,6 +43,7 @@ else:
 ########################################################################################################################
 # step-2, option-1: Create Ostrich settings
 if 'Ostrich' in runtasks:
+    print('Ostrich calibration is selected.')
     script_GenOstrich = config['calib']['files']['path_script_calib'] + '/' + 'generate_ostrich_settings.py'
     file_config_Ostrich = parsconfig.parse_Ostrich_config(config)
     _ = subprocess.run(f'python {script_GenOstrich} {file_config_Ostrich}', shell=True)
@@ -52,11 +53,12 @@ else:
 
 # step-2, option-2: Create MO-ASMO settings
 if 'MO-ASMO' in runtasks:
+    print('MO-ASMO calibration is selected.')
     script_GenOstrich = config['calib']['files']['path_script_calib'] + '/' + 'generate_ostrich_settings.py'
     file_config_Ostrich = parsconfig.parse_Ostrich_config(config)
     _ = subprocess.run(f'python {script_GenOstrich} {file_config_Ostrich}', shell=True)
 else:
-    print('No need to create Ostrich settings')
+    print('No need to create MO-ASMO settings')
 
 ########################################################################################################################
 # step-3: Create forcing subsets and change model settings

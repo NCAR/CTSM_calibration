@@ -28,7 +28,7 @@ else:
     iter_start = int(d[-1])
     iter_end = int(d[-1]) + iter_num_per_sub + 1
     if iter_end >= num_iter:
-        num_iter = num_iter
+        iter_end = num_iter
 
 out = subprocess.run(f'python {run_script} {configfile} {iter_start} {iter_end}', shell=True)
 

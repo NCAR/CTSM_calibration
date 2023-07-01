@@ -51,14 +51,19 @@ file_Qobs = "..."
 [calib.eval]
 ignore_month = 12 # the first part of simulation is ignored when evaluating the model for better spin up
 
-[calib.job]
-cpus_per_iter = 36
-
 [calib.settings]
 sampling_method = 'glp'
 num_init = 72 # initial number of samples
 num_per_iter = 20 # number of selected pareto parameter sets for each iteration
 num_iter = 4 # including the initial iteration
+
+[calib.job]
+# job to run each iteration (including iteration 0). multiple CTMS cases will be run
+job_CTSMiteration = ['#PBS -N CTSMiter', '#PBS -q regular', '#PBS -l select=1:ncpus=36', '#PBS -l walltime=12:00:00', '#PBS -A P08010000']
+
+# one job that controls all jobs, and perform basic functions such as parameter generation and emulator construction
+job_controlMOASMO =  ['#PBS -N MOAcontrol', '#PBS -q share', '#PBS -l select=1:ncpus=1', '#PBS -l walltime=6:00:00', '#PBS -A P08010000']
+
 
 
 [spinup]

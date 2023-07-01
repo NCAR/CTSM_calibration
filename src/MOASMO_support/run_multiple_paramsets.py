@@ -1,13 +1,13 @@
 # for multiple parameter sets by calling run_one_paramset.py
 # this script creates submission scripts and run those parameters in parallel
 
-import os, glob, time
+import os, glob, time, re
 import pandas as pd
 import numpy as np
 from MOASMO_parameters import read_parameter_csv
 
 def generate_and_submit_multi_CTSM_runs(iterflag, path_submit, path_paramset, path_CTSM_base, path_archive,
-                                        script_singlerun, script_clone, date_start, date_end, ref_streamflow, add_flow_file, cpus=36):
+                                        script_singlerun, script_clone, date_start, date_end, ref_streamflow, add_flow_file, job_CTSMiteration):
 
     # iterflag = 0
     # path_submit = '/glade/scratch/guoqiang/moasmo_test/run_model'
@@ -38,18 +38,24 @@ def generate_and_submit_multi_CTSM_runs(iterflag, path_submit, path_paramset, pa
 
     # create submission file
     script_submission = f'{path_runmodel}/submit_iter{iterflag}.sh'
-    # cpus = 36 # note that Cheyenne charges for the entire node even this value is smaller than 36
+    # '#PBS -l select=1:ncpus=1'
+    for s in job_CTSMiteration:
+        if 'ncpus' in s:
+            pattern = r'select=(\d+):ncpus=(\d+)'
+            match = re.search(pattern, s)
+            numnode = int(match.group(1))
+            numcpu = int(match.group(2))
+            cpus = numnode * numcpu
+            break
 
-    lines = ['#PBS -N moasmo', '#PBS -q regular',
-             '#PBS -l walltime=12:00:00', '#PBS -A P08010000',
-             f'#PBS -l select=1:ncpus={cpus}',
-             '\n',
-             'module load conda/latest parallel cdo', 'conda activate npl-2022b',
+    lines = ['module load conda/latest parallel cdo', 'conda activate npl-2022b',
              '\n',
              'export MPI_DSM_DISTRIBUTE=0',
              '\n'
              f"echo 'Running {commands_run_model}'",
              f'parallel --jobs {cpus} --joblog joblog.txt < {commands_run_model}']
+
+    lines = job_CTSMiteration + lines
 
     with open(script_submission, 'w') as f:
         for li in lines:

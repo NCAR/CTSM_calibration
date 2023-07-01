@@ -49,14 +49,16 @@ sampling_method = config['sampling_method']
 num_init = config['num_init'] # initial number of samples
 num_per_iter = config['num_per_iter'] # number of selected pareto parameter sets for each iteration
 num_iter = config['num_iter'] # including the initial iteration
-cpus_per_iter = config['cpus_per_iter'] # how many cpus are used to run each iteration (i.e., the number of cpus of an entire node)
-
 
 # evaluation period
 RUN_STARTDATE = config['RUN_STARTDATE']
 ignore_month = config['ignore_month']
 STOP_OPTION = config['STOP_OPTION']
 STOP_N = config['STOP_N']
+
+# HPC job settings
+job_CTSMiteration = config['job_CTSMiteration']
+# job_controlMOASMO = config['job_controlMOASMO'] # not needed here
 
 date_start = (pd.Timestamp(RUN_STARTDATE) + pd.offsets.DateOffset(months=ignore_month)).strftime('%Y-%m-%d') # ignor the first year when evaluating model
 if STOP_OPTION == 'nyears':
@@ -119,7 +121,7 @@ for it in range(iter_start, iter_end):
     # Run models based on all parameter samples for this iteration. Individual jobs will be submitted
     run_multiple_paramsets.generate_and_submit_multi_CTSM_runs(iterflag, path_submit, path_paramset, path_CTSM_base,
                                                                path_archive, script_singlerun, script_clone,
-                                                               date_start, date_end, ref_streamflow, add_flow_file, cpus_per_iter)
+                                                               date_start, date_end, ref_streamflow, add_flow_file, job_CTSMiteration)
 
     # Don't continue until all runs are finished
     file_metric_iter, file_param_iter = run_multiple_paramsets.check_if_all_runs_are_finsihed(path_archive, iterflag, sample_num)
