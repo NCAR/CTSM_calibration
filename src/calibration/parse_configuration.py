@@ -59,6 +59,7 @@ def parse_MOASMO_config(config):
                       'STOP_N': config['CTSM']['settings']['STOP_N'],
                       'STOP_OPTION': config['CTSM']['settings']['STOP_OPTION'],
                       'projectCode': config['HPC']['projectCode'],
+                      'job_mode': config['calib']['job']['job_mode'],
                       'job_CTSMiteration': config['calib']['job']['job_CTSMiteration'],
                       'job_controlMOASMO': config['calib']['job']['job_controlMOASMO'],
                       'sampling_method': config['calib']['settings']['sampling_method'],

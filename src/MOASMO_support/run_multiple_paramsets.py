@@ -2,12 +2,17 @@
 # this script creates submission scripts and run those parameters in parallel
 
 import os, glob, time, re
+import sys
+
 import pandas as pd
 import numpy as np
 from MOASMO_parameters import read_parameter_csv
 
 def generate_and_submit_multi_CTSM_runs(iterflag, path_submit, path_paramset, path_CTSM_base, path_archive,
-                                        script_singlerun, script_clone, date_start, date_end, ref_streamflow, add_flow_file, job_CTSMiteration):
+                                        script_singlerun, script_clone, date_start, date_end, ref_streamflow, add_flow_file, job_CTSMiteration, job_mode):
+    # job_mode:
+    # lumpsubmit: a job only addressed one grid and thus one submission job can sequentially deal with many jobs
+    # casesubmit: use the casesubmit function provided by CTSM to run each model case independently
 
     # iterflag = 0
     # path_submit = '/glade/scratch/guoqiang/moasmo_test/run_model'
@@ -36,36 +41,43 @@ def generate_and_submit_multi_CTSM_runs(iterflag, path_submit, path_paramset, pa
             commandi = f"python {script_singlerun} {script_clone} {path_CTSM_base} {file_parameter_set} {path_archive} {caseflag} {date_start} {date_end} {ref_streamflow} {add_flow_file}"
             _ = f.write(f'{commandi}\n')
 
-    # create submission file
-    script_submission = f'{path_runmodel}/submit_iter{iterflag}.sh'
-    # '#PBS -l select=1:ncpus=1'
-    for s in job_CTSMiteration:
-        if 'ncpus' in s:
-            pattern = r'select=(\d+):ncpus=(\d+)'
-            match = re.search(pattern, s)
-            numnode = int(match.group(1))
-            numcpu = int(match.group(2))
-            cpus = numnode * numcpu
-            break
+    if job_mode == 'lumpsubmit':
+        # create submission file
+        script_submission = f'{path_runmodel}/submit_iter{iterflag}.sh'
+        # '#PBS -l select=1:ncpus=1'
+        for s in job_CTSMiteration:
+            if 'ncpus' in s:
+                pattern = r'select=(\d+):ncpus=(\d+)'
+                match = re.search(pattern, s)
+                numnode = int(match.group(1))
+                numcpu = int(match.group(2))
+                cpus = numnode * numcpu
+                break
 
-    lines = ['module load conda/latest parallel cdo', 'conda activate npl-2022b',
-             '\n',
-             'export MPI_DSM_DISTRIBUTE=0',
-             '\n'
-             f"echo 'Running {commands_run_model}'",
-             f'parallel --jobs {cpus} --joblog joblog.txt < {commands_run_model}']
+        lines = ['module load conda/latest parallel cdo', 'conda activate npl-2022b',
+                 '\n',
+                 'export MPI_DSM_DISTRIBUTE=0',
+                 '\n'
+                 f"echo 'Running {commands_run_model}'",
+                 f'parallel --jobs {cpus} --joblog joblog.txt < {commands_run_model}']
 
-    lines = job_CTSMiteration + lines
+        lines = job_CTSMiteration + lines
 
-    with open(script_submission, 'w') as f:
-        for li in lines:
-            _ = f.write(li + '\n')
+        with open(script_submission, 'w') as f:
+            for li in lines:
+                _ = f.write(li + '\n')
 
-    _ = os.system(f'chmod +x {script_submission}')
+        _ = os.system(f'chmod +x {script_submission}')
 
-    # submit job
-    os.chdir(path_runmodel)
-    os.system(f'qsub submit_iter{iterflag}.sh')
+        # submit job
+        os.chdir(path_runmodel)
+        os.system(f'qsub submit_iter{iterflag}.sh')
+
+    elif job_mode == 'casesubmit':
+        pass
+
+    else:
+        sys.exit('Unknown job_mode')
 
 
 

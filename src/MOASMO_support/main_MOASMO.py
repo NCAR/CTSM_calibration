@@ -57,6 +57,7 @@ STOP_OPTION = config['STOP_OPTION']
 STOP_N = config['STOP_N']
 
 # HPC job settings
+job_mode = config['job_mode']
 job_CTSMiteration = config['job_CTSMiteration']
 # job_controlMOASMO = config['job_controlMOASMO'] # not needed here
 
@@ -121,7 +122,7 @@ for it in range(iter_start, iter_end):
     # Run models based on all parameter samples for this iteration. Individual jobs will be submitted
     run_multiple_paramsets.generate_and_submit_multi_CTSM_runs(iterflag, path_submit, path_paramset, path_CTSM_base,
                                                                path_archive, script_singlerun, script_clone,
-                                                               date_start, date_end, ref_streamflow, add_flow_file, job_CTSMiteration)
+                                                               date_start, date_end, ref_streamflow, add_flow_file, job_CTSMiteration, job_mode)
 
     # Don't continue until all runs are finished
     file_metric_iter, file_param_iter = run_multiple_paramsets.check_if_all_runs_are_finsihed(path_archive, iterflag, sample_num)

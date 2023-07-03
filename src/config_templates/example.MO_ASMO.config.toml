@@ -58,6 +58,10 @@ num_per_iter = 20 # number of selected pareto parameter sets for each iteration
 num_iter = 15 # including the initial iteration
 
 [calib.job]
+# lumpsubmit: a job only addressed one grid and thus one submission job can sequentially deal with many jobs
+# casesubmit: use the casesubmit function provided by CTSM to run each model case independently
+job_mode = 'lumpsubmit'
+
 # job to run each iteration (including iteration 0). multiple CTMS cases will be run
 job_CTSMiteration = ['#PBS -N CTSMiter', '#PBS -q regular', '#PBS -l select=1:ncpus=36', '#PBS -l walltime=12:00:00', '#PBS -A P08010000']
 
