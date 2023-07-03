@@ -46,7 +46,7 @@ def clone_CTSM_model_case(script_clone, source_modelcase, target_modelcase, targ
         settings = f'--cime-output-root {target_cimeoutput}'
     else:
         settings = ''
-    _ = subprocess.run(f"{script_clone} --case {target_modelcase} --clone {source_modelcase} {settings}", shell=True)
+    _ = subprocess.run(f"{script_clone} --case {target_modelcase} --clone {source_modelcase} {settings} --keepexe", shell=True)
     os.chdir(target_modelcase)
     _ = subprocess.run('./xmlchange BUILD_COMPLETE=TRUE', shell=True)
 

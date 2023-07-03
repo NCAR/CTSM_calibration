@@ -48,7 +48,7 @@ def parse_Ostrich_config(config):
     return file_config_Ostrich
 
 def parse_MOASMO_config(config):
-    config_MOASMO =  {'path_CTSM_source': config['path_CTSM_source'],
+    config_MOASMO =  {'path_CTSM_source': config['CTSM']['files']['path_CTSM_source'],
                       'path_script_calib': config['calib']['files']['path_script_calib'],
                       'path_script_MOASMO': config['calib']['files']['path_script_MOASMO'],
                       'path_CTSM_case': config['CTSM']['files']['path_CTSM_case'],

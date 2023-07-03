@@ -15,11 +15,14 @@ import NSGA2
 
 def get_parameter_from_Namelist_or_lndin(name, file_user_nl_clm, file_lndin, type='number'):
     # check Namelist file first, and then check
+    flag = False
     with open(file_user_nl_clm, 'r') as f:
         for l in f:
             l = l.strip()
             if l.startswith(name):
                 if type == 'number':
+                    if 'd' in l:
+                        l = l.replace('d', 'e')
                     value = np.array(float(l.split('=')[-1].strip().replace('\'', '')))
                 elif type == 'str':
                     value = l.split('=')[-1].strip().replace('\'', '')
@@ -30,9 +33,12 @@ def get_parameter_from_Namelist_or_lndin(name, file_user_nl_clm, file_lndin, typ
             for l in f:
                 l = l.strip()
                 if l.startswith(name):
-                    value = np.array(float(l.split('=')[-1].strip().replace('\'', '')))
-                elif type == 'str':
-                    value = l.split('=')[-1].strip().replace('\'', '')
+                    if type == 'number':
+                        if 'd' in l:
+                            l = l.replace('d', 'e')
+                        value = np.array(float(l.split('=')[-1].strip().replace('\'', '')))
+                    elif type == 'str':
+                        value = l.split('=')[-1].strip().replace('\'', '')
                     break
     return value
 
@@ -166,7 +172,7 @@ def generate_initial_parameter_sets(file_parameter_list, sampling_method, outpat
             factor0 = []
             for j in range(len(param_names)):
                 param0.append(get_parameter_value_from_CTSM_case(param_names[j], param_sources[j], path_CTSM_case))
-                factor0.append(np.nanmean(param0) - param_lower_bound[j])/(param_upper_bound[j] - param_lower_bound[j])
+                factor0.append( (np.nanmean(param0[j]) - param_lower_bound[j])/(param_upper_bound[j] - param_lower_bound[j]) )
 
             dfi['Value'] = param0
             dfi['Factor'] = factor0

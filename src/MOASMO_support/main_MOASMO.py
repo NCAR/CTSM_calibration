@@ -9,7 +9,7 @@ import run_multiple_paramsets
 
 ########################################################################################################################
 # load configurations
-config_file = sys.argv[1]
+config_file = '/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/config_templates/_example.MO_ASMO.config_MOASMO.toml'
 config = toml.load(config_file)
 
 if len(sys.argv)>2:

@@ -1,9 +1,7 @@
 # Build cases for CAMELS basins. one basin one case
 # better to run within a computation node due to the time cost of case.build, spin up, forcing subset
 
-import subprocess, sys
-import toml
-import pathlib
+import subprocess, sys, os, toml, pathlib
 
 import parse_configuration as parsconfig
 
@@ -22,6 +20,8 @@ print('Run tasks:', runtasks)
 
 # remove intermediate configuration files (.e.g., _cstm.config_CTMScase.toml)
 rm_interconfig = False
+
+config_file = os.path.abspath(config_file)
 
 ########################################################################################################################
 print(f"Settings are read from {config_file}")
@@ -52,11 +52,12 @@ else:
 
 
 # step-2, option-2: Create MO-ASMO settings
-if 'MO-ASMO' in runtasks:
+moasmo_mode = 'Once' # Once or Resubmit
+if 'MOASMO' in runtasks:
     print('MO-ASMO calibration is selected.')
-    script_GenOstrich = config['calib']['files']['path_script_calib'] + '/' + 'generate_ostrich_settings.py'
-    file_config_Ostrich = parsconfig.parse_Ostrich_config(config)
-    _ = subprocess.run(f'python {script_GenOstrich} {file_config_Ostrich}', shell=True)
+    script_GenOstrich = config['calib']['files']['path_script_calib'] + '/' + 'generate_MOASMO_settings.py'
+    file_config_Ostrich = parsconfig.parse_MOASMO_config(config)
+    _ = subprocess.run(f'python {script_GenOstrich} {file_config_Ostrich} {moasmo_mode}', shell=True)
 else:
     print('No need to create MO-ASMO settings')
 

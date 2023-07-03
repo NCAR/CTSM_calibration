@@ -16,10 +16,10 @@ projectCode = "P08010000"
 [CTSM]
 [CTSM.files]
 path_CTSM_source = "/glade/u/home/guoqiang/CTSM_repos/CTSM"
-path_CTSM_case = "/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib/CAMELS_10"
-path_CTSM_CIMEout = "/glade/scratch/guoqiang/CTSM_outputs/CAMELS_Calib/Lump_calib/CAMELS_10"
-file_CTSM_mesh = "/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_basin_mask/ESMFmesh_ctsm_HCDN_nhru_final_671_v0_8e-3_basin10.nc"
-file_CTSM_surfdata = "/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/shared_data_Sean/surfdata_CAMELS_hist_78pfts_CMIP6_simyr2000_c221004.nc"
+path_CTSM_case = "/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/testMOASMO/CAMELS_100"
+path_CTSM_CIMEout = "/glade/scratch/guoqiang/CTSM_outputs/CAMELS_Calib/testMOASMO/CAMELS_100"
+file_CTSM_mesh = "/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_basin_mask_split_nest/ESMFmesh_ctsm_HCDN_nhru_final_671.buff_fix_holes_polygons_simplified_5e-4_split_nested_basin100.nc"
+file_CTSM_surfdata = "/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/shared_data_Sean/surfdata_CAMELS_split_nested_hist_78pfts_CMIP6_simyr2000_c230105.nc"
 
 [CTSM.settings]
 CLONEROOT = "if this folder exists, create_newcase will be replaced by create_clone"
@@ -45,8 +45,8 @@ user_nl_clm = ['']
 [calib.files]
 path_script_calib = "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/calibration"
 path_script_MOASMO = "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support"
-file_calib_param = "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/param_ASG_20221206_moasmo_2param.csv"
-file_Qobs = "..."
+file_calib_param = "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/parameter/param_ASG_20221206_moasmo.csv"
+file_Qobs = "/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib_split_nest_LMWG/CAMELS_100_OstCalib/refdata/streamflow_data.csv"
 
 [calib.eval]
 ignore_month = 12 # the first part of simulation is ignored when evaluating the model for better spin up
@@ -55,7 +55,7 @@ ignore_month = 12 # the first part of simulation is ignored when evaluating the 
 sampling_method = 'glp'
 num_init = 72 # initial number of samples
 num_per_iter = 20 # number of selected pareto parameter sets for each iteration
-num_iter = 4 # including the initial iteration
+num_iter = 15 # including the initial iteration
 
 [calib.job]
 # job to run each iteration (including iteration 0). multiple CTMS cases will be run

@@ -8,7 +8,7 @@ import sys, toml, os
 def create_control_once_job(file_control, job_controlMOASMO, configfile, script_main):
     lines = ['module load conda/latest cdo', 'conda activate npl-2022b',
              '\n',
-             f'python {script_main} ${configfile}'
+             f'python {script_main} {configfile}'
              ]
     lines = job_controlMOASMO + lines
 
@@ -65,13 +65,4 @@ elif mode == 'Resubmit':
     iter_num_per_sub = 5
     submit_script = 'MOASMO_iter_submit.sh'
     create_control_resubmit_job(file_control, job_controlMOASMO, configfile, script_main, submit_script, script_resubmit, iter_num_per_sub)
-
-
-
-
-
-
-
-
-
 
