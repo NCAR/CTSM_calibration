@@ -124,7 +124,7 @@ config_calib['settings']['num_iter'] = 15 # including the initial iteration
 
 
 config_calib['job'] = {}
-job_mode = 'lumpsubmit'
+config_calib['job']['job_mode'] = 'lumpsubmit'
 
 # job to run each iteration (including iteration 0). multiple CTMS cases will be run
 config_calib['job']['job_CTSMiteration'] = ['#PBS -N CTSMiter', '#PBS -q regular', '#PBS -l select=1:ncpus=36', '#PBS -l walltime=12:00:00', '#PBS -A P08010000']

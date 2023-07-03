@@ -7,8 +7,8 @@ import parse_configuration as parsconfig
 
 ########################################################################################################################
 # input config file
-config_file = '../config_templates/example.MO_ASMO.config.toml'
-# config_file = sys.argv[1]
+# config_file = '../config_templates/example.MO_ASMO.config.toml'
+config_file = sys.argv[1]
 
 # tasks that will be executed. by default, all tasks will be run
 # runtasks = "Build,Ostrich,SubForc,NameList,SpinUp" # run complete Ostrich calibration

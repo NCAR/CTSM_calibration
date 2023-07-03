@@ -34,12 +34,14 @@ def generate_and_submit_multi_CTSM_runs(iterflag, path_submit, path_paramset, pa
     param_filelist.sort()
 
     commands_run_model = f'{path_runmodel}/commands_run_iter{iterflag}.txt'
+    commands_all = []
     with open(commands_run_model, 'w') as f:
         for i in range(len(param_filelist)):
             caseflag = f'iter{iterflag}_trial{i}'
             file_parameter_set = f'{path_paramset}/paramset_iter{iterflag}_trial{i}.csv'
             commandi = f"python {script_singlerun} {script_clone} {path_CTSM_base} {file_parameter_set} {path_archive} {caseflag} {date_start} {date_end} {ref_streamflow} {add_flow_file}"
             _ = f.write(f'{commandi}\n')
+            commands_all.append(commandi)
 
     if job_mode == 'lumpsubmit':
         # create submission file
@@ -74,7 +76,40 @@ def generate_and_submit_multi_CTSM_runs(iterflag, path_submit, path_paramset, pa
         os.system(f'qsub submit_iter{iterflag}.sh')
 
     elif job_mode == 'casesubmit':
-        pass
+
+        # generate submission scripts
+        lines1 = []
+        keywords = ['-q', 'walltime', '-A']
+        for l in job_CTSMiteration:
+            for k in keywords:
+                if k in l:
+                    lines1.append(l)
+                    break
+
+        lines2 = []
+        template_file = f'{path_CTSM_base}/.case.run'
+        with open(template_file, 'r') as f:
+            for li in f:
+                if li.startswith('#PBS'):
+                    if np.all([not k in li for k in keywords]):
+                        lines2.append(li.strip())
+
+        lines3 = ['\n', 'module load conda/latest parallel cdo', 'conda activate npl-2022b', '\n',]
+
+        subscriptall = []
+        for i in range(len(commands_all)):
+            script_submission = f'{path_runmodel}/submit_iter{iterflag}_trial{i}.sh'
+            with open(script_submission, 'w') as f:
+                lines4 = [ commands_all[i] ]
+                for li in lines1 + lines2 + lines3 + lines4:
+                    _ = f.write(li + '\n')
+            os.system(f'chmod +x {script_submission}')
+            subscriptall.append(script_submission)
+
+        # submit scripts
+        os.chdir(path_runmodel)
+        for i in range(len(commands_all)):
+            os.system(f'qsub {subscriptall}')
 
     else:
         sys.exit('Unknown job_mode')
