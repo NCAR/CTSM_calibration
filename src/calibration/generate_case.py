@@ -65,8 +65,10 @@ xmlchange_settings = [f"ATM_DOMAIN_MESH={file_CTSM_mesh}",
                       f"STOP_OPTION={STOP_OPTION}",
                       # change computation resource requirement if needed
                       # NTASKS: the total number of MPI tasks, a negative value indicates nodes rather than tasks
-                      f"NTASKS={NTASKS}",
                       ]
+
+if NTASKS > -999:
+    xmlchange_settings.append(f"NTASKS={NTASKS}")
 
 if NTASKS == 1:
     # need to recompile
@@ -107,6 +109,17 @@ else:
     clone_settings = f"--cime-output-root {path_CTSM_CIMEout} {CLONEsettings} --project {projectCode}"
     _ = subprocess.run(f'{path_CTSM_source}/cime/scripts/create_clone --case {path_CTSM_case} --clone {CLONEROOT} {clone_settings}', shell=True)
     flag_clone = True
+
+    # abandon some original settings
+    file = f'{path_CTSM_case}/user_nl_clm'
+    with open(file, 'w') as f:
+        pass
+
+    file = f'{path_CTSM_case}/user_nl_datm_streams'
+    with open(file, 'w') as f:
+        pass
+
+    os.system(f'rm {path_CTSM_case}/user_nl_datm_streams_*')
 
 ################################
 # (2) change dir
