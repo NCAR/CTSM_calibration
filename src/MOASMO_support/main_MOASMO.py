@@ -9,7 +9,8 @@ import run_multiple_paramsets
 
 ########################################################################################################################
 # load configurations
-config_file = '/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/config_templates/_example.MO_ASMO.config_MOASMO.toml'
+# config_file = '/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/config_templates/_example.MO_ASMO.config_MOASMO.toml'
+config_file = sys.argv[1]
 config = toml.load(config_file)
 
 if len(sys.argv)>2:
@@ -55,6 +56,11 @@ RUN_STARTDATE = config['RUN_STARTDATE']
 ignore_month = config['ignore_month']
 STOP_OPTION = config['STOP_OPTION']
 STOP_N = config['STOP_N']
+
+if 'nonstandard_evaluation' in config:
+    nonstandard_evaluation = config['nonstandard_evaluation']
+else:
+    nonstandard_evaluation = 'NA'
 
 # HPC job settings
 job_mode = config['job_mode']
@@ -122,7 +128,7 @@ for it in range(iter_start, iter_end):
     # Run models based on all parameter samples for this iteration. Individual jobs will be submitted
     run_multiple_paramsets.generate_and_submit_multi_CTSM_runs(iterflag, path_submit, path_paramset, path_CTSM_base,
                                                                path_archive, script_singlerun, script_clone,
-                                                               date_start, date_end, ref_streamflow, add_flow_file, job_CTSMiteration, job_mode)
+                                                               date_start, date_end, ref_streamflow, add_flow_file, job_CTSMiteration, job_mode, nonstandard_evaluation)
 
     # Don't continue until all runs are finished
     file_metric_iter, file_param_iter = run_multiple_paramsets.check_if_all_runs_are_finsihed(path_archive, iterflag, sample_num)

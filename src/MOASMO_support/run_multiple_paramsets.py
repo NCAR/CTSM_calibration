@@ -9,7 +9,7 @@ import numpy as np
 from MOASMO_parameters import read_parameter_csv
 
 def generate_and_submit_multi_CTSM_runs(iterflag, path_submit, path_paramset, path_CTSM_base, path_archive,
-                                        script_singlerun, script_clone, date_start, date_end, ref_streamflow, add_flow_file, job_CTSMiteration, job_mode):
+                                        script_singlerun, script_clone, date_start, date_end, ref_streamflow, add_flow_file, job_CTSMiteration, job_mode, nonstandard_evaluation):
     # job_mode:
     # lumpsubmit: a job only addressed one grid and thus one submission job can sequentially deal with many jobs
     # casesubmit: use the casesubmit function provided by CTSM to run each model case independently
@@ -39,7 +39,7 @@ def generate_and_submit_multi_CTSM_runs(iterflag, path_submit, path_paramset, pa
         for i in range(len(param_filelist)):
             caseflag = f'iter{iterflag}_trial{i}'
             file_parameter_set = f'{path_paramset}/paramset_iter{iterflag}_trial{i}.csv'
-            commandi = f"python {script_singlerun} {script_clone} {path_CTSM_base} {file_parameter_set} {path_archive} {caseflag} {date_start} {date_end} {ref_streamflow} {add_flow_file}"
+            commandi = f"python {script_singlerun} {script_clone} {path_CTSM_base} {file_parameter_set} {path_archive} {caseflag} {date_start} {date_end} {ref_streamflow} {add_flow_file} {nonstandard_evaluation}"
             _ = f.write(f'{commandi}\n')
             commands_all.append(commandi)
 

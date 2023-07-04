@@ -142,7 +142,46 @@ for i in range(len(shp_camels)):
                         dfi.loc[ind, 4] = dfi.loc[ind][4] - dfj.loc[q][4]
         dfi.to_csv(outfilei, index=False, header=False, sep=' ')
 
-# save all streamflow to one file
+
+########################################################################################################################
+# post-process these streamflow files
+
+for i in range(len(shp_camels)):
+    infilei = f"{outpath_CAMELS_q}/{shp_camels.iloc[i]['hru_id']:08}_streamflow_qc.txt"
+    outfilei = f"{outpath_CAMELS_q}/{shp_camels.iloc[i]['hru_id']:08}_Q_postprocess.csv"
+
+    df_q_in = pd.read_csv(infilei, delim_whitespace=True, header=None)
+    years = df_q_in[1].values
+    months = df_q_in[2].values
+    days = df_q_in[3].values
+    dates = [f'{years[i]}-{months[i]:02}-{days[i]:02}' for i in range(len(years))]
+    dates = pd.to_datetime(dates)
+    q_obs = df_q_in[4].values * 0.028316847 # cfs to cms
+    q_obs[q_obs<0] = -9999.0
+    df = pd.DataFrame({'Date': dates, 'Runoff_cms': q_obs})
+
+    # fill possible missing values
+    df.set_index('Date', inplace=True)
+    date_range = pd.date_range(start='1980-01-01', end='2014-12-31', freq='D')
+    df = df.reindex(date_range)
+    df.fillna(-9999, inplace=True)
+    df.reset_index(inplace=True)
+    df = df.rename(columns={'index': 'Date'})
+
+    df.to_csv(outfilei, index=False)
+
+    idi = df_q_in[0].iloc[0]
+    df = df.rename(columns={'Runoff_cms':idi})
+    if i == 0:
+        dfall = df
+    else:
+        if len(dfall) != len(df):
+            print('Warning! Different lengths')
+        dfall = pd.concat([dfall, df[ idi ]], axis=1)
+
+outfileall = f"{outpath_CAMELS_q}/All_CAMELS_Q_postprocess.csv"
+dfall.to_csv(outfileall, index=False)
+
 
 ########################################################################################################################
 # link mesh file basin to CAMELS shp_camels because mesh shapefile order and shp order are different

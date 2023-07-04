@@ -13,6 +13,7 @@ basin_num = int(sys.argv[1])
 
 infile_basin_info = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/shared_data_Sean/info_ESMFmesh_ctsm_HCDN_nhru_final_671.buff_fix_holes_polygons_simplified_5e-4_split_nested.csv'
 inpath_camels_data = '/glade/work/guoqiang/basin_dataset/camels_data'
+inpath_split_nest_q = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/CAMLES_q_split_nest'
 
 outpath_case = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib_split_nest_MOASMO'
 outpath_out = '/glade/scratch/guoqiang/CTSM_outputs/CAMELS_Calib/Lump_calib_split_nest_MOASMO'
@@ -40,7 +41,10 @@ config_HPC = {'projectCode': 'P08010000'}
 
 df_info = pd.read_csv(infile_basin_info)
 id = df_info.iloc[basin_num]['hru_id']
-file_Qobs = df_info.iloc[basin_num]['file_obsQ']
+# file_Qobs = df_info.iloc[basin_num]['file_obsQ']
+name = df_info.iloc[1]['file_obsQ'].split('/')[-1]
+name = name.replace('_streamflow_qc.txt', '_Q_postprocess.csv')
+file_Qobs = f'{inpath_split_nest_q}/{name}'
 data, date = decidePeriod.get_tmean_series_masked_by_q(inpath_camels_data, id)
 
 # # method-1
@@ -111,6 +115,7 @@ config_calib['files']['file_calib_param'] = '/glade/u/home/guoqiang/CTSM_repos/C
 config_calib['files']['file_Qobs'] = file_Qobs
 config_calib['eval'] = {}
 config_calib['eval']['ignore_month'] = 12
+config_calib['eval']['nonstandard_evaluation'] = 'evaluate_allCAMELS'
 config_calib['job'] = {}
 config_calib['job']['jobsetting'] = ['#PBS -N OstrichCalib', '#PBS -q share', '#PBS -l walltime=6:00:00']
 # config_calib['job']['jobsetting'] = ['#PBS -N OstrichCalib', '#PBS -q casper', '#PBS -l walltime=24:00:00']
@@ -118,9 +123,9 @@ config_calib['job']['jobsetting'] = ['#PBS -N OstrichCalib', '#PBS -q share', '#
 
 config_calib['settings'] = {}
 config_calib['settings']['sampling_method'] = 'glp'
-config_calib['settings']['num_init'] = 72 # initial number of samples
-config_calib['settings']['num_per_iter'] = 20 # number of selected pareto parameter sets for each iteration
-config_calib['settings']['num_iter'] = 15 # including the initial iteration
+config_calib['settings']['num_init'] = 144 # initial number of samples
+config_calib['settings']['num_per_iter'] = 36 # number of selected pareto parameter sets for each iteration
+config_calib['settings']['num_iter'] = 8 # including the initial iteration
 
 
 config_calib['job'] = {}

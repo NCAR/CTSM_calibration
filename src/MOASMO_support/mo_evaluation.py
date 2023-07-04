@@ -86,7 +86,6 @@ def main_read_CTSM_streamflow(fsurdat, CTSMfilelist, date_start, date_end, clm_q
     # calculate streamflow: although mean is used, for Sean's setting, only one basin should be allowed effective in the calibration
     # streamflow? Use mean for this test
     ds_simu[clm_q_name].values = (ds_simu[clm_q_name].values / 1000) * (area * 1e6)  # raw q: mm/s; raw area km2; target: m3/s
-    ds_simu = ds_simu.mean(dim=clm_q_sdim, skipna=True)
 
     return ds_simu
 
@@ -170,6 +169,7 @@ def mo_evaluate(outfile_metric, CTSMfilelist, fsurdat, date_start, date_end, ref
     ########################################################################################################################
     # load CTSM streamflow (m3/s)
     ds_simu = main_read_CTSM_streamflow(fsurdat, CTSMfilelist, date_start, date_end, clm_q_name, clm_q_sdim)
+    ds_simu = ds_simu.mean(dim=clm_q_sdim, skipna=True)
 
     ########################################################################################################################
     # load CAMELS observation streamflow (m3/s)
@@ -189,6 +189,8 @@ def mo_evaluate(outfile_metric, CTSMfilelist, fsurdat, date_start, date_end, ref
     d2 = ds_simu[clm_q_name].values
     d1[d1<0] = np.nan
     d2[d2<0] = np.nan
+    ds_q_obs[ref_q_name].values = d1
+    ds_simu[clm_q_name].values = d2
 
     kge_q = get_modified_KGE(obs=d1, sim=d2)
 

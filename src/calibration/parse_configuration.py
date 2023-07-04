@@ -30,12 +30,16 @@ def parse_CTSMcase_config(config):
 
 
 def parse_Ostrich_config(config):
+    if not 'nonstandard_evaluation' in config['calib']['eval']:
+        config['calib']['eval'] = 'NA'
+
     config_Ostrich = {'path_script_calib': config['calib']['files']['path_script_calib'],
                       'path_script_Ostrich': config['calib']['files']['path_script_Ostrich'],
                       'path_CTSM_case': config['CTSM']['files']['path_CTSM_case'],
                       'file_calib_param': config['calib']['files']['file_calib_param'],
                       'file_Qobs': config['calib']['files']['file_Qobs'],
                       'ignore_month': config['calib']['eval']['ignore_month'],
+                      'nonstandard_evaluation': config['calib']['eval']['nonstandard_evaluation'],
                       'RUN_STARTDATE': config['CTSM']['settings']['RUN_STARTDATE'],
                       'STOP_N': config['CTSM']['settings']['STOP_N'],
                       'STOP_OPTION': config['CTSM']['settings']['STOP_OPTION'],
@@ -48,6 +52,9 @@ def parse_Ostrich_config(config):
     return file_config_Ostrich
 
 def parse_MOASMO_config(config):
+    if not 'nonstandard_evaluation' in config['calib']['eval']:
+        config['calib']['eval'] = 'NA'
+
     config_MOASMO =  {'path_CTSM_source': config['CTSM']['files']['path_CTSM_source'],
                       'path_script_calib': config['calib']['files']['path_script_calib'],
                       'path_script_MOASMO': config['calib']['files']['path_script_MOASMO'],
@@ -55,6 +62,7 @@ def parse_MOASMO_config(config):
                       'file_calib_param': config['calib']['files']['file_calib_param'],
                       'file_Qobs': config['calib']['files']['file_Qobs'],
                       'ignore_month': config['calib']['eval']['ignore_month'],
+                      'nonstandard_evaluation': config['calib']['eval']['nonstandard_evaluation'],
                       'RUN_STARTDATE': config['CTSM']['settings']['RUN_STARTDATE'],
                       'STOP_N': config['CTSM']['settings']['STOP_N'],
                       'STOP_OPTION': config['CTSM']['settings']['STOP_OPTION'],
