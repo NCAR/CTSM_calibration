@@ -21,7 +21,7 @@ def evaluate_allCAMELS(outfile_metric, CTSMfilelist, fsurdat, date_start, date_e
 
     ########################################################################################################################
     # load CTSM streamflow (m3/s)
-    ds_simu = main_read_CTSM_streamflow(fsurdat, CTSMfilelist, date_start, date_end, clm_q_name, clm_q_sdim)
+    ds_simu = main_read_CTSM_streamflow(fsurdat, CTSMfilelist, date_start, date_end, clm_q_name)
     ds_simu = ds_simu.transpose('time', clm_q_sdim)
 
     ########################################################################################################################
@@ -46,14 +46,14 @@ def evaluate_allCAMELS(outfile_metric, CTSMfilelist, fsurdat, date_start, date_e
 
     kge_q_all = []
     for i in range(d1.shape[1]):
-        kge_q = get_modified_KGE(obs=d1[:,i], sim=d2[:,i])
+        kge_q = get_modified_KGE(obs=d1[:,i].astype(np.float64), sim=d2[:,i])
         kge_q_all.append(kge_q)
 
     d1 = ds_q_obs[ref_q_name].groupby('time.month').mean().values
     d2 = ds_simu[clm_q_name].groupby('time.month').mean().values
     maxabserror_q_all = []
     for i in range(d1.shape[1]):
-        maxabserror_q = get_max_abs_error(d1[:, i], d2[:, i])
+        maxabserror_q = get_max_abs_error(d1[:, i].astype(np.float64), d2[:, i])
         maxabserror_q_all.append(maxabserror_q)
 
     kge_q_median = np.nanmedian(kge_q_all)

@@ -109,7 +109,7 @@ def generate_and_submit_multi_CTSM_runs(iterflag, path_submit, path_paramset, pa
         # submit scripts
         os.chdir(path_runmodel)
         for i in range(len(commands_all)):
-            os.system(f'qsub {subscriptall}')
+            os.system(f'qsub {subscriptall[i]}')
 
     else:
         sys.exit('Unknown job_mode')

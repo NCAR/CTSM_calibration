@@ -158,6 +158,8 @@ for i in range(len(shp_camels)):
     dates = pd.to_datetime(dates)
     q_obs = df_q_in[4].values * 0.028316847 # cfs to cms
     q_obs[q_obs<0] = -9999.0
+    qc = df_q_in[5].values
+    q_obs[ qc != 'A' ] = -9999.0
     df = pd.DataFrame({'Date': dates, 'Runoff_cms': q_obs})
 
     # fill possible missing values

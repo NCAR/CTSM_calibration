@@ -60,7 +60,7 @@ def get_max_abs_error(d1, d2):
 ########################################################################################################################
 # define functions for reading CTSM outputs
 
-def main_read_CTSM_streamflow(fsurdat, CTSMfilelist, date_start, date_end, clm_q_name, clm_q_sdim):
+def main_read_CTSM_streamflow(fsurdat, CTSMfilelist, date_start, date_end, clm_q_name):
     ########################################################################################################################
     # read files
     ds_simu = xr.open_mfdataset(CTSMfilelist)
@@ -168,7 +168,7 @@ def mo_evaluate(outfile_metric, CTSMfilelist, fsurdat, date_start, date_end, ref
 
     ########################################################################################################################
     # load CTSM streamflow (m3/s)
-    ds_simu = main_read_CTSM_streamflow(fsurdat, CTSMfilelist, date_start, date_end, clm_q_name, clm_q_sdim)
+    ds_simu = main_read_CTSM_streamflow(fsurdat, CTSMfilelist, date_start, date_end, clm_q_name)
     ds_simu = ds_simu.mean(dim=clm_q_sdim, skipna=True)
 
     ########################################################################################################################
