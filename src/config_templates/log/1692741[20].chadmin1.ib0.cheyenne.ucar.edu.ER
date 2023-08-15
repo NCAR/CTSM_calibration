@@ -1,0 +1,10 @@
+rm: cannot remove '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib_split_nest_MOASMO/CAMELS_20': No such file or directory
+rm: cannot remove '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib_split_nest_MOASMO/CAMELS_20_SubsetForcing': No such file or directory
+rm: cannot remove '/glade/scratch/guoqiang/CTSM_outputs/CAMELS_Calib/Lump_calib_split_nest_MOASMO/CAMELS_20/CAMELS_20/run/*.nc': No such file or directory
+submit_jobs case.run
+Submit job case.run
+check for resubmit
+dout_s True 
+mach cheyenne 
+resubmit_num 0
+Submit job case.st_archive
