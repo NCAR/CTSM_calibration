@@ -16,11 +16,11 @@ file_CTSM_surfdata = '/glade/work/swensosc/polygons/sfcdata/surfdata_CAMELS_8e-3
 
 createcase = "--machine cheyenne --compset I2000Clm51Sp --driver nuopc --compiler intel --res f09_g16 --handle-preexisting-dirs r --run-unsupported"
 RUN_STARTDATE = '1901-01-01'
-STOP_N = 26
+STOP_N = 113
 STOP_OPTION = 'nyears'
-RESUBMIT = 3
-casebuild = 'qcmd'
-projectCode = 'P08010000'
+#RESUBMIT = 0
+casebuild = 'direct'
+projectCode = 'P93300041'
 
 #####################
 # Model settings to be changed: list
@@ -58,7 +58,7 @@ xmlchange_settings = [f"ATM_DOMAIN_MESH={file_CTSM_mesh}",
                       f"NTASKS=-10",
                       f"NTASKS_ATM=-1",
                       f"NTASKS_ESP=1",
-                      f"RESUBMIT={RESUBMIT}",
+                      #f"RESUBMIT={RESUBMIT}",
                       ]
 
 
