@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 from mo_evaluation import mo_evaluate
+import mo_evaluation_nonstandard
 from MOASMO_parameters import get_parameter_from_Namelist_or_lndin
 
 def read_parameter_csv(file_parameter_list):
@@ -180,6 +181,11 @@ if __name__ == '__main__':
     ref_streamflow = sys.argv[8]
     add_flow_file = sys.argv[9]
 
+    if len(sys.argv) == 11:
+        nonstandard_eval_script = sys.argv[10]
+    else:
+        nonstandard_eval_script = 'NA'
+
     # script_clone = '/glade/u/home/guoqiang/CTSM_repos/CTSM/cime/scripts/create_clone'
     # path_CTSM_base = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib_split_nest_LMWG/CAMELS_100'
     # file_parameter_set = '/glade/scratch/guoqiang/moasmo_test/param_sets/paramset_iter0_trial0.csv'
@@ -234,4 +240,10 @@ if __name__ == '__main__':
     infilelist.sort()
     fsurdat = get_parameter_from_Namelist_or_lndin('fsurdat', f'{path_CTSM_base}/user_nl_clm', f'{path_CTSM_base}/Buildconf/clmconf/lnd_in', type='str')
     outfile_metric = f'{path_archive}/{caseflag}/evaluation_metric.csv'
-    mo_evaluate(outfile_metric, infilelist, fsurdat, date_start, date_end, ref_streamflow, add_flow_file)
+
+    if nonstandard_eval_script == 'evaluate_allCAMELS':
+        print('Use nonstandard_eval_script: ', nonstandard_eval_script)
+        mo_evaluation_nonstandard.evaluate_allCAMELS(outfile_metric, infilelist, fsurdat, date_start, date_end)
+    else:
+        print('Use standard lump evaluation')
+        mo_evaluate(outfile_metric, infilelist, fsurdat, date_start, date_end, ref_streamflow, add_flow_file)

@@ -49,13 +49,14 @@ file_calib_param = "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/param
 file_Qobs = "/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib_split_nest_LMWG/CAMELS_100_OstCalib/refdata/streamflow_data.csv"
 
 [calib.eval]
-ignore_month = 12 # the first part of simulation is ignored when evaluating the model for better spin up
+ignore_month = 1 # the first part of simulation is ignored when evaluating the model for better spin up
+nonstandard_evaluation = 'evaluate_allCAMELS'
 
 [calib.settings]
 sampling_method = 'glp'
-num_init = 100 # initial number of samples
-num_per_iter = 20 # number of selected pareto parameter sets for each iteration
-num_iter = 15 # including the initial iteration
+num_init = 10 # initial number of samples
+num_per_iter = 5 # number of selected pareto parameter sets for each iteration
+num_iter = 3 # including the initial iteration
 
 [calib.job]
 # lumpsubmit: a job only addressed one grid and thus one submission job can sequentially deal with many jobs

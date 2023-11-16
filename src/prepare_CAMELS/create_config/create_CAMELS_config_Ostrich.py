@@ -13,6 +13,7 @@ basin_num = int(sys.argv[1])
 
 infile_basin_info = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/shared_data_Sean/info_ESMFmesh_ctsm_HCDN_nhru_final_671.buff_fix_holes_polygons_simplified_5e-4_split_nested.csv'
 inpath_camels_data = '/glade/scratch/guoqiang/CAMELS_data/basin_timeseries_v1p2_metForcing_obsFlow/basin_dataset_public_v1p2'
+inpath_split_nest_q = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/CAMLES_q_split_nest'
 
 outpath_case = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib_split_nest'
 outpath_out = '/glade/scratch/guoqiang/CTSM_outputs/CAMELS_Calib/Lump_calib_split_nest'
@@ -40,7 +41,9 @@ config_HPC = {'projectCode': 'P08010000'}
 
 df_info = pd.read_csv(infile_basin_info)
 id = df_info.iloc[basin_num]['hru_id']
-file_Qobs = df_info.iloc[basin_num]['file_obsQ']
+# file_Qobs = df_info.iloc[basin_num]['file_obsQ']
+name = df_info.iloc[1]['file_obsQ'].split('/')[-1]
+file_Qobs = f'{inpath_split_nest_q}/{name}'
 data, date = decidePeriod.get_tmean_series_masked_by_q(inpath_camels_data, id)
 
 # # method-1
