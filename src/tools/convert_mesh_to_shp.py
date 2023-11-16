@@ -7,8 +7,8 @@ import geopandas as gpd
 from shapely.geometry import Polygon
 
 # source files: /glade/p/ral/hap/common_data/camels/shapefile/*
-infile = '/glade/work/guoqiang/CTSM_cases/CAMELS_Sean/shared_data_Sean/ESMFmesh_ctsm_HCDN_nhru_final_671_v0_8e-3.nc'
-outfile = '/glade/work/guoqiang/CTSM_cases/CAMELS_Sean/shared_data_Sean/ESMFmesh_ctsm_HCDN_nhru_final_671_v0_8e-3.shp'
+infile = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/shared_data_Sean/HillslopeHydrology/esmf_mesh_files/corrected_HCDN_nhru_final_671_buff_fix_holes.CAMELSandTDX_areabias_fix.simp0.001.level3_polygons_neighbor_group_esmf_mesh.nc'
+outfile = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/shared_data_Sean/HillslopeHydrology/esmf_mesh_files/corrected_HCDN_nhru_final_671_buff_fix_holes.CAMELSandTDX_areabias_fix.simp0.001.level3_polygons_neighbor_group_esmf_mesh.gpkg'
 
 dsall = xr.load_dataset(infile)
 numbasin = dsall.elementCount.size
