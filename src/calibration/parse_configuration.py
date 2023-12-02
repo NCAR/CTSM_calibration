@@ -21,6 +21,10 @@ def parse_CTSMcase_config(config):
 
                        'projectCode': config['HPC']['projectCode'],
                        }
+    
+    if 'replacefiles' in config['CTSM']:
+        config_CTSMcase['replacefiles'] = config['CTSM']['replacefiles']
+        
     # # simpler but less obvious
     # config_CTSMcase = config['CTSM']['files'] | config['CTSM']['settings'] | config['HPC']
     file_config_CTSMcase = config['path_config_file'] + '/_' + config['name_config_file'].replace('.toml', '') + '_CTMScase.toml'
@@ -31,11 +35,14 @@ def parse_CTSMcase_config(config):
 
 def parse_Ostrich_config(config):
     if not 'nonstandard_evaluation' in config['calib']['eval']:
-        config['calib']['eval'] = 'NA'
+        config['calib']['eval']['nonstandard_evaluation'] = 'NA'
+    if not 'path_calib' in config['calib']['files']:
+        config['calib']['files']['path_calib'] = 'NA'
 
     config_Ostrich = {'path_script_calib': config['calib']['files']['path_script_calib'],
                       'path_script_Ostrich': config['calib']['files']['path_script_Ostrich'],
                       'path_CTSM_case': config['CTSM']['files']['path_CTSM_case'],
+                      'path_calib': config['calib']['files']['path_calib'],
                       'file_calib_param': config['calib']['files']['file_calib_param'],
                       'file_Qobs': config['calib']['files']['file_Qobs'],
                       'ignore_month': config['calib']['eval']['ignore_month'],
@@ -53,12 +60,15 @@ def parse_Ostrich_config(config):
 
 def parse_MOASMO_config(config):
     if not 'nonstandard_evaluation' in config['calib']['eval']:
-        config['calib']['eval'] = 'NA'
+        config['calib']['eval']['nonstandard_evaluation'] = 'NA'
+    if not 'path_calib' in config['calib']['files']:
+        config['calib']['files']['path_calib'] = 'NA'
 
     config_MOASMO =  {'path_CTSM_source': config['CTSM']['files']['path_CTSM_source'],
                       'path_script_calib': config['calib']['files']['path_script_calib'],
                       'path_script_MOASMO': config['calib']['files']['path_script_MOASMO'],
                       'path_CTSM_case': config['CTSM']['files']['path_CTSM_case'],
+                      'path_calib': config['calib']['files']['path_calib'],
                       'file_calib_param': config['calib']['files']['file_calib_param'],
                       'file_Qobs': config['calib']['files']['file_Qobs'],
                       'ignore_month': config['calib']['eval']['ignore_month'],

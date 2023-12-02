@@ -140,55 +140,69 @@ def generate_initial_parameter_sets(file_parameter_list, sampling_method, outpat
     num_param = len(param_lower_bound) # number of parameters to be calibrated
     if not num_init > 0:
         num_init = num_param * 20 # number of initial samples (i.e., initial model runs). A proper initial sample size should be 15–20 times the number of parameters (Gong et al., 2015)
-
-    # get initial factors between 0 and 1 which will be used to scale real parameters
-    # init_factors: [num_init, num_param]
-    if sampling_method == 'lh':
-        init_factors = sampling.lh(num_init, num_param)
-    elif sampling_method == 'slh':
-        init_factors = sampling.slh(num_init, num_param)
-    elif sampling_method == 'glp': # glp is used by Gong et al., 2015
-        init_factors = sampling.glp(num_init, num_param)
-    else:
-        sys.exit('Unknown sampling method!')
-
-    # save factors
-    df_factor = pd.DataFrame(init_factors, columns=df_calibparam['Parameter'].values)
-    df_factor.to_csv(f'{outpath}/paramset_iter0_scalefactors.csv', index=False)
-
-    # generate a dataframe for every set of parameters and deal with binding parameters
+        
+    # check whether parameter files have been generated
+    flag = False
     outfiles_all = []
     for i in range(num_init):
         outfile = f'{outpath}/paramset_iter0_trial{i}.csv'
-        print('Generating parameter file:', outfile)
-        dfi = df_calibparam.copy()
-
-        if i == 0 and adddefault == True:
-            print('For iteration 0, the default parameters will be used. scaling factors are not adopted')
-
-            param_names = df_calibparam['Parameter'].values
-            param_sources = df_calibparam['Source'].values
-            param0 = []
-            factor0 = []
-            for j in range(len(param_names)):
-                param0.append(get_parameter_value_from_CTSM_case(param_names[j], param_sources[j], path_CTSM_case))
-                factor0.append( (np.nanmean(param0[j]) - param_lower_bound[j])/(param_upper_bound[j] - param_lower_bound[j]) )
-
-            dfi['Value'] = param0
-            dfi['Factor'] = factor0
-
-        else:
-
-            dfi['Factor'] = init_factors[i, :]
-            dfi['Value'] = init_factors[i, :] * (param_upper_bound - param_lower_bound) + param_lower_bound
-
-
-        # process binded parameters
-        dfi = check_and_generate_binded_parameters(dfi, path_CTSM_case)
-
-        dfi.to_csv(outfile, index=False)
         outfiles_all.append(outfiles_all)
+        if not os.path.isfile(outfile):
+            flag = True
+            break
+    
+    if flag == False:
+        print('All ini parameter csv files have been generated. Skip this step')
+    else:
+        # get initial factors between 0 and 1 which will be used to scale real parameters
+        # init_factors: [num_init, num_param]
+        if sampling_method == 'lh':
+            init_factors = sampling.lh(num_init, num_param)
+        elif sampling_method == 'slh':
+            init_factors = sampling.slh(num_init, num_param)
+        elif sampling_method == 'glp': # glp is used by Gong et al., 2015
+            init_factors = sampling.glp(num_init, num_param)
+        else:
+            sys.exit('Unknown sampling method!')
 
+        # save factors
+        df_factor = pd.DataFrame(init_factors, columns=df_calibparam['Parameter'].values)
+        df_factor.to_csv(f'{outpath}/paramset_iter0_scalefactors.csv', index=False)
+
+        # generate a dataframe for every set of parameters and deal with binding parameters
+        outfiles_all = []
+        for i in range(num_init):
+            outfile = f'{outpath}/paramset_iter0_trial{i}.csv'
+            print('Generating parameter file:', outfile)
+            dfi = df_calibparam.copy()
+
+            if i == 0 and adddefault == True:
+                print('For iteration 0, the default parameters will be used. scaling factors are not adopted')
+
+                param_names = df_calibparam['Parameter'].values
+                param_sources = df_calibparam['Source'].values
+                param0 = []
+                factor0 = []
+                for j in range(len(param_names)):
+                    param0.append(get_parameter_value_from_CTSM_case(param_names[j], param_sources[j], path_CTSM_case))
+                    factor0.append( (np.nanmean(param0[j]) - param_lower_bound[j])/(param_upper_bound[j] - param_lower_bound[j]) )
+
+                dfi['Value'] = param0
+                dfi['Factor'] = factor0
+
+            else:
+
+                dfi['Factor'] = init_factors[i, :]
+                dfi['Value'] = init_factors[i, :] * (param_upper_bound - param_lower_bound) + param_lower_bound
+
+
+            # process binded parameters
+            dfi = check_and_generate_binded_parameters(dfi, path_CTSM_case)
+
+            dfi.to_csv(outfile, index=False)
+            outfiles_all.append(outfiles_all)
+    
+    return outfiles_all
 
 
 ########################################################################################################################
@@ -196,88 +210,99 @@ def generate_initial_parameter_sets(file_parameter_list, sampling_method, outpat
 
 def surrogate_model_train_and_pareto_points(param_infofile, param_filelist, metric_filelist, outpath, iterflag, num_per_iter, path_CTSM_case=''):
     # path_CTSM_case must be provided if there are any binded parameters for calibration
-
-    # define hyper parameters
-    pop = 100
-    gen = 100
-    crossover_rate = 0.9
-    mu = 20
-    mum = 20
-
-    # define hyperparameter
-    alpha = 1e-3
-    leng_lb = 1e-3
-    leng_ub = 1e3
-    nu = 2.5
-
-    n_sample = num_per_iter # number of selected optimal points
-
-    # input data x (parameter sets) and output data y (objective function values)
-    df_param = pd.concat(map(pd.read_csv, param_filelist))
-    df_metric = pd.concat(map(pd.read_csv, metric_filelist))
-    df_info = read_parameter_csv(param_infofile)
-
-    param_names = df_info['Parameter'].values # exclude binded parameters
-    df_param = df_param[param_names]
-
-    xlb_mean = np.array([np.nanmean(v) for v in df_info['Lower']])
-    xub_mean = np.array([np.nanmean(v) for v in df_info['Upper']])
-
-    x = df_param.to_numpy()
-    y = df_metric.to_numpy()
-
-    nInput = x.shape[1]
-    nOutput = y.shape[1]
-
-    # train the surrogate model
-    # https://github.com/NCAR/ctsm_optz/blob/89e3689e73180574c62d1f5aa555a57e886a7cec/workflow/scripts/MOASMO_onestep.pe_basin.py#LL311C1-L315C41
-    # sm = gp.GPR_Matern(x, y, nInput, nOutput, x.shape[0], xlb_mean, xub_mean, alpha=alpha, leng_sb=[leng_lb, leng_ub], nu=nu)
-    # os.makedirs(outpath, exist_ok=True)
-    # sm_filename = f'{outpath}/surrogate_model_for_iter{iterflag}'
-    # pickle.dump(sm, open(sm_filename, 'wb'))
-
-    from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
-    sm = RandomForestRegressor()
-    sm.fit(x, y)
-    os.makedirs(outpath, exist_ok=True)
-    sm_filename = f'{outpath}/surrogate_model_for_iter{iterflag}'
-    pickle.dump(sm, open(sm_filename, 'wb'))
-
-
-    # perform optimization using the surrogate model
-    bestx_sm, besty_sm, x_sm, y_sm = NSGA2.optimization(sm, nInput, nOutput, xlb_mean, xub_mean, pop, gen, crossover_rate, mu, mum)
-    D = NSGA2.crowding_distance(besty_sm)
-    idxr = D.argsort()[::-1][:n_sample]
-    x_resample = bestx_sm[idxr, :]
-    y_resample = besty_sm[idxr, :]
-    # y_resample = sm.predict(x_resample)
-
-    # # plot
-    # import matplotlib.pyplot as plt
-    # plt.scatter(y[:, 0], y[:, 1])
-    # plt.scatter(besty_sm[:, 0], besty_sm[:, 1])
-    # plt.scatter(besty_sm[idxr, 0], besty_sm[idxr, 1])
-
-    param_upper_bound = df_info['Upper'].values
-    param_lower_bound = df_info['Lower'].values
-
-    # generate a parameter dataframe for next trial
-    for i in range(x_resample.shape[0]):
+    
+    # check whether files have been generated
+    flag = False
+    for i in range(num_per_iter):
         outfile = f'{outpath}/paramset_iter{iterflag+1}_trial{i}.csv'
-        print('Generating parameter file:', outfile)
+        if not os.path.isfile(outfile):
+            flag = True
+            break
+            
+    if flag == False:
+        print('All parameter csv files have been generated. Skip this step')
+    else:
+        # define hyper parameters
+        pop = 100
+        gen = 100
+        crossover_rate = 0.9
+        mu = 20
+        mum = 20
 
-        dfi = df_info.copy()
-        factors = (x_resample[i, :] - xlb_mean) / (xub_mean - xlb_mean)
-        factors[factors<0] = 0.01
-        factors[factors>1] = 0.99
-        dfi['Factor'] = factors
-        dfi['Value'] = factors * (param_upper_bound - param_lower_bound) + param_lower_bound
+        # define hyperparameter
+        alpha = 1e-3
+        leng_lb = 1e-3
+        leng_ub = 1e3
+        nu = 2.5
 
-        # process binded parameters
-        dfi = check_and_generate_binded_parameters(dfi, path_CTSM_case)
+        n_sample = num_per_iter # number of selected optimal points
 
-        # write
-        dfi.to_csv(outfile, index=False)
+        # input data x (parameter sets) and output data y (objective function values)
+        df_param = pd.concat(map(pd.read_csv, param_filelist))
+        df_metric = pd.concat(map(pd.read_csv, metric_filelist))
+        df_info = read_parameter_csv(param_infofile)
+
+        param_names = df_info['Parameter'].values # exclude binded parameters
+        df_param = df_param[param_names]
+
+        xlb_mean = np.array([np.nanmean(v) for v in df_info['Lower']])
+        xub_mean = np.array([np.nanmean(v) for v in df_info['Upper']])
+
+        x = df_param.to_numpy()
+        y = df_metric.to_numpy()
+
+        nInput = x.shape[1]
+        nOutput = y.shape[1]
+
+        # train the surrogate model
+        # https://github.com/NCAR/ctsm_optz/blob/89e3689e73180574c62d1f5aa555a57e886a7cec/workflow/scripts/MOASMO_onestep.pe_basin.py#LL311C1-L315C41
+        # sm = gp.GPR_Matern(x, y, nInput, nOutput, x.shape[0], xlb_mean, xub_mean, alpha=alpha, leng_sb=[leng_lb, leng_ub], nu=nu)
+        # os.makedirs(outpath, exist_ok=True)
+        # sm_filename = f'{outpath}/surrogate_model_for_iter{iterflag}'
+        # pickle.dump(sm, open(sm_filename, 'wb'))
+
+        from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+        sm = RandomForestRegressor()
+        sm.fit(x, y)
+        os.makedirs(outpath, exist_ok=True)
+        sm_filename = f'{outpath}/surrogate_model_for_iter{iterflag}'
+        pickle.dump(sm, open(sm_filename, 'wb'))
+
+
+        # perform optimization using the surrogate model
+        bestx_sm, besty_sm, x_sm, y_sm = NSGA2.optimization(sm, nInput, nOutput, xlb_mean, xub_mean, pop, gen, crossover_rate, mu, mum)
+        D = NSGA2.crowding_distance(besty_sm)
+        idxr = D.argsort()[::-1][:n_sample]
+        x_resample = bestx_sm[idxr, :]
+        y_resample = besty_sm[idxr, :]
+        # y_resample = sm.predict(x_resample)
+
+        # # plot
+        # import matplotlib.pyplot as plt
+        # plt.scatter(y[:, 0], y[:, 1])
+        # plt.scatter(besty_sm[:, 0], besty_sm[:, 1])
+        # plt.scatter(besty_sm[idxr, 0], besty_sm[idxr, 1])
+
+        param_upper_bound = df_info['Upper'].values
+        param_lower_bound = df_info['Lower'].values
+
+        # generate a parameter dataframe for next trial
+        for i in range(x_resample.shape[0]):
+            outfile = f'{outpath}/paramset_iter{iterflag+1}_trial{i}.csv'
+            print('Generating parameter file:', outfile)
+
+            dfi = df_info.copy()
+            factors = (x_resample[i, :] - xlb_mean) / (xub_mean - xlb_mean)
+            factors[factors<0] = 0.01
+            factors[factors>1] = 0.99
+            dfi['Factor'] = factors
+            dfi['Value'] = factors * (param_upper_bound - param_lower_bound) + param_lower_bound
+
+            # process binded parameters
+            dfi = check_and_generate_binded_parameters(dfi, path_CTSM_case)
+
+            # write
+            dfi.to_csv(outfile, index=False)
 
 
 

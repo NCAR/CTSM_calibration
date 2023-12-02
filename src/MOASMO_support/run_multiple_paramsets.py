@@ -11,7 +11,8 @@ from MOASMO_parameters import read_parameter_csv
 def generate_and_submit_multi_CTSM_runs(iterflag, path_submit, path_paramset, path_CTSM_base, path_archive,
                                         script_singlerun, script_clone, date_start, date_end, ref_streamflow, add_flow_file, job_CTSMiteration, job_mode, nonstandard_evaluation):
     # job_mode:
-    # lumpsubmit: a job only addressed one grid and thus one submission job can sequentially deal with many jobs
+    # lumpsubmit: a job only addressed one grid and thus one submission job can sequentially deal with many jobs. but each iteration will be submitted again
+    # lumpsubmit_allinone: a control job with many CPUs will be submitted. all simulation will be within this job. no need to submit 
     # casesubmit: use the casesubmit function provided by CTSM to run each model case independently
 
     # iterflag = 0
@@ -74,6 +75,35 @@ def generate_and_submit_multi_CTSM_runs(iterflag, path_submit, path_paramset, pa
         # submit job
         os.chdir(path_runmodel)
         os.system(f'qsub submit_iter{iterflag}.sh')
+        
+    elif job_mode == 'lumpsubmit_allinone':
+        # create submission file
+        script_submission = f'{path_runmodel}/run_iter{iterflag}.sh'
+        for s in job_CTSMiteration:
+            if 'ncpus' in s:
+                pattern = r'select=(\d+):ncpus=(\d+)'
+                match = re.search(pattern, s)
+                numnode = int(match.group(1))
+                numcpu = int(match.group(2))
+                cpus = numnode * numcpu
+                break
+
+        lines = ['module load conda/latest parallel cdo', 'conda activate npl-2022b',
+                 '\n',
+                 'export MPI_DSM_DISTRIBUTE=0',
+                 '\n'
+                 f"echo 'Running {commands_run_model}'",
+                 f'parallel --jobs {cpus} --joblog joblog.txt < {commands_run_model}']
+
+        with open(script_submission, 'w') as f:
+            for li in lines:
+                _ = f.write(li + '\n')
+
+        _ = os.system(f'chmod +x {script_submission}')
+
+        # submit job
+        os.chdir(path_runmodel)
+        os.system(f'./run_iter{iterflag}.sh')
 
     elif job_mode == 'casesubmit':
 

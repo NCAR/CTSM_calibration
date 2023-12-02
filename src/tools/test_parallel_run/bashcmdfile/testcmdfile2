@@ -1,0 +1,8 @@
+echo start 1; sleep 1; echo finish 1
+echo start 2; sleep 1; echo finish 2
+echo start 3; sleep 1; echo finish 3
+echo start 4; sleep 1; echo finish 4
+echo start 5; sleep 1; echo finish 5
+echo start 6; sleep 1; echo finish 6
+echo start 7; sleep 1; echo finish 7
+echo start 8; sleep 1; echo finish 8

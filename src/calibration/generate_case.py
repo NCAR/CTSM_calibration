@@ -41,6 +41,7 @@ projectCode = config_CTSMcase['projectCode']
 CLONEROOT = config_CTSMcase['CLONEROOT']
 CLONEsettings = config_CTSMcase['CLONEsettings']
 
+
 #####################
 # Model settings to be changed: list
 user_nl_clm_settings = [f"fsurdat = '{file_CTSM_surfdata}'",
@@ -58,7 +59,7 @@ xmlchange_settings = [f"ATM_DOMAIN_MESH={file_CTSM_mesh}",
                       # turn off MOSART_MODE to save time
                       "MOSART_MODE=NULL",
                       # change forcing data
-                      "DATM_MODE=CLMNLDAS2",
+                      "DATM_MODE=CLMGSWP3v1",
                       # change the run time of mode case
                       f"STOP_N={STOP_N}",
                       f"RUN_STARTDATE={RUN_STARTDATE}",
@@ -164,6 +165,22 @@ if flag_clone == False:
         sys.exit('Unknown casebuild')
 
 ################################
-# (5) submit jobs (optional)
+# (5) replace files if they are provided
+if 'replacefiles' in config_CTSMcase:
+    replacefiles = config_CTSMcase['replacefiles']
+    if isinstance(replacefiles, dict):
+        
+        for name, file in replacefiles.items():
+            
+            if name == 'user_nl_datm_streams':
+                print(f'use {file} to replace {name}')
+                _ = subprocess.run(f'cp user_nl_datm_streams user_nl_datm_streams-backup', shell=True)
+                _ = subprocess.run(f'cp {file} user_nl_datm_streams', shell=True)
+        
+        _ = subprocess.run('./check_case', shell=True) # to make changed files shown in buildconf
+
+        
+################################
+# (6) submit jobs (optional)
 # Can be used to check whether the case can be successfully run before calibration
 # _ = subprocess.run('./case.submit', shell=True)

@@ -1,5 +1,5 @@
 # generate MO_ASMO_settings so we can submit MO-ASMO calibration jobs
-# there are two modes:
+# there are two modes for the control task (i.e., coordinate everything including real model run):
 # 1. direct submit, which could be limited by the time
 # 2. resubmit. this has not been fulled tested
 
@@ -47,7 +47,13 @@ config = toml.load(configfile)
 
 job_controlMOASMO = config['job_controlMOASMO']
 path_CTSM_base = config['path_CTSM_case']
-path_submit = f'{path_CTSM_base}_MOASMOcalib/submit'
+
+if config['path_calib'] == 'NA':
+    path_submit = f'{path_CTSM_base}_MOASMOcalib/submit'
+else:
+    path_calib = config['path_calib']
+    path_submit = f'{path_calib}/submit'
+
 os.makedirs(path_submit, exist_ok=True)
 
 path_script_MOASMO = config['path_script_MOASMO']

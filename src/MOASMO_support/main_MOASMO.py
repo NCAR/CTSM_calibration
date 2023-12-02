@@ -39,7 +39,11 @@ script_clone = f'{path_CTSM_source}/cime/scripts/create_clone'
 
 
 # outputs
-path_MOASMOcalib = f'{path_CTSM_base}_MOASMOcalib'
+if config['path_calib'] == 'NA':
+    path_MOASMOcalib = f'{path_CTSM_base}_MOASMOcalib'
+else:
+    path_MOASMOcalib = config['path_calib']
+    
 path_paramset = f'{path_MOASMOcalib}/param_sets'
 path_submit = f'{path_MOASMOcalib}/run_model'
 path_archive = f'{path_MOASMOcalib}/ctsm_outputs'

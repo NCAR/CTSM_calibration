@@ -127,9 +127,9 @@ def update_CTSM_parameter_SurfdataFile(param_names, param_values, path_CTSM_case
             if vnew.size==1 and ds_surf[pn].values.size>1:
                 print(f'Warning! New surfdata size=1, but raw surfdata size={ds_surf[pn].values.size}. Force the mean equal to the new surfdata value.')
                 m = np.nanmean(ds_surf[pn].values)
-                ds_surf[pn].values = ds_surf[pn].values - m + np.squeeze(vnew)
+                ds_surf[pn].values[:] = ds_surf[pn].values - m + np.squeeze(vnew)
             else:
-                ds_surf[pn].values = np.squeeze(vnew)
+                ds_surf[pn].values[:] = np.squeeze(vnew)
 
     ds_surf.to_netcdf(outfile_newsurfdata, format='NETCDF3_CLASSIC')
 
@@ -198,41 +198,64 @@ if __name__ == '__main__':
     # add_flow_file = 'nofile'
 
     delete_clone = True
-
+    overwrite_previous = False # delete previous simulation results in the archive folder
+    
     ########################################################################################################################
-    # clone case
+    # check whether previous simulation exists
+    
+    simufiles = glob.glob(f'{path_archive}/{caseflag}/lnd/hist/*.nc')
+    if len(simufiles) > 0 and overwrite_previous == False:
+        print(f'There are .nc files in {path_archive}/{caseflag}/lnd/hist. No need to run model again')
+        runmodel = False
+    else:
+        runmodel = True
+    
+    
     path_CTSM_base = str(pathlib.Path(path_CTSM_base))
-    path_CTSM_clone = f'{path_CTSM_base}_{caseflag}'
-    clone_case_name = pathlib.Path(path_CTSM_clone).name
-    clone_CTSM_model_case(script_clone, path_CTSM_base, path_CTSM_clone)
+    if runmodel == True:
+        ########################################################################################################################
+        # clone case
+        path_CTSM_clone = f'{path_CTSM_base}_{caseflag}'
+        clone_case_name = pathlib.Path(path_CTSM_clone).name
+        clone_CTSM_model_case(script_clone, path_CTSM_base, path_CTSM_clone)
 
-    ########################################################################################################################
-    # change parameters, which won't affect files of path_CTSM_base
-    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+        ########################################################################################################################
+        # change parameters, which won't affect files of path_CTSM_base
+        update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
 
-    ########################################################################################################################
-    # run model in "no-batch" mode
-    os.chdir(path_CTSM_clone)
-    subprocess.run('./case.submit --no-batch', shell=True)
+        ########################################################################################################################
+        # run model in "no-batch" mode
+        os.chdir(path_CTSM_clone)
+        subprocess.run('./case.submit --no-batch', shell=True)
 
-    ########################################################################################################################
-    # move output to the archive folder
-    output_dir = xmlquery_output(path_CTSM_clone, 'DOUT_S_ROOT')
-    target_dir = f'{path_archive}/{caseflag}'
-    os.makedirs(str(pathlib.Path(target_dir).parent), exist_ok=True)
-    if os.path.isdir(target_dir):
-        print(f'Warning!!! {target_dir} exists before moving archived files')
-        _ = os.system(f'rm -r {target_dir}')
+        ########################################################################################################################
+        # move output to the archive folder
+        output_dir = xmlquery_output(path_CTSM_clone, 'DOUT_S_ROOT')
+        target_dir = f'{path_archive}/{caseflag}'
+        os.makedirs(str(pathlib.Path(target_dir).parent), exist_ok=True)
+        if os.path.isdir(target_dir):
+            print(f'Warning!!! {target_dir} exists before moving archived files')
+            _ = os.system(f'rm -r {target_dir}')
 
-    _ = subprocess.run(f'mv {output_dir} {target_dir}', shell=True)
-    _ = subprocess.run(f'cp {file_parameter_set} {target_dir}', shell=True)
+        _ = subprocess.run(f'mv {output_dir} {target_dir}', shell=True)
+        _ = subprocess.run(f'cp {file_parameter_set} {target_dir}', shell=True)
 
-    # delete cloned cases to save space
-    if delete_clone:
-        os.chdir(path_CTSM_base)
-        RUNDIR = xmlquery_output(path_CTSM_clone, 'RUNDIR')
-        _ = subprocess.run(f'rm -r {str(pathlib.Path(RUNDIR).parent)}', shell=True)
-        _ = subprocess.run(f'rm -r {path_CTSM_clone}', shell=True)
+        # delete large restart files
+        restfiles = glob.glob(f'{target_dir}/rest/*/*.nc')
+        for f in restfiles:
+            if not '.clm2.r.' in f:
+                _ = os.system(f'rm {f}')
+
+        # delete log files
+        logfolder = f'{target_dir}/log'
+        _ = os.system(f'rm {logfolder}/*')
+
+        # delete cloned cases to save space
+        if delete_clone:
+            os.chdir(path_CTSM_base)
+            RUNDIR = xmlquery_output(path_CTSM_clone, 'RUNDIR')
+            _ = subprocess.run(f'rm -r {str(pathlib.Path(RUNDIR).parent)}', shell=True)
+            _ = subprocess.run(f'rm -r {path_CTSM_clone}', shell=True)
 
     ########################################################################################################################
     # evaluate model results

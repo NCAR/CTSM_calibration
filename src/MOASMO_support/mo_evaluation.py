@@ -99,16 +99,27 @@ def read_CAMELS_Q(file_Qobs):
     months = df_q_in[2].values
     days = df_q_in[3].values
     dates = [f'{years[i]}-{months[i]:02}-{days[i]:02}' for i in range(len(years))]
+    dates = pd.to_datetime(dates)
     q_obs = df_q_in[4].values * 0.028316847  # cfs to cms
     q_obs[q_obs < 0] = -9999.0
     df_q_out = pd.DataFrame({'Date': dates, 'Runoff_cms': q_obs})
+    
+    # fill possible missing values
+    df_q_out.set_index('Date', inplace=True)
+    date_range = pd.date_range(start=dates[0], end=dates[-1], freq='D')
+    df_q_out = df_q_out.reindex(date_range)
+    df_q_out.fillna(-9999, inplace=True)
+    df_q_out.reset_index(inplace=True)
+    df_q_out = df_q_out.rename(columns={'index': 'Date'})
+
     return df_q_out
 
 def read_CAMELS_Q_and_to_xarray(ref_streamflow, ref_q_date, ref_q_name):
     ########################################################################################################################
     # load observation streamflow
     print('Use streamflow reference file:', ref_streamflow)
-    df_q_obs = pd.read_csv(ref_streamflow)
+    #df_q_obs = pd.read_csv(ref_streamflow)
+    df_q_obs = read_CAMELS_Q(ref_streamflow)
     ds_q_obs = xr.Dataset()
     ds_q_obs.coords['time'] = pd.to_datetime(df_q_obs[ref_q_date].values)
     ds_q_obs[ref_q_name] = xr.DataArray(df_q_obs[ref_q_name].values, dims=['time']) # flexible time

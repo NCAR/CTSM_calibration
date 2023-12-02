@@ -6,6 +6,43 @@ import xmltodict, subprocess
 import os, time, sys, glob, pathlib
 import timemerge
 
+# # dask, but may not be good when using GNU parallel to use all cores
+# def subset_forcing(infile, lat_range, lon_range):
+#     # Open the dataset using Dask for efficient handling of large datasets
+#     ds_data = xr.open_dataset(infile, chunks={"time":"auto", "lat":"auto", "lon":"auto"})  # Adjust chunking based on data structure
+#  
+#     # Lazy loading the necessary data for index calculation
+#     lonmin = np.min(ds_data.LONGXY.values, axis=0)
+#     lonmax = np.max(ds_data.LONGXY.values, axis=0)
+#     latmin = np.min(ds_data.LATIXY.values, axis=1)
+#     latmax = np.max(ds_data.LATIXY.values, axis=1)
+#  
+#     indexlat = np.where((latmin >= lat_range[0]) & (latmax <= lat_range[1]))[0]
+#     indexlon = np.where((lonmin >= lon_range[0]) & (lonmax <= lon_range[1]))[0]
+#  
+#     # Applying original logic for index ranges
+#     if len(indexlon) == 0:
+#         ind1 = np.where(lonmin >= lon_range[0])[0][0]
+#         indexlon = [ind1-1, ind1]
+#     if len(indexlat) == 0:
+#         ind1 = np.where(latmin >= lat_range[0])[0][0]
+#         indexlat = [ind1-1, ind1]
+#  
+#     # extend dim
+#     if len(indexlat)==1:
+#         print('raw indexlat:', indexlat)
+#         indexlat = np.append(indexlat, indexlat[-1]+1)
+#         print('new indexlat:', indexlat)
+#     if len(indexlon)==1:
+#         print('raw indexlon:', indexlon)
+#         indexlon = np.append(indexlon, indexlon[-1]+1)
+#         print('new indexlon:', indexlon)
+#     
+#     ds_data_out = ds_data.isel(lat=indexlat, lon=indexlon).compute()
+#  
+#     return ds_data_out
+
+
 def subset_forcing(infile, lat_range, lon_range):
     # gridded forcing
     ds_data = xr.open_dataset(infile)
@@ -13,17 +50,32 @@ def subset_forcing(infile, lat_range, lon_range):
     lonmax = np.max(ds_data.LONGXY.values, axis=0)
     latmin = np.min(ds_data.LATIXY.values, axis=1)
     latmax = np.max(ds_data.LATIXY.values, axis=1)
+    
     indexlat = np.where((latmin >= lat_range[0]) & (latmax <= lat_range[1]))[0]
     indexlon = np.where((lonmin >= lon_range[0]) & (lonmax <= lon_range[1]))[0]
+    
     if len(indexlon) == 0:
         ind1 = np.where((lonmin >= lon_range[0]))[0][0]
         indexlon = [ind1-1, ind1]
     if len(indexlat) == 0:
         ind1 = np.where((latmin >= lat_range[0]))[0][0]
         indexlat = [ind1-1, ind1]
+        
+    # extend dim
+    if len(indexlat)==1:
+        print('raw indexlat:', indexlat)
+        indexlat = np.append(indexlat, indexlat[-1]+1)
+        print('new indexlat:', indexlat)
+    if len(indexlon)==1:
+        print('raw indexlon:', indexlon)
+        indexlon = np.append(indexlon, indexlon[-1]+1)
+        print('new indexlon:', indexlon)
+        
     ds_data = ds_data.load()
     ds_data_out = ds_data.sel(lat=indexlat, lon=indexlon)
+    
     return ds_data_out
+
 
 def subset_meshfile(meshfile, example_subsetfile):
     # mesh file, which is subset based on an example_subsetfile
@@ -42,7 +94,7 @@ def subset_meshfile(meshfile, example_subsetfile):
     ds_mesh = ds_mesh.isel(elementCount=index_elementCount)
     return ds_mesh
 
-def subset_allfiles(datm_xml_dict, keyword_data, outpathSubset, ncformat, subset_length):
+def subset_allfiles(datm_xml_dict, keyword_data, outpathSubset, ncformat, subset_length, lat_range, lon_range):
     # e.g., datm_xml_dict['file']['stream_info'][0]['datafiles']['file']
     tstart = time.time()
     inout_maplist = []
@@ -87,6 +139,7 @@ def subset_allfiles(datm_xml_dict, keyword_data, outpathSubset, ncformat, subset
             if i == 0:
                 outpath = f'{outpathSubset}/{foldername}'
                 os.makedirs(outpath, exist_ok=True)
+                
             outfilei = f'{outpath}/subset_{filename}'
             outfilelist.append(outfilei)
             if os.path.isfile(outfilei):
@@ -165,8 +218,22 @@ if __name__ == '__main__':
 
     print('Create datm subset settings ...')
     print('Reading configuration from:', config_file_SubForc)
-
-    ########################################################################################################################
+    
+    # check whether new forcing has been generated
+    config_SubForc = toml.load(config_file_SubForc)
+    folders = ['Solar', 'Precip', 'TPQWL']
+    path_CTSM_case = config_SubForc['path_CTSM_case']
+    outpathSubset = path_CTSM_case + '_SubsetForcing'
+    flag = 0
+    for f in folders:
+        file = f'{outpathSubset}/{f}/inout_list_timemerge.txt'
+        if os.path.isfile(file):
+            flag = flag + 1
+            print('Merging file exists:', file)
+    if flag == 3:
+        sys.exit('All merging files exist. no need to perform subsetting')
+            
+ ########################################################################################################################
     # settings
 
     ##############
@@ -188,8 +255,11 @@ if __name__ == '__main__':
         # default settings
 
         outpathSubset = path_CTSM_case + '_SubsetForcing'
-        _ = subprocess.run(f'rm -r {outpathSubset}', shell=True)
-        os.makedirs(outpathSubset, exist_ok=True)
+        if os.path.isdir(outpathSubset):
+            print(f'{outpathSubset} exists. Continue without deleting existing folder')
+            # _ = subprocess.run(f'rm -r {outpathSubset}', shell=True)
+        else:
+            os.makedirs(outpathSubset, exist_ok=True)
 
         ncformat = 'NETCDF3_CLASSIC'
 
@@ -229,9 +299,10 @@ if __name__ == '__main__':
                 index_connectionCount = np.arange(np.sum(numElementConn[:i]), np.sum(numElementConn[:i+1])).astype(int)
                 index_nodeCount = elementConn[index_connectionCount].astype(int) - 1 # index starts from 0
                 nodeCoords_valid = np.vstack((nodeCoords_valid, nodeCoords[index_nodeCount, :]))
-
-        lat_range = [np.min(nodeCoords_valid[:, 1]), np.max(nodeCoords_valid[:, 1])]
-        lon_range = [np.min(nodeCoords_valid[:, 0]), np.max(nodeCoords_valid[:, 0])]
+        
+        buffer = 0.15
+        lat_range = [np.min(nodeCoords_valid[:, 1])-buffer, np.max(nodeCoords_valid[:, 1])+buffer]
+        lon_range = [np.min(nodeCoords_valid[:, 0])-buffer, np.max(nodeCoords_valid[:, 0])+buffer]
 
 
         ########################################################################################################################
@@ -240,15 +311,51 @@ if __name__ == '__main__':
             datm_xml_dict = xmltodict.parse(f.read())
 
         keyword_data = ['Solar', 'Precip', 'TPQW']
-        inout_maplist, keyword_data_complete = subset_allfiles(datm_xml_dict, keyword_data, outpathSubset, ncformat, subset_length)
+        
+        # if user_datm_file contains forcing files, use them to replace datm_xml_dict
+        with open(user_nl_datm_streams, 'r') as f:
+            lines = f.readlines()
+
+        for line in lines:
+            if not line.startswith('!'):
+
+                if ':meshfile' in line:
+                    line = line.strip()
+                    for kyd in keyword_data:
+                        if kyd+':' in line:
+                            break
+                    newfile = line.split('=')[1]
+                    for dicti in datm_xml_dict['file']['stream_info']:
+                        if kyd in dicti['@name']:
+                            dicti['meshfile'] = newfile
+
+
+                if ':datafiles' in line:
+                    line = line.strip()
+                    for kyd in keyword_data:
+                        if kyd+':' in line:
+                            break
+                    newfile = line.split('=')[1]
+                    newfile = newfile.split(',')
+                    for dicti in datm_xml_dict['file']['stream_info']:
+                        if kyd in dicti['@name']:
+                            dicti['datafiles']['file'] = newfile
+        
+        inout_maplist, keyword_data_complete = subset_allfiles(datm_xml_dict, keyword_data, outpathSubset, ncformat, subset_length, lat_range, lon_range)
 
         ########################################################################################################################
         # update user_nl_datm_streams
 
         with open(initial_user_nl_datm_streams, 'r') as f:
-            contents = f.readlines()
-
+            contents0 = f.readlines()
+            # only keep settings that are not datafile or meshfile
+            contents = []
+            for c in contents0:
+                if (not ':datafiles' in c) and not (':meshfile' in c):
+                    contents.append(c)
+            
         contents.append('\n')
+        #contents = []
         for i in range(len(keyword_data_complete)):
             # data files and mesh file
             datafilesi = ''
@@ -264,7 +371,7 @@ if __name__ == '__main__':
             # add contents
             contents.append(f'{keyword_data_complete[i]}:meshfile={meshfile}\n')
             if not keyword_data_complete[i] == 'topo.observed':
-                contents.append(f'{keyword_data_complete[i]}:mapalgo=nn\n')
+                contents.append(f'{keyword_data_complete[i]}:mapalgo=bilinear\n')
             contents.append(f'{keyword_data_complete[i]}:datafiles={datafilesi}\n')
 
         # write to file
