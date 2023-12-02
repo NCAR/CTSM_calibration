@@ -12,7 +12,7 @@ config_file = sys.argv[1]
 
 # tasks that will be executed. by default, all tasks will be run
 # runtasks = "Build,Ostrich,SubForc,NameList,SpinUp" # run complete Ostrich calibration
-runtasks = "MOASMO" # run complete MO-ASMO calibration
+runtasks = "Ostrich" # run complete MO-ASMO calibration
 if len(sys.argv) == 3:
     runtasks = sys.argv[2]
 

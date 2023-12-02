@@ -36,6 +36,12 @@ For CTSM, the lat/lon dims have to be >1. Otherwise, the job would just fail ...
 Sometimes some grids and some time steps have NaN values from ERA5-Land or EM-Earth. Need to run a post-processing function to fill those NaN values. ./src/tools/forcing_modification/findfill_nan_inforcing.py which runs in parallel so is fast.  
 Thus, when creating cases, first generating subset forcing, then doing filling, and finally doing spin up  
 
+4.2 Create the case "Build,MOASMO,NameList" for Ostrich.  
+Post-processing is needed to use the forcing and restart files from MO-ASMO  
+
+
+
+
 
 
 

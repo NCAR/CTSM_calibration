@@ -75,7 +75,7 @@ with open(infile_factor_value, 'r') as f:
 df_bind = pd.DataFrame()
 for i in range(len(df_calibparam)):
     bindvari = df_calibparam.iloc[i]['Binding']
-    if bindvari != 'None':
+    if isinstance(bindvari, str) and bindvari != 'None':
         bindvari = bindvari.split(',')
         for bv in bindvari:
             dftmp = df_calibparam.iloc[[i]].copy()

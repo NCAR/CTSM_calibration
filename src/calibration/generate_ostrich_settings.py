@@ -65,10 +65,10 @@ jobsetting = config_Ostrich['jobsetting']
 
 #############
 # default settings
-if config['path_calib'] == 'NA':
+if config_Ostrich['path_calib'] == 'NA':
     outpathOstCalib = path_CTSM_case + "_OstCalib"
 else:
-    outpathOstCalib = config['path_calib']
+    outpathOstCalib = config_Ostrich['path_calib']
 
 ostrichRunDir = f"{outpathOstCalib}/run"  # calib directory
 ostrichArchive = f'{outpathOstCalib}/archive'

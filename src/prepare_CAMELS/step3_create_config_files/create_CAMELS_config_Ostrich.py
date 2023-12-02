@@ -104,7 +104,13 @@ config_CTSM['files']['path_CTSM_source'] = '/glade/u/home/guoqiang/CTSM_repos/CT
 config_CTSM['files']['path_CTSM_case'] = f'{outpath_case}/{level}_{basin_num}'
 config_CTSM['files']['path_CTSM_CIMEout'] = f'{outpath_out}/{level}_{basin_num}'
 config_CTSM['files']['file_CTSM_mesh'] = f'/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/data_mesh_surf/HillslopeHydrology/disaggregation/corrected_HCDN_nhru_final_671_buff_fix_holes.CAMELSandTDX_areabias_fix.simp0.001.{level}_polygons_neighbor_group_esmf_mesh_{basin_num}.nc'
-config_CTSM['files']['file_CTSM_surfdata'] = f'/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/data_mesh_surf/HillslopeHydrology/disaggregation/surfdata_CAMELS_{level}_hist_78pfts_CMIP6_simyr2000_c231117_{basin_num}.nc'
+
+if level == 'level1':
+    config_CTSM['files']['file_CTSM_surfdata'] = f'/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/data_mesh_surf/HillslopeHydrology/disaggregation/surfdata_CAMELS_{level}_hist_78pfts_CMIP6_simyr2000_c231115_{basin_num}.nc'
+elif level == 'level2':
+    config_CTSM['files']['file_CTSM_surfdata'] = f'/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/data_mesh_surf/HillslopeHydrology/disaggregation/surfdata_CAMELS_{level}_hist_78pfts_CMIP6_simyr2000_c231116_{basin_num}.nc'
+elif level == 'level3':
+    config_CTSM['files']['file_CTSM_surfdata'] = f'/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/data_mesh_surf/HillslopeHydrology/disaggregation/surfdata_CAMELS_{level}_hist_78pfts_CMIP6_simyr2000_c231117_{basin_num}.nc'
 
 config_CTSM['settings'] = {}
 

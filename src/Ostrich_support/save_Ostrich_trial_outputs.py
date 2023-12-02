@@ -58,7 +58,8 @@ else:
     print(f'Save calibration intermediate outputs using mode {mode}')
 
 ######## hard coded parameters (may be changed later)
-archive_keyword = ".clm2.h1." # what archive files to be saved? only for PreserveBestModel
+#archive_keyword = ".clm2.h1." # what archive files to be saved? only for PreserveBestModel
+archive_keyword = "clm2*.nc" # what archive files to be saved? only for PreserveBestModel
 
 ########################################################################################################################
 # define folder name
@@ -120,9 +121,10 @@ _ = subprocess.run(f'cp {file_user_nl_clm} {pathOstrichSave}', shell=True)
 # save OstModel
 _ = subprocess.run(f'cp {pathOstrichRun}/OstModel0.txt {pathOstrichSave}', shell=True)
 
-if mode == 'PreserveBestModel':
+#if mode == 'PreserveBestModel':
+if True:
     # save Ostrich outputs
-    files_in_pathOstrichRun = ['nc_multiplier.txt', 'trial_stats*.txt', 'Ost*.txt', 'timetrack.log']
+    files_in_pathOstrichRun = ['*.txt', '*.tpl', 'timetrack.log']
     for f in files_in_pathOstrichRun:
         _ = subprocess.run(f'cp {pathOstrichRun}/{f} {pathOstrichSave}', shell=True)
 
