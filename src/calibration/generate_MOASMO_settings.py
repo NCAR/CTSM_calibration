@@ -6,7 +6,7 @@
 import sys, toml, os
 
 def create_control_once_job(file_control, job_controlMOASMO, configfile, script_main):
-    lines = ['module load conda/latest cdo', 'conda activate npl-2022b',
+    lines = ['module load ncarenv/23.09', 'module load conda/latest cdo', 'conda activate npl-2023b',
              '\n',
              f'python {script_main} {configfile}'
              ]
@@ -21,7 +21,7 @@ def create_control_once_job(file_control, job_controlMOASMO, configfile, script_
 
 
 def create_control_resubmit_job(file_control, job_controlMOASMO, configfile, script_main, submit_script, script_resubmit, iter_num_per_sub):
-    lines = ['module load conda/latest cdo', 'conda activate npl-2022b',
+    lines = ['module load ncarenv/23.09', 'module load conda/latest cdo', 'conda activate npl-2023b',
              '\n',
              f'submit_script={submit_script}',
              f'script_main={script_main}',

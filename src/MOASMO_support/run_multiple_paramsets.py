@@ -31,7 +31,7 @@ def generate_and_submit_multi_CTSM_runs(iterflag, path_submit, path_paramset, pa
     path_runmodel = f'{path_submit}/iter{iterflag}'
     os.makedirs(path_runmodel, exist_ok=True)
 
-    param_filelist = glob.glob(f'{path_paramset}/*iter{iterflag}_trial*.csv')
+    param_filelist = glob.glob(f'{path_paramset}/*iter{iterflag}_trial*.pkl')
     param_filelist.sort()
 
     commands_run_model = f'{path_runmodel}/commands_run_iter{iterflag}.txt'
@@ -39,7 +39,7 @@ def generate_and_submit_multi_CTSM_runs(iterflag, path_submit, path_paramset, pa
     with open(commands_run_model, 'w') as f:
         for i in range(len(param_filelist)):
             caseflag = f'iter{iterflag}_trial{i}'
-            file_parameter_set = f'{path_paramset}/paramset_iter{iterflag}_trial{i}.csv'
+            file_parameter_set = f'{path_paramset}/paramset_iter{iterflag}_trial{i}.pkl'
             commandi = f"python {script_singlerun} {script_clone} {path_CTSM_base} {file_parameter_set} {path_archive} {caseflag} {date_start} {date_end} {ref_streamflow} {add_flow_file} {nonstandard_evaluation}"
             _ = f.write(f'{commandi}\n')
             commands_all.append(commandi)
@@ -88,7 +88,7 @@ def generate_and_submit_multi_CTSM_runs(iterflag, path_submit, path_paramset, pa
                 cpus = numnode * numcpu
                 break
 
-        lines = ['module load conda/latest parallel cdo', 'conda activate npl-2022b',
+        lines = ['module load conda/latest cdo', 'conda activate npl-2023b',
                  '\n',
                  'export MPI_DSM_DISTRIBUTE=0',
                  '\n'
@@ -166,10 +166,12 @@ def check_if_all_runs_are_finsihed(path_archive, iterflag, tarnum, sleep=10):
 def merge_parameter_metric_csv(path_archive, iterflag, tarnum):
     # merge parameters and metric values from all runs to one csv file
     for i in range(tarnum):
-        file_param = f'{path_archive}/iter{iterflag}_trial{i}/paramset_iter{iterflag}_trial{i}.csv'
+        #file_param = f'{path_archive}/iter{iterflag}_trial{i}/paramset_iter{iterflag}_trial{i}.csv'
+        file_param = f'{path_archive}/iter{iterflag}_trial{i}/paramset_iter{iterflag}_trial{i}.pkl'
         file_metric = f'{path_archive}/iter{iterflag}_trial{i}/evaluation_metric.csv'
         df_met = pd.read_csv(file_metric)
-        df_param = read_parameter_csv(file_param)
+        #df_param = read_parameter_csv(file_param)
+        df_param = pd.read_pickle(file_param)
         if i == 0:
             param_names = list(df_param['Parameter'].values)
             param_meanvalues = np.zeros([tarnum, len(param_names)])

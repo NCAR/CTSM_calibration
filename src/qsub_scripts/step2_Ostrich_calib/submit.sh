@@ -5,7 +5,7 @@
 #PBS -l select=1:ncpus=36
 #PBS -e /glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Calib_all_HH_Ostrich/logs/create_cases/
 #PBS -o /glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Calib_all_HH_Ostrich/logs/create_cases/
-#PBS -J 1-2:1
+#PBS -J 1-19:1
 
 
 module load conda
@@ -21,7 +21,7 @@ mkdir -p $TMPDIR
 # and even for one node, when I try to run CTSM at the same time, many cores jut failed and only some of tasks are running
 export MPI_DSM_DISTRIBUTE=0
 
-cmdfile=/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Calib_all_HH_Ostrich/submission/create_cases_part${PBS_ARRAY_INDEX}.txt
+cmdfile=/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Calib_all_HH_Ostrich/submission/Ostcalib_part${PBS_ARRAY_INDEX}.txt
 
 echo "Processing ${cmdfile}"
 

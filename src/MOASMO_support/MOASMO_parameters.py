@@ -74,19 +74,20 @@ def check_and_generate_binded_parameters(df_param, path_CTSM_case):
         for i in range(len(df_param)):
             rawvari_value = get_parameter_value_from_CTSM_case(df_param.iloc[i]['Parameter'], df_param.iloc[i]['Source'], path_CTSM_case)
             bindvari = df_param.iloc[i]['Binding']
-            if bindvari != 'None':
-                bindvari = bindvari.split(',')
-                for bv in bindvari:
-                    dftmp = df_param.iloc[[i]].copy()
-                    dftmp['Parameter'] = bv
-                    # mask other cols
-                    for col in ['Default', 'Lower', 'Upper', 'Binding', 'Parameter_Ost']:
-                        if col in dftmp.columns:
-                            dftmp[col] = 'None'
-                    # generate parameter values
-                    bind_var_value0 = get_parameter_value_from_CTSM_case(bv, dftmp['Source'].values[0], path_CTSM_case)
-                    dftmp['Value'] = bind_var_value0 + (df_param.iloc[i]['Value'] - rawvari_value)
-                    df_bind = pd.concat([df_bind, dftmp])
+            if isinstance(bindvari, str):
+                if bindvari != 'None':
+                    bindvari = bindvari.split(',')
+                    for bv in bindvari:
+                        dftmp = df_param.iloc[[i]].copy()
+                        dftmp['Parameter'] = bv
+                        # mask other cols
+                        for col in ['Default', 'Lower', 'Upper', 'Binding', 'Parameter_Ost']:
+                            if col in dftmp.columns:
+                                dftmp[col] = 'None'
+                        # generate parameter values
+                        bind_var_value0 = get_parameter_value_from_CTSM_case(bv, dftmp['Source'].values[0], path_CTSM_case)
+                        dftmp['Value'] = bind_var_value0 + (df_param.iloc[i]['Value'] - rawvari_value)
+                        df_bind = pd.concat([df_bind, dftmp])
 
         df_param = pd.concat([df_param, df_bind])
 
@@ -122,6 +123,32 @@ def read_parameter_csv(file_parameter_list):
     return df_calibparam
 
 
+def read_save_load_all_default_parameters(file_parameter_list, outpath, path_CTSM_case=''):
+    
+    outfile = f'{outpath}/all_default_parameters.pkl'
+    
+    if not os.path.isfile(outfile):
+    
+        df_calibparam = read_parameter_csv(file_parameter_list)
+        param_names = df_calibparam['Parameter'].values
+        param_sources = df_calibparam['Source'].values
+        
+        dfi = df_calibparam.copy()
+        param0 = []
+        for j in range(len(param_names)):
+            param0.append(get_parameter_value_from_CTSM_case(param_names[j], param_sources[j], path_CTSM_case))
+
+        dfi['Value'] = param0
+        
+        dfi.to_pickle(outfile) # preserve arrays
+    
+    
+    print('Load default parameter values from:', outfile)
+    dfi = pd.read_pickle(outfile)
+
+    return dfi
+
+
 def generate_initial_parameter_sets(file_parameter_list, sampling_method, outpath, path_CTSM_case='', num_init=-1, adddefault=True):
     # example parameters
     # sampling_method = 'lh'  # lh: LatinHypercubeDesign, slh: SymmetricLatinHypercubeDesign, glp: GoodLatticePointsDesign
@@ -135,9 +162,12 @@ def generate_initial_parameter_sets(file_parameter_list, sampling_method, outpat
     df_calibparam = read_parameter_csv(file_parameter_list)
     param_upper_bound = df_calibparam['Upper'].values
     param_lower_bound = df_calibparam['Lower'].values
+    
+    param_upper_bound_mean = np.array([np.nanmean(p) for p in param_upper_bound])
+    param_lower_bound_mean = np.array([np.nanmean(p) for p in param_lower_bound])
 
     # dimension sizes
-    num_param = len(param_lower_bound) # number of parameters to be calibrated
+    num_param = len(param_lower_bound_mean) # number of parameters to be calibrated
     if not num_init > 0:
         num_init = num_param * 20 # number of initial samples (i.e., initial model runs). A proper initial sample size should be 15–20 times the number of parameters (Gong et al., 2015)
         
@@ -168,11 +198,16 @@ def generate_initial_parameter_sets(file_parameter_list, sampling_method, outpat
         # save factors
         df_factor = pd.DataFrame(init_factors, columns=df_calibparam['Parameter'].values)
         df_factor.to_csv(f'{outpath}/paramset_iter0_scalefactors.csv', index=False)
+        
+        # load default parameter dataframe (file will be saved after first generation)
+        df_defaultparam = read_save_load_all_default_parameters(file_parameter_list, outpath, path_CTSM_case)
+        param0 = df_defaultparam['Value'].values
 
         # generate a dataframe for every set of parameters and deal with binding parameters
         outfiles_all = []
         for i in range(num_init):
-            outfile = f'{outpath}/paramset_iter0_trial{i}.csv'
+            #outfile = f'{outpath}/paramset_iter0_trial{i}.csv'
+            outfile = f'{outpath}/paramset_iter0_trial{i}.pkl'
             print('Generating parameter file:', outfile)
             dfi = df_calibparam.copy()
 
@@ -181,11 +216,10 @@ def generate_initial_parameter_sets(file_parameter_list, sampling_method, outpat
 
                 param_names = df_calibparam['Parameter'].values
                 param_sources = df_calibparam['Source'].values
-                param0 = []
+                
                 factor0 = []
                 for j in range(len(param_names)):
-                    param0.append(get_parameter_value_from_CTSM_case(param_names[j], param_sources[j], path_CTSM_case))
-                    factor0.append( (np.nanmean(param0[j]) - param_lower_bound[j])/(param_upper_bound[j] - param_lower_bound[j]) )
+                    factor0.append( ( np.nanmean(param0[j]) - param_lower_bound_mean[j] )/(param_upper_bound_mean[j] - param_lower_bound_mean[j]) )
 
                 dfi['Value'] = param0
                 dfi['Factor'] = factor0
@@ -193,14 +227,18 @@ def generate_initial_parameter_sets(file_parameter_list, sampling_method, outpat
             else:
 
                 dfi['Factor'] = init_factors[i, :]
-                dfi['Value'] = init_factors[i, :] * (param_upper_bound - param_lower_bound) + param_lower_bound
-
+                meanparam = init_factors[i, :] * (param_upper_bound_mean - param_lower_bound_mean) + param_lower_bound_mean
+                newparam =  [meanparam[j] / np.nanmean(param0[j]) * param0[j] for j in range(len(param0))]
+                dfi['Value'] = newparam
 
             # process binded parameters
             dfi = check_and_generate_binded_parameters(dfi, path_CTSM_case)
 
-            dfi.to_csv(outfile, index=False)
+            #dfi.to_csv(outfile, index=False)
+            dfi.to_pickle(outfile)
+            
             outfiles_all.append(outfiles_all)
+    
     
     return outfiles_all
 
@@ -285,10 +323,18 @@ def surrogate_model_train_and_pareto_points(param_infofile, param_filelist, metr
 
         param_upper_bound = df_info['Upper'].values
         param_lower_bound = df_info['Lower'].values
+        param_upper_bound_mean = np.array([np.nanmean(p) for p in param_upper_bound])
+        param_lower_bound_mean = np.array([np.nanmean(p) for p in param_lower_bound])
+        
+        # load default parameter dataframe (file will be saved after first generation)
+        df_defaultparam = read_save_load_all_default_parameters(param_filelist, outpath, path_CTSM_case)
+        param0 = df_defaultparam['Value'].values
+
 
         # generate a parameter dataframe for next trial
         for i in range(x_resample.shape[0]):
-            outfile = f'{outpath}/paramset_iter{iterflag+1}_trial{i}.csv'
+            # outfile = f'{outpath}/paramset_iter{iterflag+1}_trial{i}.csv'
+            outfile = f'{outpath}/paramset_iter{iterflag+1}_trial{i}.pkl'
             print('Generating parameter file:', outfile)
 
             dfi = df_info.copy()
@@ -296,13 +342,17 @@ def surrogate_model_train_and_pareto_points(param_infofile, param_filelist, metr
             factors[factors<0] = 0.01
             factors[factors>1] = 0.99
             dfi['Factor'] = factors
-            dfi['Value'] = factors * (param_upper_bound - param_lower_bound) + param_lower_bound
+            
+            meanparam = init_factors[i, :] * (param_upper_bound_mean - param_lower_bound_mean) + param_lower_bound_mean
+            newparam =  [meanparam[j] / np.nanmean(param0[j]) * param0[j] for j in range(len(param0))]
+            dfi['Value'] = newparam
 
             # process binded parameters
             dfi = check_and_generate_binded_parameters(dfi, path_CTSM_case)
 
             # write
-            dfi.to_csv(outfile, index=False)
+            #dfi.to_csv(outfile, index=False)
+            dfi.to_pickle(outfile)
 
 
 

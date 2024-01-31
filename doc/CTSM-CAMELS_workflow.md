@@ -16,8 +16,8 @@ Hillslope hydrology version from Sean
 This is gridded forcing for CONUS. The codes are in "CTSM_dataprepare" repo. CAMELS will extract gridded forcing from this dataset  
 
 5. Run the workflow  
-4.1 Create the case "Build,MOASMO,SubForc,NameList,SpinUp" # run complete MO-ASMO calibration  
-This step will also archive the spin up outputs using default parameters  
+5.1 Create the case "Build,MOASMO,SubForc,NameList,SpinUp" # run complete MO-ASMO calibration  
+This step will also archive the spin up outputs using default parameters. NameList should be run before SpinUp because it changes model settings  
 I plan to output more restart files for each year, but unless the last restart file, all other files are removed by the model  
 I submit basin-0 of MO-ASMO. After CTSM is compiled after 10-20 mintues, submit basin-1 to X which will clone basin-0.  
 
@@ -36,8 +36,22 @@ For CTSM, the lat/lon dims have to be >1. Otherwise, the job would just fail ...
 Sometimes some grids and some time steps have NaN values from ERA5-Land or EM-Earth. Need to run a post-processing function to fill those NaN values. ./src/tools/forcing_modification/findfill_nan_inforcing.py which runs in parallel so is fast.  
 Thus, when creating cases, first generating subset forcing, then doing filling, and finally doing spin up  
 
-4.2 Create the case "Build,MOASMO,NameList" for Ostrich.  
+(4) Other unknown reasons  
+Solution: perturb forcing a little bit for a specific period
+
+
+5.2 Generate MOASMO settings for sensitivity analysis  
+To select parameters, I further perform a sensitivity analysis based on PPE results.  
+This uses MO-ASMO functions and files (e.g, subset forcing and spin up files from the previous step)  
+
+
+5.2 Create the case "Build,MOASMO,NameList" for Ostrich.  
 Post-processing is needed to use the forcing and restart files from MO-ASMO  
+
+Archive problem:  
+For Ostrich, the archive folders are Run-1, Run-2, Run-3, ... OstModel0.txt also have runs starting from 1. For example, for Run-51, the OstModel0.txt has the last line corresponding to 51. But the true outputs are in Run-50 folders. Need to be check. This means the first model run (i.e., default parameters are not saved)  
+For PreserveBestModel folder which saves the best results, the OstModel0.txt and *.nc files are matched, which means the last line of OstModel0.txt shows the best model results, and the *.nc files are just in that folder.  
+
 
 
 

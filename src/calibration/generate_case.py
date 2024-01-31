@@ -172,10 +172,10 @@ if 'replacefiles' in config_CTSMcase:
         
         for name, file in replacefiles.items():
             
-            if name == 'user_nl_datm_streams':
+            if os.path.isfile(name):
                 print(f'use {file} to replace {name}')
-                _ = subprocess.run(f'cp user_nl_datm_streams user_nl_datm_streams-backup', shell=True)
-                _ = subprocess.run(f'cp {file} user_nl_datm_streams', shell=True)
+                _ = subprocess.run(f'cp {name} {name}-backup', shell=True)
+                _ = subprocess.run(f'cp {file} {name}', shell=True)
         
         _ = subprocess.run('./check_case', shell=True) # to make changed files shown in buildconf
 

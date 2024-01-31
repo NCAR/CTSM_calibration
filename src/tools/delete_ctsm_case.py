@@ -8,8 +8,8 @@ def xmlquery_output(pathCTSM, keyword):
     return out
 
 
-# path_CTSMall = ['/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/test/CAMELS_100']
-path_CTSMall = glob.glob('/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/test/*/', recursive = True)
+path_CTSMall = ['/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/SA_HH_MOASMO/level1_0']
+# path_CTSMall = glob.glob('/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/test/*/', recursive = True)
 
 
 for path_CTSM in path_CTSMall:

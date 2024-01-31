@@ -316,7 +316,7 @@ RUNDIR = out.stdout.decode().strip().split(' ')[-1]
 os.chdir(cwd)
 lines3 = ['\n', f'rm -r {DOUT_S_ROOT}/*\n', f'rm -r {RUNDIR}/*.nc']
 
-lines4 = ['\n', 'module load conda/latest', 'conda activate npl-2022b', '\n', './OstrichGCC']
+lines4 = ['\n', 'module load ncarenv/23.09', 'module load conda/latest', 'conda activate npl-2023b', '\n', './OstrichGCC']
 
 with open(file_submit, 'w') as f:
     for li in lines1+lines2+lines3+lines4:
