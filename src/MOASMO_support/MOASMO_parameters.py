@@ -175,14 +175,14 @@ def generate_initial_parameter_sets(file_parameter_list, sampling_method, outpat
     flag = False
     outfiles_all = []
     for i in range(num_init):
-        outfile = f'{outpath}/paramset_iter0_trial{i}.csv'
+        outfile = f'{outpath}/paramset_iter0_trial{i}.pkl'
         outfiles_all.append(outfiles_all)
         if not os.path.isfile(outfile):
             flag = True
             break
     
     if flag == False:
-        print('All ini parameter csv files have been generated. Skip this step')
+        print('All ini parameter csv/pkl files have been generated. Skip this step')
     else:
         # get initial factors between 0 and 1 which will be used to scale real parameters
         # init_factors: [num_init, num_param]
