@@ -289,6 +289,9 @@ def surrogate_model_train_and_pareto_points(param_infofile, param_filelist, metr
         x = df_param.to_numpy()
         y = df_metric.to_numpy()
 
+        ind = ~np.isnan( np.sum(x,axis=1) + np.sum(y,axis=1))
+        x, y = x[ind, :], y[ind, :]
+
         nInput = x.shape[1]
         nOutput = y.shape[1]
 
@@ -343,7 +346,7 @@ def surrogate_model_train_and_pareto_points(param_infofile, param_filelist, metr
             factors[factors>1] = 0.99
             dfi['Factor'] = factors
             
-            meanparam = init_factors[i, :] * (param_upper_bound_mean - param_lower_bound_mean) + param_lower_bound_mean
+            meanparam = factors * (param_upper_bound_mean - param_lower_bound_mean) + param_lower_bound_mean
             newparam =  [meanparam[j] / np.nanmean(param0[j]) * param0[j] for j in range(len(param0))]
             dfi['Value'] = newparam
 
