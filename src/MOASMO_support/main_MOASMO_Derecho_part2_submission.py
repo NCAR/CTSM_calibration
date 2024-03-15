@@ -5,13 +5,21 @@ import os, glob, sys
 
 
 
-iter = 0 # iteration number
+# iter = 0 # iteration number
+# basin_on_one_node = 6 # number of basins in one node
+iter = int(sys.argv[1])
+basin_on_one_node = int(sys.argv[2])
+print('Proecssing iteration', iter)
+print('basin_on_one_node', basin_on_one_node)
+
+
 inpath = f'/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO'
 outpath = f'/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO/run_model/iter{iter}'
 os.makedirs(outpath, exist_ok=True)
 
-basin_on_one_node = 6 # number of basins in one node
-basins = [f'level1_{i}' for i in range(627)] + [f'level2_{i}' for i in range(40)] + [f'level3_{i}' for i in range(4)]
+
+# basins = [f'level1_{i}' for i in range(627)] + [f'level2_{i}' for i in range(40)] + [f'level3_{i}' for i in range(4)]
+basins = [f'level1_{i}' for i in range(627)] # Just level-1
 
 bnum = len(basins)
 
@@ -29,7 +37,7 @@ jobparams = [ "#PBS -N MOAcalib", "#PBS -q main",
              "\n",
             ]
 
-for i in range(1):
+for i in range(nbatch):
     bstart = i*basin_on_one_node
     bend = (i+1)*basin_on_one_node
     if bend>bnum:

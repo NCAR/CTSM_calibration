@@ -129,7 +129,7 @@ for it in range(0, iter_end):
 # train a surrogate model and select pareto parameter sets
 surrogate_model_train_and_pareto_points(file_parameter_list, file_param_all, file_metric_all, path_paramset, iterflag, num_per_iter, path_CTSM_base)
 
-# generate submission commands
+# generate submission commands (note, this won't submit a real job on Derecho)
 run_multiple_paramsets_Derecho.generate_and_submit_multi_CTSM_runs(iter_end, path_submit, path_paramset, path_CTSM_base, 
                                                                    path_archive, script_singlerun, script_clone, 
                                                                    date_start, date_end, ref_streamflow, add_flow_file,

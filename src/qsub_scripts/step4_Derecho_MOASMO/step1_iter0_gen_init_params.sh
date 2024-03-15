@@ -5,6 +5,8 @@
 #PBS -A P08010000
 #PBS -l select=1:ncpus=128
 
+# generate hundreds of parameter sets (iteration 0)
+
 module load conda cdo
 conda activate npl-2022b
 
@@ -16,7 +18,7 @@ script="/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/ma
 config_path="/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO/configuration"
 
 iter_start=0
-iter_end=1
+iter_end=1 # due to the method range(iter_start, iter_end), it will only run iteration 0
 
 # Generate a list of configuration files
 config_files=$(find $config_path -name '_level*_config_MOASMO.toml')
@@ -24,4 +26,4 @@ config_files=$(find $config_path -name '_level*_config_MOASMO.toml')
 # Use parallel with :::
 # parallel -j 120 python $script ::: $config_files ::: $iter_start ::: $iter_end
 find $config_path -name '_level*_config_MOASMO.toml' | \
-parallel -j 100 python $script {} $iter_start $iter_end
+parallel -j 120 python $script {} $iter_start $iter_end

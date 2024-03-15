@@ -193,6 +193,7 @@ def mo_evaluate(outfile_metric, CTSMfilelist, fsurdat, date_start, date_end, ref
     ########################################################################################################################
     # evaluation
 
+    # match sim-obs time and data
     ds_q_obs = ds_q_obs.sel(time=ds_q_obs.time.isin(ds_simu.time))
     ds_simu = ds_simu.sel(time=ds_simu.time.isin(ds_q_obs.time))
 
@@ -203,25 +204,31 @@ def mo_evaluate(outfile_metric, CTSMfilelist, fsurdat, date_start, date_end, ref
     ds_q_obs[ref_q_name].values = d1
     ds_simu[clm_q_name].values = d2
 
+    # calculate kge'
     kge_q = get_modified_KGE(obs=d1, sim=d2)
 
-    d1 = ds_q_obs[ref_q_name].groupby('time.month').mean().values
-    d2 = ds_simu[clm_q_name].groupby('time.month').mean().values
-    maxabserror_q = get_max_abs_error(d1, d2)
-
-    print(f'Evaluation result: kge_q={kge_q}, maxabserror_q={maxabserror_q}')
-
-    # rmse_q = get_RMSE(obs=ds_q_obs[ref_q_name].values, sim=ds_simu[clm_q_name].values)
-
+    # calculate log kge'
     # d1[d1<0.001] = 0.001
     # d2[d2<0.001] = 0.001
     # kge_logq = get_modified_KGE(obs=np.log(d1), sim=np.log(d2))
 
-    # print(f'Evaluation result: kge_q={kge_q}, kge_logq={kge_logq}, rmse_q={rmse_q}')
+    # calculate max monthly error
+    d1 = ds_q_obs[ref_q_name].groupby('time.month').mean().values
+    d2 = ds_simu[clm_q_name].groupby('time.month').mean().values
+    maxabserror_q = get_max_abs_error(d1, d2)
+
+    # calculate RMSE
+    # rmse_q = get_RMSE(obs=ds_q_obs[ref_q_name].values, sim=ds_simu[clm_q_name].values)
+
+    # calculate mean daily MAE
+    bias_err, abs_err = get_mean_error(obs=d1, sim=d2)
+
+    print(f'Evaluation result: kge_q={kge_q}, maxabserror_q={maxabserror_q}, MAE={abs_err}')
 
     ########################################################################################################################
     # write objective functions to file.
     # metrics will be minimized during optimization
-    dfout = pd.DataFrame([[1 - kge_q, maxabserror_q]], columns=['metric1', 'metric2'])
+    # dfout = pd.DataFrame([[1 - kge_q, maxabserror_q]], columns=['metric1', 'metric2'])
+    dfout = pd.DataFrame([[abs_err, maxabserror_q]], columns=['metric1', 'metric2'])
     dfout.to_csv(outfile_metric, index=False)
 

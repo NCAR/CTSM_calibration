@@ -14,7 +14,7 @@ level = sys.argv[2]
 # level = 'level1'
 clonecase = 'level1_0'
 
-projectcode = 'NCGD0013'
+projectcode = 'P08010000'
 
 infile_basin_info = f'/glade/work/guoqiang/CTSM_CAMELS/data_mesh_surf/HillslopeHydrology/CAMELS_{level}_basin_info.csv'
 inpath_camels_data = '/glade/campaign/ral/hap/common/camels/obs_flow_met'
@@ -37,7 +37,7 @@ wy_month = 10 # October: water year start
 config_intro = {'author': 'Guoqiang Tang',
                 'version': '0.0.1',
                 'name': 'CTSM calibration',
-                'date': '2024-01',
+                'date': '2024-03',
                 'affiliation': 'CGD/TSS NCAR'}
 
 create_case_settings = "--machine derecho --compset I2000Clm51Sp --driver nuopc --compiler intel --res f09_g16 --handle-preexisting-dirs r --run-unsupported"
@@ -107,9 +107,44 @@ config_CTSM['AddToNamelist']['user_nl_datm_streams'] = ['topo.observed:meshfile=
 config_CTSM['AddToNamelist']['user_nl_datm'] = ['']
 
 #inifile = glob.glob(f'/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO/{level}_{basin_num}_SpinupFiles_NoHH/*.clm2.r.*.nc')[0]
+
+dailyoutputvars = ['QRUNOFF', # total runoff
+                   'QDRAI', # sub-surface drainage
+                   'QOVER', # total surface runoff (includes QH2OSFC)
+                   'QINFL', # infiltration
+                   
+                   'QFLX_SNOW_DRAIN', # drainage from snow pack
+                   'H2OSNO', # snow depth (liquid water)
+                   
+                   'QVEGE', 'QSOIL', 'QVEGT', # get total ET (mm/s) by summing QVEGE (canopy evaporation), QSOIL (ground/soil evaporation), and QVEGT (transpiration)
+                   'EFLX_LH_TOT', # total latent heat flux [+ to atm]
+                   
+                   'SOILWATER_10CM', # soil liquid water + ice in top 10cm of soil (veg landunits only)
+                   'TOTSOILLIQ', # vertically summed soil liquid water (veg landunits only)
+                   'ZWT', # water table depth (natural vegetated and crop landunits only)
+                   'TWS', # total water storage; comparable to TOTSOILLIQ
+                   # 'H2OSOI', # volumetric soil water (natural vegetated and crop landunits only); multiple layers
+                   # 'SOILLIQ', # soil liquid water (natural vegetated and crop landunits only); multiple layers
+                   
+                   'RAIN', # rainfall
+                   'SNOW', # atmospheric snow, after rain/snow repartitioning based on temperature
+                   'TBOT', # air temperature
+                  ]
+outformat = "hist_fincl2 = "
+for v in dailyoutputvars:
+    outformat = f"{outformat}'{v}',"
+outformat = outformat[:-1]                   
+
+finit = glob.glob(f'/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO/{level}_{basin_num}_SpinupFiles/*.clm2.r.*.nc')
+if len(finit)==1:
+    finit = finit[0]
+else:
+    sys.exit('Wrong finit file')
+
 config_CTSM['AddToNamelist']['user_nl_clm'] = ["use_hillslope = .true.", "use_hillslope_routing = .true.", "n_dom_pfts = 2",
                                               "hist_nhtfrq = 0,-24", "hist_mfilt = 1,365", 
-                                              "hist_fincl2 = 'QRUNOFF','H2OSNO','ZWT','SOILWATER_10CM','EFLX_LH_TOT','QDRAI','QOVER','RAIN'"]
+                                              f"finidat = '{finit}'",
+                                              outformat]
 
 # "hist_fincl2 = 'QRUNOFF','H2OSNO','H2OSFC','ZWT','ZWT_PERCH','SOILWATER_10CM','EFLX_LH_TOT','QDRAI','QDRAI_PERCH','QOVER','QH2OSFC','QFLX_SNOW_DRAIN','RAIN','SOILLIQ','SOILICE','VOLUMETRIC_STREAMFLOW','STREAM_WATER_DEPTH','STREAM_WATER_VOLUME'"
 
@@ -123,7 +158,14 @@ config_calib = {}
 config_calib['files'] = {}
 config_calib['files']['path_script_calib'] = '/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/calibration'
 config_calib['files']['path_script_MOASMO'] = "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support"
-config_calib['files']['file_calib_param'] = '/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/parameter/param_ASG_20221206_moasmo.csv'
+
+idi = df_info.iloc[basin_num]['hru_id']
+paramfile = f'/glade/work/guoqiang/CTSM_CAMELS/data_paramcailb/ParamCalib_{idi}.csv'
+if not os.path.isfile(paramfile):
+    sys.exit(f'paramfile does not exist: {paramfile}')
+config_calib['files']['file_calib_param'] = paramfile
+# config_calib['files']['file_calib_param'] = '/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/parameter/param_ASG_20221206_moasmo.csv'
+
 config_calib['files']['file_Qobs'] = file_Qobs
 config_calib['files']['path_calib'] = f"/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO/{level}_{basin_num}_MOASMOcalib" # if not provided, just use default settings (i.e., a folder within the same folder with the CTSM case)
 
@@ -136,7 +178,7 @@ config_calib['job']['jobsetting'] = ['#PBS -N MOASMOCalib', '#PBS -q develop', '
 
 config_calib['settings'] = {}
 config_calib['settings']['sampling_method'] = 'lh'
-config_calib['settings']['num_init'] = 200 # initial number of samples
+config_calib['settings']['num_init'] = 400 # initial number of samples
 config_calib['settings']['num_per_iter'] = 20 # number of selected pareto parameter sets for each iteration
 config_calib['settings']['num_iter'] = 16 # including the initial iteration
 

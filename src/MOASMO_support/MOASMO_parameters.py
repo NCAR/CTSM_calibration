@@ -297,17 +297,17 @@ def surrogate_model_train_and_pareto_points(param_infofile, param_filelist, metr
 
         # train the surrogate model
         # https://github.com/NCAR/ctsm_optz/blob/89e3689e73180574c62d1f5aa555a57e886a7cec/workflow/scripts/MOASMO_onestep.pe_basin.py#LL311C1-L315C41
-        # sm = gp.GPR_Matern(x, y, nInput, nOutput, x.shape[0], xlb_mean, xub_mean, alpha=alpha, leng_sb=[leng_lb, leng_ub], nu=nu)
-        # os.makedirs(outpath, exist_ok=True)
-        # sm_filename = f'{outpath}/surrogate_model_for_iter{iterflag}'
-        # pickle.dump(sm, open(sm_filename, 'wb'))
-
-        from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
-        sm = RandomForestRegressor()
-        sm.fit(x, y)
+        sm = gp.GPR_Matern(x, y, nInput, nOutput, x.shape[0], xlb_mean, xub_mean, alpha=alpha, leng_sb=[leng_lb, leng_ub], nu=nu)
         os.makedirs(outpath, exist_ok=True)
         sm_filename = f'{outpath}/surrogate_model_for_iter{iterflag}'
         pickle.dump(sm, open(sm_filename, 'wb'))
+
+        # from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+        # sm = RandomForestRegressor()
+        # sm.fit(x, y)
+        # os.makedirs(outpath, exist_ok=True)
+        # sm_filename = f'{outpath}/surrogate_model_for_iter{iterflag}'
+        # pickle.dump(sm, open(sm_filename, 'wb'))
 
 
         # perform optimization using the surrogate model

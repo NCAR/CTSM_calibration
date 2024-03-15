@@ -79,6 +79,8 @@ if NTASKS == 1:
                            "MAX_TASKS_PER_NODE=1",
                            "MAX_MPITASKS_PER_NODE=1",
                            "COST_PES=1",
+                           "--file env_mach_pes.xml --id ROOTPE --val 0",
+                           "--file env_mach_pes.xml --id TOTALPES --val 1",
                           ]
     xmlchange_settings = xmlchange_settings + xmlchange_settings2
 
