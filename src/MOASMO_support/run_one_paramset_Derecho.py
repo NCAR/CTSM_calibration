@@ -8,7 +8,7 @@
 # The Derecho version can run many cases within one node to be efficient, but manual submission is needed
 
 
-import os, sys, glob, subprocess, pathlib, random
+import os, sys, glob, subprocess, pathlib, random, time
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -215,6 +215,8 @@ if __name__ == '__main__':
     
     
     path_CTSM_base = str(pathlib.Path(path_CTSM_base))
+    exclusive_flag = False
+    
     if runmodel == True:
         ########################################################################################################################
         # clone case
@@ -226,28 +228,52 @@ if __name__ == '__main__':
         # define CPU bind information (optional)
         if cpubind_path != 'NA':
 
-            if cpuuse != 'NA':
-                cpubind = f'{cpuuse}:{cpuuse}'
-                cpufile_use = f'{cpubind_path}/idlecpu_{cpuuse}'
-                cpufile_use2 = cpufile_use.replace('idlecpu','busycpu')
-                os.rename(cpufile_use, cpufile_use2)
+            if cpuuse == 'Automatic':
+                print('Do no set cpuuse')
+
             else:
             
-                cpufiles = glob.glob(f'{cpubind_path}/idlecpu_*')
-                cpufiles.sort()
-                # cpufile_use = cpufiles[0]
-                cpufile_use = random.choice(cpufiles)
-    
-                cpufile_use2 = cpufile_use.replace('idlecpu','busycpu')
-                os.rename(cpufile_use, cpufile_use2)
-                 
-                cpunum = cpufile_use.split('_')[-1]
-    
-                cpubind = f'{cpunum}:{cpunum}'
+                if cpuuse != 'NA':
+                    # use the predefined cpu 
+                    cpubind = f'{cpuuse}:{cpuuse}'
+                    cpufile_use = f'{cpubind_path}/idlecpu_{cpuuse}'
+                    cpufile_use2 = cpufile_use.replace('idlecpu','busycpu')
+                    os.rename(cpufile_use, cpufile_use2)
+
+                    cpunum = cpufile_use.split('_')[-1]
+                    cpubind = f'{cpunum}:{cpunum}'
+                    os.chdir(path_CTSM_clone)
+                    insert_cpu_bind(f'{path_CTSM_clone}/env_mach_specific.xml',cpubind)
+
+                    exclusive_flag = True
                 
-            os.chdir(path_CTSM_clone)
-            insert_cpu_bind(f'{path_CTSM_clone}/env_mach_specific.xml',cpubind)
-                
+                else:
+                    # find available cpu
+                    trytimes = 10
+                    
+                    while (exclusive_flag==False) and (trytimes>0):
+                        cpufiles = glob.glob(f'{cpubind_path}/idlecpu_*')
+                        cpufiles.sort()
+                        
+                        # cpufile_use = cpufiles[0]
+                        cpufile_use = random.choice(cpufiles)
+                        cpufile_use2 = cpufile_use.replace('idlecpu','busycpu')
+                        
+                        if os.path.isfile(cpufile_use): # good. one cpu is found
+                            os.rename(cpufile_use, cpufile_use2)
+                         
+                            cpunum = cpufile_use.split('_')[-1]
+                            cpubind = f'{cpunum}:{cpunum}'
+                            os.chdir(path_CTSM_clone)
+                            insert_cpu_bind(f'{path_CTSM_clone}/env_mach_specific.xml',cpubind)
+
+                            exclusive_flag = True
+
+                        trytimes = trytimes - 1
+                        time.sleep(1)
+
+                    if exclusive_flag==False: # this means no available cpu is found
+                        sys.exit('failed to find available CPU')
 
         ########################################################################################################################
         # change parameters, which won't affect files of path_CTSM_base
@@ -289,13 +315,16 @@ if __name__ == '__main__':
 
     ########################################################################################################################
     # evaluate model results
-    infilelist = glob.glob(f'{path_archive}/{caseflag}/lnd/hist/*.clm2.h1.*.nc')
-    infilelist.sort()
-    fsurdat = get_parameter_from_Namelist_or_lndin('fsurdat', f'{path_CTSM_base}/user_nl_clm', f'{path_CTSM_base}/Buildconf/clmconf/lnd_in', type='str')
     outfile_metric = f'{path_archive}/{caseflag}/evaluation_metric.csv'
+    if os.path.isfile(outfile_metric) and overwrite_previous == False:
+        print('The evaluation metric file exists. no need to run evaluation')
+    else:
+        infilelist = glob.glob(f'{path_archive}/{caseflag}/lnd/hist/*.clm2.h1.*.nc')
+        infilelist.sort()
+        fsurdat = get_parameter_from_Namelist_or_lndin('fsurdat', f'{path_CTSM_base}/user_nl_clm', f'{path_CTSM_base}/Buildconf/clmconf/lnd_in', type='str')
+    
+        print('Use standard lump evaluation')
+        mo_evaluate(outfile_metric, infilelist, fsurdat, date_start, date_end, ref_streamflow, add_flow_file)
 
-    print('Use standard lump evaluation')
-    mo_evaluate(outfile_metric, infilelist, fsurdat, date_start, date_end, ref_streamflow, add_flow_file)
-
-
-    os.rename(cpufile_use2, cpufile_use)
+    if exclusive_flag==True:
+        os.rename(cpufile_use2, cpufile_use) # release the cpu

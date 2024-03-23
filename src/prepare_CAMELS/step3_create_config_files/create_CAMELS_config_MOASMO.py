@@ -108,32 +108,34 @@ config_CTSM['AddToNamelist']['user_nl_datm'] = ['']
 
 #inifile = glob.glob(f'/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO/{level}_{basin_num}_SpinupFiles_NoHH/*.clm2.r.*.nc')[0]
 
-dailyoutputvars = ['QRUNOFF', # total runoff
-                   'QDRAI', # sub-surface drainage
-                   'QOVER', # total surface runoff (includes QH2OSFC)
-                   'QINFL', # infiltration
+# dailyoutputvars = ['QRUNOFF', # total runoff
+#                    'QDRAI', # sub-surface drainage
+#                    'QOVER', # total surface runoff (includes QH2OSFC)
+#                    'QINFL', # infiltration
                    
-                   'QFLX_SNOW_DRAIN', # drainage from snow pack
-                   'H2OSNO', # snow depth (liquid water)
+#                    'QFLX_SNOW_DRAIN', # drainage from snow pack
+#                    'H2OSNO', # snow depth (liquid water)
                    
-                   'QVEGE', 'QSOIL', 'QVEGT', # get total ET (mm/s) by summing QVEGE (canopy evaporation), QSOIL (ground/soil evaporation), and QVEGT (transpiration)
-                   'EFLX_LH_TOT', # total latent heat flux [+ to atm]
+#                    'QVEGE', 'QSOIL', 'QVEGT', # get total ET (mm/s) by summing QVEGE (canopy evaporation), QSOIL (ground/soil evaporation), and QVEGT (transpiration)
+#                    'EFLX_LH_TOT', # total latent heat flux [+ to atm]
                    
-                   'SOILWATER_10CM', # soil liquid water + ice in top 10cm of soil (veg landunits only)
-                   'TOTSOILLIQ', # vertically summed soil liquid water (veg landunits only)
-                   'ZWT', # water table depth (natural vegetated and crop landunits only)
-                   'TWS', # total water storage; comparable to TOTSOILLIQ
-                   # 'H2OSOI', # volumetric soil water (natural vegetated and crop landunits only); multiple layers
-                   # 'SOILLIQ', # soil liquid water (natural vegetated and crop landunits only); multiple layers
+#                    'SOILWATER_10CM', # soil liquid water + ice in top 10cm of soil (veg landunits only)
+#                    'TOTSOILLIQ', # vertically summed soil liquid water (veg landunits only)
+#                    'ZWT', # water table depth (natural vegetated and crop landunits only)
+#                    'TWS', # total water storage; comparable to TOTSOILLIQ
+#                    # 'H2OSOI', # volumetric soil water (natural vegetated and crop landunits only); multiple layers
+#                    # 'SOILLIQ', # soil liquid water (natural vegetated and crop landunits only); multiple layers
                    
-                   'RAIN', # rainfall
-                   'SNOW', # atmospheric snow, after rain/snow repartitioning based on temperature
-                   'TBOT', # air temperature
-                  ]
-outformat = "hist_fincl2 = "
-for v in dailyoutputvars:
-    outformat = f"{outformat}'{v}',"
-outformat = outformat[:-1]                   
+#                    'RAIN', # rainfall
+#                    'SNOW', # atmospheric snow, after rain/snow repartitioning based on temperature
+#                    'TBOT', # air temperature
+#                   ]
+# outformat = "hist_fincl2 = "
+# for v in dailyoutputvars:
+#     outformat = f"{outformat}'{v}',"
+# outformat = outformat[:-1]  
+
+outformat = "hist_fincl2 = 'QRUNOFF','QDRAI','QOVER','QH2OSFC','QINFL','H2OSNO','QFLX_SNOW_DRAIN','QFLX_SOLIDEVAP_FROM_TOP_LAYER','SNOW_DEPTH','SNOWDP','SNO_T','SNO_Z','SNO_MELT','QSNOMELT','SOILICE','SOILLIQ','TOTSOILICE','TOTSOILLIQ','SOILWATER_10CM','TWS','ZWT','QINTR','LIQCAN','SNOCAN','QVEGE','QSOIL','QVEGT','FSH','EFLX_LH_TOT','Rnet','RAIN','SNOW','TBOT'"
 
 finit = glob.glob(f'/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO/{level}_{basin_num}_SpinupFiles/*.clm2.r.*.nc')
 if len(finit)==1:

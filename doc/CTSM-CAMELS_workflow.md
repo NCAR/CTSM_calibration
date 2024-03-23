@@ -44,8 +44,12 @@ Solution: perturb forcing a little bit for a specific period
 To select parameters, I further perform a sensitivity analysis based on PPE results.  
 This uses MO-ASMO functions and files (e.g, subset forcing and spin up files from the previous step)  
 
+5.3 Select parameters for each basin   
+Classify basins into 15 clusters (Bunner 2020 GRL) and then for each cluster, select the most sensitive parameters. Generate a parameter list for each basin.  
 
-5.2 Create the case "Build,MOASMO,NameList" for Ostrich.  
+5.4 MO-ASMO calibration  
+
+5.5 Create the case "Build,MOASMO,NameList" for Ostrich.  
 Post-processing is needed to use the forcing and restart files from MO-ASMO  
 
 Archive problem:  

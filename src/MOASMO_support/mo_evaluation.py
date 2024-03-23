@@ -44,6 +44,12 @@ def get_modified_KGE(obs,sim):
 
     return kge
 
+def get_CC(obs,sim):
+    ind = (~np.isnan(obs)) & (~np.isnan(sim))
+    obs = obs[ind]
+    sim = sim[ind]
+    cc = np.corrcoef(obs, sim)[0, 1]
+    return cc
 
 def get_RMSE(obs,sim):
     rmse = np.sqrt(np.nanmean(np.power((sim - obs),2)))
@@ -54,8 +60,16 @@ def get_mean_error(obs, sim):
     abs_err = np.nanmean(np.absolute(sim - obs))
     return bias_err, abs_err
 
+def get_mean_abs_error(obs, sim):
+    mean_abs_err = np.nanmean(np.absolute(sim - obs))
+    return mean_abs_err
+
 def get_max_abs_error(d1, d2):
     return np.nanmax(np.abs(d1-d2))
+
+def get_nse(obs, sim):     
+    return 1-(np.nansum((sim-obs)**2)/np.nansum((obs-np.nanmean(obs))**2))
+
 
 ########################################################################################################################
 # define functions for reading CTSM outputs
@@ -169,6 +183,126 @@ def add_upstream_flow(add_flow_file, ds_simu, ref_q_date, ref_q_name, clm_q_name
 
     return ds_simu
 
+
+def mo_evaluate_return_many_metrics(outfile_metric, CTSMfilelist, fsurdat, date_start, date_end, ref_streamflow, add_flow_file=''):
+
+    ######## default variable names
+    clm_q_name = 'QRUNOFF' # default runoff variable name
+    clm_q_sdim = 'lndgrid' # spatial dim name
+    ref_q_name = 'Runoff_cms'
+    ref_q_date = 'Date'
+
+    ########################################################################################################################
+    # load CTSM streamflow (m3/s)
+    ds_simu = main_read_CTSM_streamflow(fsurdat, CTSMfilelist, date_start, date_end, clm_q_name)
+    ds_simu = ds_simu.mean(dim=clm_q_sdim, skipna=True)
+
+    ########################################################################################################################
+    # load CAMELS observation streamflow (m3/s)
+    ds_q_obs = read_CAMELS_Q_and_to_xarray(ref_streamflow, ref_q_date, ref_q_name)
+
+    ########################################################################################################################
+    # add upstream flows to simulated streamflow
+    ds_simu = add_upstream_flow(add_flow_file, ds_simu, ref_q_date, ref_q_name, clm_q_name)
+
+    ########################################################################################################################
+    # evaluation
+
+    # match sim-obs time and data
+    ds_q_obs = ds_q_obs.sel(time=ds_q_obs.time.isin(ds_simu.time))
+    ds_simu = ds_simu.sel(time=ds_simu.time.isin(ds_q_obs.time))
+
+    d1 = ds_q_obs[ref_q_name].values
+    d2 = ds_simu[clm_q_name].values
+    d1[d1<0] = np.nan
+    d2[d2<0] = np.nan
+    ds_q_obs[ref_q_name].values = d1
+    ds_simu[clm_q_name].values = d2
+
+    # calculate kge'
+    kge_q = get_modified_KGE(obs=d1, sim=d2)
+
+    # calculate mean daily MAE
+    abs_err = get_mean_abs_error(obs=d1, sim=d2)
+
+    # calculate nse
+    nse = get_nse(obs=d1, sim=d2)
+
+    # calculate cc
+    cc = get_CC(obs=d1, sim=d2)
+
+    # get rmse
+    rmse = get_RMSE(obs=d1, sim=d2)
+
+    # peak flow / low flow: 90% or 10% threshold mae
+    indtmp = d1>np.nanpercentile(d1, 90)
+    q90_mae = get_mean_abs_error(obs=d1[indtmp], sim=d2[indtmp])
+
+    indtmp = d1>np.nanpercentile(d1, 10)
+    q10_mae = get_mean_abs_error(obs=d1[indtmp], sim=d2[indtmp])
+
+    # peak flow / low flow: 90% or 10% threshold mae of duration days
+    threshold = np.nanpercentile(d1, 90)
+    q90_days_err = np.abs( np.sum(d1>threshold) - np.sum(d2>threshold))
+
+    threshold = np.nanpercentile(d1, 10)
+    q10_days_err = np.abs( np.sum(d1<threshold) - np.sum(d2<threshold))
+
+    # mae from thresholds
+    indtmp = d1>=np.nanpercentile(d1, 50)
+    ge_q50_mae = get_mean_abs_error(obs=d1[indtmp], sim=d2[indtmp])
+
+    indtmp = d1>=np.nanpercentile(d1, 25)
+    ge_q25_mae = get_mean_abs_error(obs=d1[indtmp], sim=d2[indtmp])
+
+    indtmp = d1>=np.nanpercentile(d1, 75)
+    ge_q75_mae = get_mean_abs_error(obs=d1[indtmp], sim=d2[indtmp])
+    
+    # calculate log kge'
+    indtmp = (d1>0)&(d2>0)
+    kge_log_q = get_modified_KGE(obs=np.log(d1[indtmp]), sim=np.log(d2[indtmp]))
+
+    # calculate summer kge' / mae
+    summer = [6, 7, 8]
+    winter = [12, 1, 2]
+    months = ds_simu.time.dt.month.values
+    indsummer = (months==6)|(months==7)|(months==8)
+    indwinter = (months==12)|(months==1)|(months==2)
+    indspring = (months==3)|(months==4)|(months==5)
+    indautumn = (months==9)|(months==10)|(months==11)
+    kge_summer = get_modified_KGE(obs=d1[indsummer], sim=d2[indsummer])
+    kge_winter = get_modified_KGE(obs=d1[indwinter], sim=d2[indwinter])
+    kge_spring = get_modified_KGE(obs=d1[indspring], sim=d2[indspring])
+    kge_autumn = get_modified_KGE(obs=d1[indautumn], sim=d2[indautumn])
+
+    mae_summer = get_mean_abs_error(obs=d1[indsummer], sim=d2[indsummer])
+    mae_winter = get_mean_abs_error(obs=d1[indwinter], sim=d2[indwinter])
+    mae_spring = get_mean_abs_error(obs=d1[indspring], sim=d2[indspring])
+    mae_autumn = get_mean_abs_error(obs=d1[indautumn], sim=d2[indautumn])
+
+    # calculate max monthly error
+    d1_monthly = ds_q_obs[ref_q_name].groupby('time.month').mean().values
+    d2_monthly = ds_simu[clm_q_name].groupby('time.month').mean().values
+    maxabserror_q = get_max_abs_error(d1_monthly, d2_monthly)
+
+########################################################################################################################
+    # write objective functions to file.
+    # metrics will be minimized during optimization
+    # dfout = pd.DataFrame([[1 - kge_q, maxabserror_q]], columns=['metric1', 'metric2'])
+    dfout = pd.DataFrame([[kge_q, abs_err, nse, cc, rmse, maxabserror_q, q90_mae, q10_mae, 
+                           q90_days_err, q10_days_err, kge_log_q, 
+                           kge_summer, kge_winter, kge_spring, kge_autumn,
+                           mae_summer, mae_winter, mae_spring, mae_autumn, 
+                           ge_q25_mae, ge_q50_mae, ge_q75_mae]], 
+                         columns=['kge', 'mae', 'nse', 'cc', 'rmse', 'max_mon_abs_err', 'q90_mae', 'q10_mae', 
+                                 'q90_days_err', 'q10_days_err', 'kge_log_q', 
+                                 'kge_summer', 'kge_winter', 'kge_spring', 'kge_autumn', 
+                                 'mae_summer', 'mae_winter', 'mae_spring', 'mae_autumn',
+                                 'ge_q25_mae', 'ge_q50_mae', 'ge_q75_mae'])
+    dfout.to_csv(outfile_metric, index=False)
+
+
+
 def mo_evaluate(outfile_metric, CTSMfilelist, fsurdat, date_start, date_end, ref_streamflow, add_flow_file=''):
 
     ######## default variable names
@@ -212,16 +346,16 @@ def mo_evaluate(outfile_metric, CTSMfilelist, fsurdat, date_start, date_end, ref
     # d2[d2<0.001] = 0.001
     # kge_logq = get_modified_KGE(obs=np.log(d1), sim=np.log(d2))
 
+    # calculate mean daily MAE
+    abs_err = get_mean_abs_error(obs=d1, sim=d2)
+
     # calculate max monthly error
-    d1 = ds_q_obs[ref_q_name].groupby('time.month').mean().values
-    d2 = ds_simu[clm_q_name].groupby('time.month').mean().values
-    maxabserror_q = get_max_abs_error(d1, d2)
+    d1_monthly = ds_q_obs[ref_q_name].groupby('time.month').mean().values
+    d2_monthly = ds_simu[clm_q_name].groupby('time.month').mean().values
+    maxabserror_q = get_max_abs_error(d1_monthly, d2_monthly)
 
     # calculate RMSE
     # rmse_q = get_RMSE(obs=ds_q_obs[ref_q_name].values, sim=ds_simu[clm_q_name].values)
-
-    # calculate mean daily MAE
-    bias_err, abs_err = get_mean_error(obs=d1, sim=d2)
 
     print(f'Evaluation result: kge_q={kge_q}, maxabserror_q={maxabserror_q}, MAE={abs_err}')
 

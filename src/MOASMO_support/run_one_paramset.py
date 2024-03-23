@@ -82,7 +82,10 @@ def update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, o
             if vnew.size==1 and ds_param[pn].values.size>1:
                 print(f'Warning! New parameter size=1, but raw parameter size={ds_param[pn].values.size}. Force the mean equal to the new parameter value.')
                 m = np.nanmean(ds_param[pn].values)
-                ds_param[pn].values = ds_param[pn].values - m + np.squeeze(vnew)
+                if np.all(ds_param[pn].values > 0) or np.all(ds_param[pn].values < 0):
+                    ds_param[pn].values = ds_param[pn].values * ( np.squeeze(vnew) / m )
+                else:
+                    ds_param[pn].values = ds_param[pn].values - m + np.squeeze(vnew)
             else:
                 ds_param[pn].values = np.squeeze(vnew)
     # write to new parameter file
@@ -127,7 +130,10 @@ def update_CTSM_parameter_SurfdataFile(param_names, param_values, path_CTSM_case
             if vnew.size==1 and ds_surf[pn].values.size>1:
                 print(f'Warning! New surfdata size=1, but raw surfdata size={ds_surf[pn].values.size}. Force the mean equal to the new surfdata value.')
                 m = np.nanmean(ds_surf[pn].values)
-                ds_surf[pn].values[:] = ds_surf[pn].values - m + np.squeeze(vnew)
+                if np.all(ds_surf[pn].values > 0) or np.all(ds_surf[pn].values < 0):
+                    ds_surf[pn].values[:] = ds_surf[pn].values * ( np.squeeze(vnew) / m )
+                else:
+                    ds_surf[pn].values[:] = ds_surf[pn].values - m + np.squeeze(vnew)
             else:
                 ds_surf[pn].values[:] = np.squeeze(vnew)
 

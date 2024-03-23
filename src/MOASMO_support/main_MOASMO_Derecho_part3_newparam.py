@@ -4,6 +4,8 @@
 
 # The Derecho version can run many cases within one node to be efficient, but manual submission is needed
 
+# generate new parameter sets by using MO-ASMO algorithms
+
 
 import os, sys, subprocess, time, toml
 import pandas as pd

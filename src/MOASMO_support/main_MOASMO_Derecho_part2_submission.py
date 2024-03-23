@@ -1,4 +1,5 @@
 # group different basins in one node
+# generate submission scripts. don't submit real jobs
 
 import numpy as np
 import os, glob, sys

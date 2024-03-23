@@ -3,6 +3,7 @@
 # https://github.com/gongw03/MO-ASMO
 
 # The Derecho version can run many cases within one node to be efficient, but manual submission is needed
+# generate initial parameter sets
 
 
 import os, sys, subprocess, time, toml
