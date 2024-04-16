@@ -60,6 +60,8 @@ xmlchange_settings = [f"ATM_DOMAIN_MESH={file_CTSM_mesh}",
                       "MOSART_MODE=NULL",
                       # change forcing data
                       "DATM_MODE=CLMGSWP3v1",
+                      # change MPI to MPILIB: MPILIB from the default mpich to mpi-serial
+                      "MPILIB=mpi-serial",
                       # change the run time of mode case
                       f"STOP_N={STOP_N}",
                       f"RUN_STARTDATE={RUN_STARTDATE}",

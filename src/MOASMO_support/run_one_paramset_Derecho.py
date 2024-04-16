@@ -185,9 +185,14 @@ if __name__ == '__main__':
     ref_streamflow = sys.argv[8]
     add_flow_file = sys.argv[9]
 
-    cpubind_path = sys.argv[10] 
-    cpuuse = sys.argv[11] 
 
+    use_cpu_bind = False
+    if use_cpu_bind == True:
+        cpubind_path = sys.argv[10] 
+        cpuuse = sys.argv[11] 
+    else:
+        cpubind_path = 'NA'
+        cpuuse = 'NA'
 
     # script_clone = '/glade/u/home/guoqiang/CTSM_repos/CTSM/cime/scripts/create_clone'
     # path_CTSM_base = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib_split_nest_LMWG/CAMELS_100'
@@ -326,5 +331,6 @@ if __name__ == '__main__':
         print('Use standard lump evaluation')
         mo_evaluate(outfile_metric, infilelist, fsurdat, date_start, date_end, ref_streamflow, add_flow_file)
 
+    # move cpu file from busy to idle
     if exclusive_flag==True:
         os.rename(cpufile_use2, cpufile_use) # release the cpu

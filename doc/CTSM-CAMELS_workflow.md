@@ -58,6 +58,10 @@ For PreserveBestModel folder which saves the best results, the OstModel0.txt and
 
 
 
+# How to run multiple CTSM cases on one Derecho node
+method-1: change MPILIB from the default mpich to mpi-serial (./xmlchange)   
+method-2: insert "--cpu-bind list:n1:n2" to env_mach_specific.xml  
+Both methods are included in the workflow. method-1 is easier to use, but maybe mpi-serial will be removed from CESM3  
 
 
 

@@ -1,9 +1,12 @@
 # functions for generating and saving MO-ASMO parameter sets, including initial and non-dominant parameters
-import os, sys, subprocess, pickle
+import os, sys, subprocess, pickle, random
 import numpy as np
 import pandas as pd
 import xarray as xr
 import pickle
+from mo_evaluation import get_modified_KGE
+from sklearn.model_selection import KFold
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 
 # import MO-ASMO functions
 # path_MOASMO = '/glade/u/home/guoqiang/model_sources/MO-ASMO/src'
@@ -246,8 +249,99 @@ def generate_initial_parameter_sets(file_parameter_list, sampling_method, outpat
 ########################################################################################################################
 # Pareto optimal points:
 
+def gpr_emulator_cv(x, y, alpha, leng_lb, leng_ub, nu, xlb_mean, xub_mean, outpath, iterflag):
+
+    random.seed(1234567890)
+    np.random.seed(1234567890)
+
+    n_splits = 5
+    
+    kf = KFold(n_splits=n_splits, shuffle=True) 
+    kge_scores = np.nan * np.zeros([n_splits, y.shape[1]])
+    
+    for fold_idx, (train_index, test_index) in enumerate(kf.split(x), 1):
+        x_train, x_test = x[train_index], x[test_index]
+        y_train, y_test = y[train_index], y[test_index]
+        
+        # Initialize and train your GPR model here; adjust parameters as needed
+        sm = gp.GPR_Matern(x_train, y_train, x_train.shape[1], y_train.shape[1], x_train.shape[0], xlb_mean, xub_mean, alpha=alpha, leng_sb=[leng_lb, leng_ub], nu=nu)
+        
+        # Predict using the trained model
+        y_pred = sm.predict(x_test)  # Adjust this method call based on your model's API
+        
+        # Evaluate the model using KGE
+        for i in range(y.shape[1]):
+            kge_scores[fold_idx-1, i] = get_modified_KGE(y_test[:,i], y_pred[:,i])
+    
+    # Calculate the mean KGE score across all folds
+    mean_kge_score = np.nanmean(kge_scores, axis=0)[np.newaxis, :]
+    kge_scores = np.concatenate([kge_scores, mean_kge_score])
+
+    # Convert the list of KGE scores into a pandas DataFrame
+    kge_scores_df = pd.DataFrame()
+    kge_scores_df['Fold'] = list(np.arange(n_splits)+1) + ['mean']
+    kge_scores_df['kge1'] = kge_scores[:, 0]
+    kge_scores_df['kge2'] = kge_scores[:, 1]
+    kge_scores_df['kge_mean'] = (kge_scores[:, 0] + kge_scores[:, 1])/2
+    
+    print("GPR CV KGE Score for metric1/metric2:")
+    display(kge_scores_df)
+    
+    csv_file_path =  f'{outpath}/GPR_for_iter{iterflag}_CV_kge.csv'
+    kge_scores_df.to_csv(csv_file_path, index=False)
+
+    return kge_scores_df
+
+
+def rf_emulator_cv(x, y, outpath, iterflag):
+
+    random.seed(1234567890)
+    np.random.seed(1234567890)
+    
+    n_splits = 5
+    
+    kf = KFold(n_splits=n_splits, shuffle=True) 
+    kge_scores = np.nan * np.zeros([n_splits, y.shape[1]])
+    
+    for fold_idx, (train_index, test_index) in enumerate(kf.split(x), 1):
+        x_train, x_test = x[train_index], x[test_index]
+        y_train, y_test = y[train_index], y[test_index]
+        
+        # Initialize and train your GPR model here; adjust parameters as needed
+        sm = RandomForestRegressor()
+        sm.fit(x_train, y_train)
+        
+        # Predict using the trained model
+        y_pred = sm.predict(x_test)  # Adjust this method call based on your model's API
+        
+        # Evaluate the model using KGE
+        for i in range(y.shape[1]):
+            kge_scores[fold_idx-1, i] = get_modified_KGE(y_test[:,i], y_pred[:,i])
+    
+    # Calculate the mean KGE score across all folds
+    mean_kge_score = np.nanmean(kge_scores, axis=0)[np.newaxis, :]
+    kge_scores = np.concatenate([kge_scores, mean_kge_score])
+
+    # Convert the list of KGE scores into a pandas DataFrame
+    kge_scores_df = pd.DataFrame()
+    kge_scores_df['Fold'] = list(np.arange(n_splits)+1) + ['mean']
+    kge_scores_df['kge1'] = kge_scores[:, 0]
+    kge_scores_df['kge2'] = kge_scores[:, 1]
+    kge_scores_df['kge_mean'] = (kge_scores[:, 0] + kge_scores[:, 1])/2
+    
+    print("RF CV KGE Score for metric1/metric2:")
+    display(kge_scores_df)
+    
+    csv_file_path =  f'{outpath}/RF_for_iter{iterflag}_CV_kge.csv'
+    kge_scores_df.to_csv(csv_file_path, index=False)
+
+    return kge_scores_df
+
+
 def surrogate_model_train_and_pareto_points(param_infofile, param_filelist, metric_filelist, outpath, iterflag, num_per_iter, path_CTSM_case=''):
     # path_CTSM_case must be provided if there are any binded parameters for calibration
+
+    random.seed(1234567890)
     
     # check whether files have been generated
     flag = False
@@ -295,21 +389,24 @@ def surrogate_model_train_and_pareto_points(param_infofile, param_filelist, metr
         nInput = x.shape[1]
         nOutput = y.shape[1]
 
-        # train the surrogate model
-        # https://github.com/NCAR/ctsm_optz/blob/89e3689e73180574c62d1f5aa555a57e886a7cec/workflow/scripts/MOASMO_onestep.pe_basin.py#LL311C1-L315C41
-        sm = gp.GPR_Matern(x, y, nInput, nOutput, x.shape[1], xlb_mean, xub_mean, alpha=alpha, leng_sb=[leng_lb, leng_ub], nu=nu)
+
+        # decide the most suitable emulator based on cross validation
         os.makedirs(outpath, exist_ok=True)
+        gpr_kge_cv = gpr_emulator_cv(x, y, alpha, leng_lb, leng_ub, nu, xlb_mean, xub_mean, outpath, iterflag)
+        rf_kge_cv = rf_emulator_cv(x, y, outpath, iterflag)
+
+        # train the surrogate model 
+        if gpr_kge_cv['kge_mean'].values[-1] > rf_kge_cv['kge_mean'].values[-1]:
+            print('Use GPR model')
+            sm = gp.GPR_Matern(x, y, nInput, nOutput, x.shape[0], xlb_mean, xub_mean, alpha=alpha, leng_sb=[leng_lb, leng_ub], nu=nu)
+        else:
+            print('Use RF model')
+            sm = RandomForestRegressor()
+            sm.fit(x, y)
+        
         sm_filename = f'{outpath}/surrogate_model_for_iter{iterflag}'
         pickle.dump(sm, open(sm_filename, 'wb'))
-
-        # from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
-        # sm = RandomForestRegressor()
-        # sm.fit(x, y)
-        # os.makedirs(outpath, exist_ok=True)
-        # sm_filename = f'{outpath}/surrogate_model_for_iter{iterflag}'
-        # pickle.dump(sm, open(sm_filename, 'wb'))
-
-
+        
         # perform optimization using the surrogate model
         bestx_sm, besty_sm, x_sm, y_sm = NSGA2.optimization(sm, nInput, nOutput, xlb_mean, xub_mean, pop, gen, crossover_rate, mu, mum)
         D = NSGA2.crowding_distance(besty_sm)

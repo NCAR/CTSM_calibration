@@ -1,8 +1,8 @@
 #PBS -N gennewparam
 #PBS -q main
 #PBS -l job_priority=economy
-#PBS -l walltime=1:00:00
-#PBS -A NCGD0013
+#PBS -l walltime=3:00:00
+#PBS -A P08010000
 #PBS -l select=1:ncpus=128
 
 # based on results from iteration-0, generate new parameter sets for iteration-1

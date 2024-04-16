@@ -75,7 +75,7 @@ months_difference = (input_date.year - reference_date.year) * 12 + (input_date.m
 # CTSM configurations
 config_CTSM = {}
 config_CTSM['files'] = {}
-config_CTSM['files']['path_CTSM_source'] = '/glade/u/home/guoqiang/CTSM_repos/CTSM_hillslope'
+config_CTSM['files']['path_CTSM_source'] = '/glade/u/home/guoqiang/CTSM_repos/CTSM'
 config_CTSM['files']['path_CTSM_case'] = f'{outpath_case}/{level}_{basin_num}'
 config_CTSM['files']['path_CTSM_CIMEout'] = f'{outpath_out}/{level}_{basin_num}'
 config_CTSM['files']['file_CTSM_mesh'] = f'/glade/work/guoqiang/CTSM_CAMELS/data_mesh_surf/HillslopeHydrology/disaggregation/corrected_HCDN_nhru_final_671_buff_fix_holes.CAMELSandTDX_areabias_fix.simp0.001.{level}_polygons_neighbor_group_esmf_mesh_{basin_num}.nc'
