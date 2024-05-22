@@ -65,8 +65,11 @@ archive_keyword = "clm2*.nc" # what archive files to be saved? only for Preserve
 # define folder name
 
 file_OstModel = f'{pathOstrichRun}/OstModel0.txt'
-df_OstModel = pd.read_csv(file_OstModel, delim_whitespace=True)
-current_run = int(df_OstModel.iloc[-1]['Run'])
+if os.path.isfile(file_OstModel):
+    df_OstModel = pd.read_csv(file_OstModel, delim_whitespace=True)
+    current_run = int(df_OstModel.iloc[-1]['Run'])
+else:
+    current_run = 0
 
 nowtime_UTC = datetime.datetime.utcnow()
 nowtime_UTC = nowtime_UTC.strftime("%Y-%m-%m-%H-%M-%S")

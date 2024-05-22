@@ -47,16 +47,31 @@ def get_modified_KGE(obs,sim):
     return kge
 
 
+def get_CC(obs,sim):
+    ind = (~np.isnan(obs)) & (~np.isnan(sim))
+    obs = obs[ind]
+    sim = sim[ind]
+    cc = np.corrcoef(obs, sim)[0, 1]
+    return cc
+
 def get_RMSE(obs,sim):
-    sim[sim<0] = np.nan
-    obs[obs<0] = np.nan
     rmse = np.sqrt(np.nanmean(np.power((sim - obs),2)))
     return rmse
 
-def get_mean_error(obs,sim):
+def get_mean_error(obs, sim):
     bias_err = np.nanmean(sim - obs)
     abs_err = np.nanmean(np.absolute(sim - obs))
     return bias_err, abs_err
+
+def get_mean_abs_error(obs, sim):
+    mean_abs_err = np.nanmean(np.absolute(sim - obs))
+    return mean_abs_err
+
+def get_max_abs_error(d1, d2):
+    return np.nanmax(np.abs(d1-d2))
+
+def get_nse(obs, sim):     
+    return 1-(np.nansum((sim-obs)**2)/np.nansum((obs-np.nanmean(obs))**2))
 
 ########################################################################################################################
 # define functions for reading CTSM outputs
@@ -264,16 +279,40 @@ if __name__ == '__main__':
     ########################################################################################################################
     # evaluation
 
+    # match sim-obs time and data
     ds_q_obs = ds_q_obs.sel(time=ds_q_obs.time.isin(ds_simu.time))
     ds_simu = ds_simu.sel(time=ds_simu.time.isin(ds_q_obs.time))
 
-    kge_q = get_modified_KGE(obs=ds_q_obs[ref_q_name].values, sim=ds_simu[clm_q_name].values)
+    d1 = ds_q_obs[ref_q_name].values
+    d2 = ds_simu[clm_q_name].values
+    d1[d1<0] = np.nan
+    d2[d2<0] = np.nan
+    ds_q_obs[ref_q_name].values = d1
+    ds_simu[clm_q_name].values = d2
+
+    # calculate kge'
+    kge_q = get_modified_KGE(obs=d1, sim=d2)
+
+    # calculate rmse
     rmse_q = get_RMSE(obs=ds_q_obs[ref_q_name].values, sim=ds_simu[clm_q_name].values)
+
+    # calculate mean daily MAE
+    abs_err = get_mean_abs_error(obs=d1, sim=d2)
+
+    # calculate max monthly error
+    d1_monthly = ds_q_obs[ref_q_name].groupby('time.month').mean().values
+    d2_monthly = ds_simu[clm_q_name].groupby('time.month').mean().values
+    maxabserror_q = get_max_abs_error(d1_monthly, d2_monthly)
+
+    mean_error = (abs_err + maxabserror_q) / 2
+    print(f'Evaluation result: kge_q={kge_q}, maxabserror_q={maxabserror_q}, MAE={abs_err}, mean_error={mean_error}')
 
     ########################################################################################################################
     # write metric to file
     with open(outfile_statistics, 'w+') as f:
+        f.write(f'{mean_error:.6f}\t#streamflow_meanerr\n')
         f.write(f'{kge_q:.6f}\t#streamflow_KGE\n')
         f.write(f'{rmse_q:.6f}\t#streamflow_RMSE\n')
-
+        f.write(f'{abs_err:.6f}\t#streamflow_abserr\n')
+        f.write(f'{maxabserror_q:.6f}\t#streamflow_maxmontherr\n')
 

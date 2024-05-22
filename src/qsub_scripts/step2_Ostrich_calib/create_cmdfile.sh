@@ -1,14 +1,14 @@
 #!/bin/bash
 # basin 1-671
 
-calibpath="/glade/campaign/cgd/tss/people/guoqiang/CTSMcases/CAMELS_Calib/Calib_all_HH_Ostrich"
-cmdpath="/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Calib_all_HH_Ostrich/submission"
+calibpath="/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_Ostrich"
+cmdpath="/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_Ostrich/submission"
 mkdir -p $cmdpath
 
 
 # Variables for looping through basins and files
-total_basins=671  # Updated total basins
-basins_per_file=36
+total_basins=627  # Updated total basins
+basins_per_file=126
 file_count=1
 basin_count=1
 

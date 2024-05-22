@@ -1,31 +1,31 @@
-﻿Type,Process,PPE_DailyQ_Rank,Parameter,Default,Lower,Upper,LowUp_vsPPE,Source,Binding
+﻿Type,Process,PPE_DailyQ_Rank,Parameter,Default,Lower,Upper,Lower_raw,Upper_raw,LowUp_vsPPE,Source,Binding,Method
 Hydrology,"Infiltration
-Soil storage",1,fff,0.5,0.02,5,Same,Param,None
-Hydrology,Infiltration,23,e_ice,6,0.1,8,Low0to0.1,Param,None
-Hydrology,Infiltration,7,d_max,15,10,60,Same,Param,None
-Hydrology,Infiltration,0,FMAX,0.381669399,0.1,0.9,NotInPPE,Surfdata,None
+Soil storage",1,fff,0.5,0.02,5,0.02,5,Same,Param,None,Multiplicative
+Hydrology,Infiltration,23,e_ice,6,0.1,8,0.1,8,Low0to0.1,Param,None,Multiplicative
+Hydrology,Infiltration,7,d_max,15,5,100,10,60,Same,Param,None,Multiplicative
+Hydrology,Infiltration,0,FMAX,0.381669399,0.1,0.9,0.1,0.9,NotInPPE,Surfdata,None,Multiplicative
 Hydrology,"Infiltration
-Groundwater flow",31,om_frac_sf,1,0.8,1.2,Same,Param,None
-Hydrology,Canopy Interception,45,interception_fraction,1,0.1,1,Low0.5to0.1,Namelist,None
-Hydrology,Soil storage capacity ,9,watsat_sf,1,0.8,1.2,Same,Param,None
-Hydrology,Soil storage capacity ,11,sucsat_sf,1,0.1,10,Same,Param,None
-Hydrology,Soil storage capacity ,27,bsw_sf,1,0.8,1.2,Same,Param,None
-Hydrology,Soil storage capacity ,0,zbedrock,10.63966906,8.512,12.768,Same,Surfdata,None
-Hydrology,Soil water drainage ,10,hksat_sf,1,0.1,10,Same,Param,None
-Hydrology,Baseflow generation,3,baseflow_scalar,0.001,0.0005,0.1,Same,Namelist,None
-Hydrology,Baseflow generation,37,n_baseflow,1,1,5,Up2to5,Param,None
-Hydrology,Surface Water Storage,30,slopebeta,-3,-5,-1,Same,Param,None
-Hydrology,Canopy Water,5,liq_canopy_storage_scalar,0.1,0.05,2,Same,Param,None
-Hydrology,Canopy Water,13,maximum_leaf_wetted_fraction,0.05,0.01,0.5,Same,Namelist,None
-Snow Processes,Snow melt,79,n_melt_coef,200,50,600,BiggerRange_FromYifan,Param,None
-Snow Processes,Snow accumulation,24,accum_factor,0.1,0.1,0.4,Same,Param,None
-Snow Processes,Snowpack physics,35,upplim_destruct_metamorph,175,10,500,BiggerRange_FromYifan,Namelist,None
-Snow Processes,Snowpack physics,17,zsno,0.000775,0.00001,0.07,Same,Param,None
-Snow Processes,Rain/Snow forcing classification,0,precip_repartition_nonglc_all_rain_t,2,0,4,NotInPPE,Namelist,"precip_repartition_glc_all_rain_t,precip_repartition_glc_all_snow_t,precip_repartition_nonglc_all_snow_t"
-Stomatal resistance and photosynthesis,ET (transpiration),2,medlynslope,4.840379695,3.235949,6.934051,Same,Param,None
-Stomatal resistance and photosynthesis,Photosynthesis,16,jmaxb0,0.0311,0.01,0.05,Same,Param,None
-Stomatal resistance and photosynthesis,Plant hydraulics,15,kmax,1.91E-08,2.27E-09,3.79E-08,Same,Param,None
-Sensible and Latent Heat Fluxes,ET (transpiration),22,cv,0.01,0.005,0.02,Same,Param,None
+Groundwater flow",31,om_frac_sf,1,0.25,2,0.8,1.2,Same,Param,None,Multiplicative
+Hydrology,Canopy Interception,45,interception_fraction,1,0.1,1,0.1,1,Low0.5to0.1,Namelist,None,Multiplicative
+Hydrology,Soil storage capacity ,9,watsat_sf,1,0.25,2,0.8,1.2,Same,Param,None,Multiplicative
+Hydrology,Soil storage capacity ,11,sucsat_sf,1,0.1,10,0.1,10,Same,Param,None,Multiplicative
+Hydrology,Soil storage capacity ,27,bsw_sf,1,0.25,2,0.8,1.2,Same,Param,None,Multiplicative
+Hydrology,Soil storage capacity ,0,zbedrock,10.63966906,2.67,21.27933812,8.512,12.768,Same,Surfdata,None,Multiplicative
+Hydrology,Soil water drainage ,10,hksat_sf,1,0.1,10,0.1,10,Same,Param,None,Multiplicative
+Hydrology,Baseflow generation,3,baseflow_scalar,0.001,0.0001,0.1,0.0005,0.1,Same,Namelist,None,Multiplicative
+Hydrology,Baseflow generation,37,n_baseflow,1,1,5,1,5,Up2to5,Param,None,Multiplicative
+Hydrology,Surface Water Storage,30,slopebeta,-3,-10,-0.5,-5,-1,Same,Param,None,Multiplicative
+Hydrology,Canopy Water,5,liq_canopy_storage_scalar,0.1,0.025,4,0.05,2,Same,Param,None,Multiplicative
+Hydrology,Canopy Water,13,maximum_leaf_wetted_fraction,0.05,0.01,0.5,0.01,0.5,Same,Namelist,None,Multiplicative
+Snow Processes,Snow melt,79,n_melt_coef,200,25,600,50,600,BiggerRange_FromYifan,Param,None,Multiplicative
+Snow Processes,Snow accumulation,24,accum_factor,0.1,0.1,0.4,0.1,0.4,Same,Param,None,Multiplicative
+Snow Processes,Snowpack physics,35,upplim_destruct_metamorph,175,10,500,10,500,BiggerRange_FromYifan,Namelist,None,Multiplicative
+Snow Processes,Snowpack physics,17,zsno,0.000775,0.00001,0.07,0.00001,0.07,Same,Param,None,Multiplicative
+Snow Processes,Rain/Snow forcing classification,0,precip_repartition_nonglc_all_rain_t,2,0,4,0,4,NotInPPE,Namelist,"precip_repartition_glc_all_rain_t,precip_repartition_glc_all_snow_t,precip_repartition_nonglc_all_snow_t",Additive
+Stomatal resistance and photosynthesis,ET (transpiration),2,medlynslope,4.840379695,1.210094924,9.68075939,3.235949,6.934051,Same,Param,None,Multiplicative
+Stomatal resistance and photosynthesis,Photosynthesis,16,jmaxb0,0.0311,0.005,0.08,0.01,0.05,Same,Param,None,Multiplicative
+Stomatal resistance and photosynthesis,Plant hydraulics,15,kmax,1.91E-08,2.27E-09,5.73E-08,2.27E-09,3.79E-08,Same,Param,None,Multiplicative
+Sensible and Latent Heat Fluxes,ET (transpiration),22,cv,0.01,0.0025,0.04,0.005,0.02,Same,Param,None,Multiplicative
 Sensible and Latent Heat Fluxes,"Radiation 
-(evaporation and transpiration)",44,taulnir,0.392405063,0.315949,0.468861,Same,Param,None
-Biogeochemistry,Plant growth,14,leafcn,22.24729395,15.573,28.921,Same,Param,None
+(evaporation and transpiration)",44,taulnir,0.392405063,0.098101266,0.784810126,0.315949,0.468861,Same,Param,None,Multiplicative
+Biogeochemistry,Plant growth,14,leafcn,22.24729395,5.561823488,44.4945879,15.573,28.921,Same,Param,None,Multiplicative

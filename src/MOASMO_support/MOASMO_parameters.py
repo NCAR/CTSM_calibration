@@ -126,7 +126,7 @@ def read_parameter_csv(file_parameter_list):
     return df_calibparam
 
 
-def read_save_load_all_default_parameters(file_parameter_list, outpath, path_CTSM_case=''):
+def read_save_load_all_default_parameters(file_parameter_list, outpath, path_CTSM_case='', savefile=True):
     
     outfile = f'{outpath}/all_default_parameters.pkl'
     
@@ -142,12 +142,14 @@ def read_save_load_all_default_parameters(file_parameter_list, outpath, path_CTS
             param0.append(get_parameter_value_from_CTSM_case(param_names[j], param_sources[j], path_CTSM_case))
 
         dfi['Value'] = param0
-        
-        dfi.to_pickle(outfile) # preserve arrays
+
+        if savefile == True:
+            dfi.to_pickle(outfile) # preserve arrays
     
     
     print('Load default parameter values from:', outfile)
-    dfi = pd.read_pickle(outfile)
+    if os.path.isfile(outfile):
+        dfi = pd.read_pickle(outfile)
 
     return dfi
 
@@ -285,7 +287,7 @@ def gpr_emulator_cv(x, y, alpha, leng_lb, leng_ub, nu, xlb_mean, xub_mean, outpa
     kge_scores_df['kge_mean'] = (kge_scores[:, 0] + kge_scores[:, 1])/2
     
     print("GPR CV KGE Score for metric1/metric2:")
-    display(kge_scores_df)
+    print(kge_scores_df)
     
     csv_file_path =  f'{outpath}/GPR_for_iter{iterflag}_CV_kge.csv'
     kge_scores_df.to_csv(csv_file_path, index=False)
@@ -330,7 +332,7 @@ def rf_emulator_cv(x, y, outpath, iterflag):
     kge_scores_df['kge_mean'] = (kge_scores[:, 0] + kge_scores[:, 1])/2
     
     print("RF CV KGE Score for metric1/metric2:")
-    display(kge_scores_df)
+    print(kge_scores_df)
     
     csv_file_path =  f'{outpath}/RF_for_iter{iterflag}_CV_kge.csv'
     kge_scores_df.to_csv(csv_file_path, index=False)
@@ -397,19 +399,36 @@ def surrogate_model_train_and_pareto_points(param_infofile, param_filelist, metr
 
         # train the surrogate model 
         if gpr_kge_cv['kge_mean'].values[-1] > rf_kge_cv['kge_mean'].values[-1]:
+        # if True: # always use GPR
             print('Use GPR model')
             sm = gp.GPR_Matern(x, y, nInput, nOutput, x.shape[0], xlb_mean, xub_mean, alpha=alpha, leng_sb=[leng_lb, leng_ub], nu=nu)
+            flag = 1
         else:
             print('Use RF model')
             sm = RandomForestRegressor()
             sm.fit(x, y)
-        
-        sm_filename = f'{outpath}/surrogate_model_for_iter{iterflag}'
-        pickle.dump(sm, open(sm_filename, 'wb'))
+            flag = 2
+
         
         # perform optimization using the surrogate model
         bestx_sm, besty_sm, x_sm, y_sm = NSGA2.optimization(sm, nInput, nOutput, xlb_mean, xub_mean, pop, gen, crossover_rate, mu, mum)
         D = NSGA2.crowding_distance(besty_sm)
+        print('model sample number:', D.shape[0])
+        if D.shape[0] < n_sample:
+            print('Too few samples. Use the other method')
+            # use the other model
+            if flag == 1:
+                sm = RandomForestRegressor()
+                sm.fit(x, y)
+            elif flag == 2:
+                sm = gp.GPR_Matern(x, y, nInput, nOutput, x.shape[0], xlb_mean, xub_mean, alpha=alpha, leng_sb=[leng_lb, leng_ub], nu=nu)
+                bestx_sm, besty_sm, x_sm, y_sm = NSGA2.optimization(sm, nInput, nOutput, xlb_mean, xub_mean, pop, gen, crossover_rate, mu, mum)
+                D = NSGA2.crowding_distance(besty_sm)
+                print('model sample number:', D.shape[0])
+
+        sm_filename = f'{outpath}/surrogate_model_for_iter{iterflag}'
+        pickle.dump(sm, open(sm_filename, 'wb'))
+        
         idxr = D.argsort()[::-1][:n_sample]
         x_resample = bestx_sm[idxr, :]
         y_resample = besty_sm[idxr, :]

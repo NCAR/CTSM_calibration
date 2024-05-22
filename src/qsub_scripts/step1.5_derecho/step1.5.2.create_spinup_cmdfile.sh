@@ -7,8 +7,8 @@ cmdpath="/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO/submission"
 mkdir -p $cmdpath
 
 # Variables for looping through basins and files
-total_basins=671  # Updated total basins
-basins_per_file=112
+total_basins=627  # Updated total basins
+basins_per_file=126
 file_count=1
 basin_count=1
 

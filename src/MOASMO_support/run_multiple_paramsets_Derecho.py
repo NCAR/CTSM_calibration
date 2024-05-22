@@ -176,7 +176,7 @@ def merge_parameter_metric_csv(path_archive, iterflag, tarnum):
             file_param = f'{path_archive}/iter{iterflag}_trial{i}/paramset_iter{iterflag}_trial{i}.pkl'
             file_metric = f'{path_archive}/iter{iterflag}_trial{i}/evaluation_metric.csv'
 
-            if not os.path.isfile(file_param):
+            if not os.path.isfile(file_metric):
                 print(f'Warning! File does not exist: {file_metric}')
                 continue
 

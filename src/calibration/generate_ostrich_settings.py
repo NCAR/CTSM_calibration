@@ -76,7 +76,8 @@ ostrichRefDir = f"{outpathOstCalib}/refdata"  # calib directory
 ostrichParam = f"{outpathOstCalib}/parameters"
 
 # template files
-infile_ostin_template = f'{path_script_Ostrich}/ostIn_KGE_DDS.tpl'
+# infile_ostin_template = f'{path_script_Ostrich}/ostIn_KGE_DDS.tpl'
+infile_ostin_template = f'{path_script_Ostrich}/ostIn_meanerr_DDS.tpl'
 infile_runtrial_template = f'{path_script_Ostrich}/CTSM_run_trial.sh'
 infile_savebest_template = f'{path_script_Ostrich}/call_PreserveBestModel.sh'
 infile_savemodel_template = f'{path_script_Ostrich}/call_PreserveModelOutput.sh'

@@ -168,6 +168,9 @@ if flag_clone == False:
     else:
         sys.exit('Unknown casebuild')
 
+else:
+    _ = subprocess.run('./case.setup', shell=True)
+
 ################################
 # (5) replace files if they are provided
 if 'replacefiles' in config_CTSMcase:

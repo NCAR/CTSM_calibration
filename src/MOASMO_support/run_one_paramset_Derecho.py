@@ -53,7 +53,8 @@ def clone_CTSM_model_case(script_clone, source_modelcase, target_modelcase, targ
         settings = ''
     _ = subprocess.run(f"{script_clone} --case {target_modelcase} --clone {source_modelcase} {settings} --keepexe", shell=True)
     os.chdir(target_modelcase)
-    _ = subprocess.run('./xmlchange BUILD_COMPLETE=TRUE', shell=True)
+    _ = subprocess.run('./case.setup', shell=True)
+    # _ = subprocess.run('./xmlchange BUILD_COMPLETE=TRUE', shell=True)
 
 
 def update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam):
@@ -104,12 +105,13 @@ def update_CTSM_parameter_NamelistFile(param_names, param_values, file_namelist)
 def update_CTSM_parameter_SurfdataFile(param_names, param_values, path_CTSM_case, outfile_newsurfdata):
 
     file_surfdata = ''
-    # file_user_nl_clm = f'{path_CTSM_clone}/user_nl_clm'
-    # with open(file_user_nl_clm) as f:
-    #     for line in f:
-    #         line = line.strip()
-    #         if line.startswith('fsurdat'):
-    #             file_surfdata = line.split('=')[-1].strip().replace('\'', '')
+    file_user_nl_clm = f'{path_CTSM_clone}/user_nl_clm'
+    with open(file_user_nl_clm) as f:
+        for line in f:
+            line = line.strip()
+            if line.startswith('fsurdat'):
+                file_surfdata = line.split('=')[-1].strip().replace('\'', '')
+    
     if len(file_surfdata) == 0:
         infile_lndin = f'{path_CTSM_case}/Buildconf/clmconf/lnd_in'
         with open(infile_lndin, 'r') as f:

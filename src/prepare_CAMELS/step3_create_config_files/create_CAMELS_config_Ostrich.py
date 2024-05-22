@@ -2,7 +2,7 @@
 
 import pandas as pd
 import numpy as np
-import os, toml, sys
+import os, toml, sys, glob
 from datetime import datetime
 import decide_CalibValid_periods as decidePeriod
 
@@ -15,14 +15,14 @@ level = sys.argv[2]
 # level = 'level1'
 clonecase = 'level1_0'
 
-projectcode = 'NCGD0013'
+projectcode = 'P08010000'
 
-infile_basin_info = f'/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/data_mesh_surf/HillslopeHydrology/CAMELS_{level}_basin_info.csv'
-inpath_camels_data = '/glade/p/ral/hap/common_data/camels/obs_flow_met'
-inpath_Qobs = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/CAMLES_Qobs'
+infile_basin_info = f'/glade/work/guoqiang/CTSM_CAMELS/data_mesh_surf/HillslopeHydrology/CAMELS_{level}_basin_info.csv'
+inpath_camels_data = '/glade/campaign/ral/hap/common/camels/obs_flow_met'
+inpath_Qobs = '/glade/work/guoqiang/CTSM_CAMELS/CAMLES_Qobs'
 
-outpath_case = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Calib_all_HH_Ostrich'
-outpath_out = '/glade/scratch/guoqiang/CTSM_outputs/CAMELS_Calib/Calib_all_HH_Ostrich'
+outpath_case = '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_Ostrich'
+outpath_out = '/glade/derecho/scratch/guoqiang/CTSM_outputs/CAMELS_Calib/Calib_HH_Ostrich'
 outpath_config = f'{outpath_case}/configuration'
 outfile_config = f'{outpath_config}/{level}-{basin_num}_config.toml'
 
@@ -37,11 +37,11 @@ wy_month = 10 # October: water year start
 # basic configurations
 config_intro = {'author': 'Guoqiang Tang',
                 'version': '0.0.1',
-                'name': 'CAMELS-CTSM',
-                'date': '2023-11',
-                'affiliation': 'CGD/TSS, NCAR'}
+                'name': 'CTSM calibration',
+                'date': '2024-03',
+                'affiliation': 'CGD/TSS NCAR'}
 
-create_case_settings = "--machine cheyenne --compset I2000Clm51Sp --driver nuopc --compiler intel --res f09_g16 --handle-preexisting-dirs r --run-unsupported"
+create_case_settings = "--machine derecho --compset I2000Clm51Sp --driver nuopc --compiler intel --res f09_g16 --handle-preexisting-dirs r --run-unsupported"
 
 config_HPC = {'projectCode': projectcode}
 
@@ -100,17 +100,12 @@ months_difference = (input_date.year - reference_date.year) * 12 + (input_date.m
 # CTSM configurations
 config_CTSM = {}
 config_CTSM['files'] = {}
-config_CTSM['files']['path_CTSM_source'] = '/glade/u/home/guoqiang/CTSM_repos/CTSM_hillslope'
+config_CTSM['files']['path_CTSM_source'] = '/glade/u/home/guoqiang/CTSM_repos/CTSM'
 config_CTSM['files']['path_CTSM_case'] = f'{outpath_case}/{level}_{basin_num}'
 config_CTSM['files']['path_CTSM_CIMEout'] = f'{outpath_out}/{level}_{basin_num}'
-config_CTSM['files']['file_CTSM_mesh'] = f'/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/data_mesh_surf/HillslopeHydrology/disaggregation/corrected_HCDN_nhru_final_671_buff_fix_holes.CAMELSandTDX_areabias_fix.simp0.001.{level}_polygons_neighbor_group_esmf_mesh_{basin_num}.nc'
+config_CTSM['files']['file_CTSM_mesh'] = f'/glade/work/guoqiang/CTSM_CAMELS/data_mesh_surf/HillslopeHydrology/disaggregation/corrected_HCDN_nhru_final_671_buff_fix_holes.CAMELSandTDX_areabias_fix.simp0.001.{level}_polygons_neighbor_group_esmf_mesh_{basin_num}.nc'
 
-if level == 'level1':
-    config_CTSM['files']['file_CTSM_surfdata'] = f'/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/data_mesh_surf/HillslopeHydrology/disaggregation/surfdata_CAMELS_{level}_hist_78pfts_CMIP6_simyr2000_c231115_{basin_num}.nc'
-elif level == 'level2':
-    config_CTSM['files']['file_CTSM_surfdata'] = f'/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/data_mesh_surf/HillslopeHydrology/disaggregation/surfdata_CAMELS_{level}_hist_78pfts_CMIP6_simyr2000_c231116_{basin_num}.nc'
-elif level == 'level3':
-    config_CTSM['files']['file_CTSM_surfdata'] = f'/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/data_mesh_surf/HillslopeHydrology/disaggregation/surfdata_CAMELS_{level}_hist_78pfts_CMIP6_simyr2000_c231117_{basin_num}.nc'
+config_CTSM['files']['file_CTSM_surfdata'] = f'/glade/work/guoqiang/CTSM_CAMELS/data_mesh_surf/HillslopeHydrology/disaggregation/surfdata_CAMELS_{level}_hist_78pfts_CMIP6_simyr2000_HAND_trapezoidal_{basin_num}.nc'
 
 config_CTSM['settings'] = {}
 
@@ -131,14 +126,28 @@ config_CTSM['settings']['casebuild'] = 'direct'
 config_CTSM['settings']['subset_length'] = 'existing'
 config_CTSM['settings']['forcing_YearStep'] = 5 # merge monthly/yearly forcings to the target time step
 
+
 config_CTSM['AddToNamelist'] = {}
-config_CTSM['AddToNamelist']['user_nl_datm_streams'] = ['topo.observed:meshfile=/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/data_topo/ESMFmesh_ctsm_elev_Conus_0.125d_210810.cdf5.nc',
-                                                        'topo.observed:datafiles=/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/data_topo/ctsm_elev_Conus_0.125d.cdf5.nc']
+config_CTSM['AddToNamelist']['user_nl_datm_streams'] = ['topo.observed:meshfile=/glade/work/guoqiang/CTSM_CAMELS/data_topo/ESMFmesh_ctsm_elev_Conus_0.125d_210810.cdf5.nc',
+                                                        'topo.observed:datafiles=/glade/work/guoqiang/CTSM_CAMELS/data_topo/ctsm_elev_Conus_0.125d.cdf5.nc']
 config_CTSM['AddToNamelist']['user_nl_datm'] = ['']
-config_CTSM['AddToNamelist']['user_nl_clm'] = ['']
+
+
+outformat = "hist_fincl2 = 'QRUNOFF','QDRAI','QOVER','QH2OSFC','QINFL','H2OSNO','QFLX_SNOW_DRAIN','QFLX_SOLIDEVAP_FROM_TOP_LAYER','SNOW_DEPTH','SNOWDP','SNO_T','SNO_Z','SNO_MELT','QSNOMELT','SOILICE','SOILLIQ','TOTSOILICE','TOTSOILLIQ','SOILWATER_10CM','TWS','ZWT','QINTR','LIQCAN','SNOCAN','QVEGE','QSOIL','QVEGT','FSH','EFLX_LH_TOT','Rnet','RAIN','SNOW','TBOT'"
+finit = glob.glob(f'/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO/{level}_{basin_num}_SpinupFiles/*.clm2.r.*.nc')
+if len(finit)==1:
+    finit = finit[0]
+else:
+    sys.exit('Wrong finit file')
+
+config_CTSM['AddToNamelist']['user_nl_clm'] = ["use_hillslope = .true.", "use_hillslope_routing = .true.", "n_dom_pfts = 2",
+                                              "hist_nhtfrq = 0,-24", "hist_mfilt = 1,365", 
+                                              f"finidat = '{finit}'",
+                                              outformat]
+
 
 config_CTSM['replacefiles'] = {}
-config_CTSM['replacefiles']['user_nl_datm_streams'] = '/glade/campaign/cgd/tss/common/lm_forcing/hybrid/era5land_eme/user_nl_datm_streams'
+config_CTSM['replacefiles']['user_nl_datm_streams'] = f'/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO/{level}_{basin_num}_SubsetForcing/user_nl_datm_streams'
 
 ########################################################################################################################
 # calibration configurations
@@ -146,14 +155,21 @@ config_calib = {}
 config_calib['files'] = {}
 config_calib['files']['path_script_calib'] = '/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/calibration'
 config_calib['files']['path_script_Ostrich'] = '/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/Ostrich_support'
-config_calib['files']['file_calib_param'] = '/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/parameter/param_ASG_20221206.csv'
+
+idi = df_info.iloc[basin_num]['hru_id']
+paramfile = f'/glade/work/guoqiang/CTSM_CAMELS/data_paramcailb/ParamCalib_{idi}.csv'
+if not os.path.isfile(paramfile):
+    sys.exit(f'paramfile does not exist: {paramfile}')
+config_calib['files']['file_calib_param'] = paramfile
+# config_calib['files']['file_calib_param'] = '/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/parameter/param_ASG_20221206.csv'
+
 config_calib['files']['file_Qobs'] = file_Qobs
-config_calib['files']['path_calib'] = f"/glade/campaign/cgd/tss/people/guoqiang/CTSMcases/CAMELS_Calib/Calib_all_HH_Ostrich/{level}_{basin_num}_Ostrich" # if not provided, just use default settings (i.e., a folder within the same folder with the CTSM case)
+config_calib['files']['path_calib'] = f"/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_Ostrich/{level}_{basin_num}_OSTRICHcalib" # if not provided, just use default settings (i.e., a folder within the same folder with the CTSM case)
 
 config_calib['eval'] = {}
 config_calib['eval']['ignore_month'] = 12 # the first few months are ignored during evaluation due to spin up
 config_calib['job'] = {}
-config_calib['job']['jobsetting'] = ['#PBS -N OstrichCalib', '#PBS -q share', '#PBS -l walltime=6:00:00']
+config_calib['job']['jobsetting'] = ['#PBS -N OstrichCalib', '#PBS -q develop', '#PBS -l walltime=6:00:00']
 # config_calib['job']['jobsetting'] = ['#PBS -N OstrichCalib', '#PBS -q casper', '#PBS -l walltime=24:00:00']
 
 ########################################################################################################################

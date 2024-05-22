@@ -1,9 +1,7 @@
-#PBS -N P08010000
+#PBS -A P08010000
 #PBS -q develop
 #PBS -l walltime=1:00:00
 #PBS  -l select=1:ncpus=1:mem=4GB
-#PBS -e /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO/logs/create_cases/
-#PBS -o /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO/logs/create_cases/
 
 module load conda
 module load cdo

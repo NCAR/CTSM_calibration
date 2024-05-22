@@ -32,7 +32,7 @@ cpu_per_node = 128
 
 jobparams = [ "#PBS -N MOAcalib", "#PBS -q main", 
               "#PBS -l select=1:ncpus=128", "#PBS -l walltime=12:00:00", 
-              "#PBS -l job_priority=economy",
+              #"#PBS -l job_priority=economy",
               "#PBS -A P08010000",
              "\n",
               "module load conda nco cdo",

@@ -1,11 +1,11 @@
 #PBS -N calibost
-#PBS -q regular
+#PBS -q main
 #PBS -l walltime=12:00:00
-#PBS -A NCGD0013
-#PBS -l select=1:ncpus=36
-#PBS -e /glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Calib_all_HH_Ostrich/logs/create_cases/
-#PBS -o /glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Calib_all_HH_Ostrich/logs/create_cases/
-#PBS -J 1-19:1
+#PBS -A P08010000
+#PBS -l select=1:ncpus=128
+#PBS -e /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_Ostrich/logs/runmodel/
+#PBS -o /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_Ostrich/logs/runmodel/
+###PBS -J 1-2:1
 
 
 module load conda
@@ -13,16 +13,12 @@ conda activate npl-2023b
 module load cdo
 module load parallel
 
-export TMPDIR=/glade/scratch/$USER/temp
+export TMPDIR=/glade/derecho/scratch/$USER/temp
 mkdir -p $TMPDIR
 
-# necessary for the regular queue to run CTSM model in parallel. The share queue already has this setting.
-# unfortunately, this only works for node=1. for multiple nodes, CTSM create_case or clone_case do not run at all
-# and even for one node, when I try to run CTSM at the same time, many cores jut failed and only some of tasks are running
-export MPI_DSM_DISTRIBUTE=0
-
-cmdfile=/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Calib_all_HH_Ostrich/submission/Ostcalib_part${PBS_ARRAY_INDEX}.txt
+PBS_ARRAY_INDEX=1
+cmdfile=/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_Ostrich/submission/Ostcalib_part${PBS_ARRAY_INDEX}.txt
 
 echo "Processing ${cmdfile}"
 
-parallel -j 36 < ${cmdfile}
+parallel < ${cmdfile}

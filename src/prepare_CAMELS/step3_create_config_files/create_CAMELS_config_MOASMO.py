@@ -80,7 +80,7 @@ config_CTSM['files']['path_CTSM_case'] = f'{outpath_case}/{level}_{basin_num}'
 config_CTSM['files']['path_CTSM_CIMEout'] = f'{outpath_out}/{level}_{basin_num}'
 config_CTSM['files']['file_CTSM_mesh'] = f'/glade/work/guoqiang/CTSM_CAMELS/data_mesh_surf/HillslopeHydrology/disaggregation/corrected_HCDN_nhru_final_671_buff_fix_holes.CAMELSandTDX_areabias_fix.simp0.001.{level}_polygons_neighbor_group_esmf_mesh_{basin_num}.nc'
 
-config_CTSM['files']['file_CTSM_surfdata'] = f'/glade/work/guoqiang/CTSM_CAMELS/data_mesh_surf/HillslopeHydrology/disaggregation/surfdata_CAMELSandTDX_areabias_fix.simp0.001.{level}_hist_78pfts_CMIP6_simyr2000_HAND_4_col_hillslope_geo_params_nlcd_bedrock_{basin_num}.nc'
+config_CTSM['files']['file_CTSM_surfdata'] = f'/glade/work/guoqiang/CTSM_CAMELS/data_mesh_surf/HillslopeHydrology/disaggregation/surfdata_CAMELS_{level}_hist_78pfts_CMIP6_simyr2000_HAND_trapezoidal_{basin_num}.nc'
 
 config_CTSM['settings'] = {}
 
@@ -137,15 +137,15 @@ config_CTSM['AddToNamelist']['user_nl_datm'] = ['']
 
 outformat = "hist_fincl2 = 'QRUNOFF','QDRAI','QOVER','QH2OSFC','QINFL','H2OSNO','QFLX_SNOW_DRAIN','QFLX_SOLIDEVAP_FROM_TOP_LAYER','SNOW_DEPTH','SNOWDP','SNO_T','SNO_Z','SNO_MELT','QSNOMELT','SOILICE','SOILLIQ','TOTSOILICE','TOTSOILLIQ','SOILWATER_10CM','TWS','ZWT','QINTR','LIQCAN','SNOCAN','QVEGE','QSOIL','QVEGT','FSH','EFLX_LH_TOT','Rnet','RAIN','SNOW','TBOT'"
 
-finit = glob.glob(f'/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO/{level}_{basin_num}_SpinupFiles/*.clm2.r.*.nc')
-if len(finit)==1:
-    finit = finit[0]
-else:
-    sys.exit('Wrong finit file')
+# finit = glob.glob(f'/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO/{level}_{basin_num}_SpinupFiles/*.clm2.r.*.nc')
+# if len(finit)==1:
+#     finit = finit[0]
+# else:
+#     sys.exit('Wrong finit file')
 
 config_CTSM['AddToNamelist']['user_nl_clm'] = ["use_hillslope = .true.", "use_hillslope_routing = .true.", "n_dom_pfts = 2",
                                               "hist_nhtfrq = 0,-24", "hist_mfilt = 1,365", 
-                                              f"finidat = '{finit}'",
+                                              # f"finidat = '{finit}'",
                                               outformat]
 
 # "hist_fincl2 = 'QRUNOFF','H2OSNO','H2OSFC','ZWT','ZWT_PERCH','SOILWATER_10CM','EFLX_LH_TOT','QDRAI','QDRAI_PERCH','QOVER','QH2OSFC','QFLX_SNOW_DRAIN','RAIN','SOILLIQ','SOILICE','VOLUMETRIC_STREAMFLOW','STREAM_WATER_DEPTH','STREAM_WATER_VOLUME'"
