@@ -9,7 +9,7 @@
 
 import os, sys, subprocess, time, toml
 import pandas as pd
-from MOASMO_parameters import generate_initial_parameter_sets, surrogate_model_train_and_pareto_points
+from MOASMO_parameters import generate_initial_parameter_sets, surrogate_model_train_and_pareto_points, surrogate_model_train_and_pareto_points_experiment
 import run_multiple_paramsets_Derecho
 
 ########################################################################################################################
@@ -129,7 +129,13 @@ for it in range(0, iter_end):
     file_param_all.append(file_param_iter)
 
 # train a surrogate model and select pareto parameter sets
+
 surrogate_model_train_and_pareto_points(file_parameter_list, file_param_all, file_metric_all, path_paramset, iterflag, num_per_iter, path_CTSM_base)
+
+# innums = [320, 380, 440, 500, 560] # from iter 0 to 1, 2, ...
+# print('using innum', innums[iter_end-1])
+# surrogate_model_train_and_pareto_points_experiment(file_parameter_list, file_param_all, file_metric_all, path_paramset, iterflag, num_per_iter, path_CTSM_base, innums[iter_end-1])
+
 
 # generate submission commands (note, this won't submit a real job on Derecho)
 run_multiple_paramsets_Derecho.generate_and_submit_multi_CTSM_runs(iter_end, path_submit, path_paramset, path_CTSM_base, 

@@ -106,6 +106,7 @@ def check_and_generate_binded_parameters(df_param, path_CTSM_case):
 
 
 def read_parameter_csv(file_parameter_list):
+
     df_calibparam = pd.read_csv(file_parameter_list)
     for c in ['Upper', 'Lower', 'Factor', 'Value']:
         if c in df_calibparam.columns:
@@ -131,7 +132,7 @@ def read_save_load_all_default_parameters(file_parameter_list, outpath, path_CTS
     outfile = f'{outpath}/all_default_parameters.pkl'
     
     if not os.path.isfile(outfile):
-    
+        
         df_calibparam = read_parameter_csv(file_parameter_list)
         param_names = df_calibparam['Parameter'].values
         param_sources = df_calibparam['Source'].values
@@ -388,6 +389,220 @@ def surrogate_model_train_and_pareto_points(param_infofile, param_filelist, metr
         ind = ~np.isnan( np.sum(x,axis=1) + np.sum(y,axis=1))
         x, y = x[ind, :], y[ind, :]
 
+        nInput = x.shape[1]
+        nOutput = y.shape[1]
+
+
+        # decide the most suitable emulator based on cross validation
+        os.makedirs(outpath, exist_ok=True)
+        gpr_kge_cv = gpr_emulator_cv(x, y, alpha, leng_lb, leng_ub, nu, xlb_mean, xub_mean, outpath, iterflag)
+        rf_kge_cv = rf_emulator_cv(x, y, outpath, iterflag)
+
+        # train the surrogate model 
+        if gpr_kge_cv['kge_mean'].values[-1] > rf_kge_cv['kge_mean'].values[-1]:
+        # if True: # always use GPR
+            print('Use GPR model')
+            sm = gp.GPR_Matern(x, y, nInput, nOutput, x.shape[0], xlb_mean, xub_mean, alpha=alpha, leng_sb=[leng_lb, leng_ub], nu=nu)
+            flag = 1
+        else:
+            print('Use RF model')
+            sm = RandomForestRegressor()
+            sm.fit(x, y)
+            flag = 2
+
+        
+        # perform optimization using the surrogate model
+        bestx_sm, besty_sm, x_sm, y_sm = NSGA2.optimization(sm, nInput, nOutput, xlb_mean, xub_mean, pop, gen, crossover_rate, mu, mum)
+        D = NSGA2.crowding_distance(besty_sm)
+        print('model sample number:', D.shape[0])
+        if D.shape[0] < n_sample:
+            print('Too few samples. Use the other method')
+            # use the other model
+            if flag == 1:
+                sm = RandomForestRegressor()
+                sm.fit(x, y)
+            elif flag == 2:
+                sm = gp.GPR_Matern(x, y, nInput, nOutput, x.shape[0], xlb_mean, xub_mean, alpha=alpha, leng_sb=[leng_lb, leng_ub], nu=nu)
+                bestx_sm, besty_sm, x_sm, y_sm = NSGA2.optimization(sm, nInput, nOutput, xlb_mean, xub_mean, pop, gen, crossover_rate, mu, mum)
+                D = NSGA2.crowding_distance(besty_sm)
+                print('model sample number:', D.shape[0])
+
+        sm_filename = f'{outpath}/surrogate_model_for_iter{iterflag}'
+        pickle.dump(sm, open(sm_filename, 'wb'))
+        
+        idxr = D.argsort()[::-1][:n_sample]
+        x_resample = bestx_sm[idxr, :]
+        y_resample = besty_sm[idxr, :]
+        # y_resample = sm.predict(x_resample)
+
+        # # plot
+        # import matplotlib.pyplot as plt
+        # plt.scatter(y[:, 0], y[:, 1])
+        # plt.scatter(besty_sm[:, 0], besty_sm[:, 1])
+        # plt.scatter(besty_sm[idxr, 0], besty_sm[idxr, 1])
+
+        param_upper_bound = df_info['Upper'].values
+        param_lower_bound = df_info['Lower'].values
+        param_upper_bound_mean = np.array([np.nanmean(p) for p in param_upper_bound])
+        param_lower_bound_mean = np.array([np.nanmean(p) for p in param_lower_bound])
+        
+        # load default parameter dataframe (file will be saved after first generation)
+        df_defaultparam = read_save_load_all_default_parameters(param_filelist, outpath, path_CTSM_case)
+        param0 = df_defaultparam['Value'].values
+
+
+        # generate a parameter dataframe for next trial
+        for i in range(x_resample.shape[0]):
+            # outfile = f'{outpath}/paramset_iter{iterflag+1}_trial{i}.csv'
+            outfile = f'{outpath}/paramset_iter{iterflag+1}_trial{i}.pkl'
+            print('Generating parameter file:', outfile)
+
+            dfi = df_info.copy()
+            factors = (x_resample[i, :] - xlb_mean) / (xub_mean - xlb_mean)
+            factors[factors<0] = 0.01
+            factors[factors>1] = 0.99
+            dfi['Factor'] = factors
+            
+            meanparam = factors * (param_upper_bound_mean - param_lower_bound_mean) + param_lower_bound_mean
+            newparam =  [meanparam[j] / np.nanmean(param0[j]) * param0[j] for j in range(len(param0))]
+            dfi['Value'] = newparam
+
+            # process binded parameters
+            dfi = check_and_generate_binded_parameters(dfi, path_CTSM_case)
+
+            # write
+            #dfi.to_csv(outfile, index=False)
+            dfi.to_pickle(outfile)
+
+
+
+########################
+# for experiments
+import numpy as np
+import copy
+def fast_non_dominated_sort(Y):
+    ''' a fast non-dominated sorting method
+        Y: output objective matrix
+    '''
+    N, d = Y.shape
+    Q = [] # temp array of Pareto front index
+    Sp = [] # temp array of points dominated by p
+    S = [] # temp array of Sp
+    rank = np.zeros(N) # Pareto rank
+    n = np.zeros(N)  # domination counter of p
+    dom = np.zeros((N, N))  # the dominate matrix, 1: i doms j, 2: j doms i
+
+    # compute the dominate relationship online, much faster
+    for i in range(N):
+        for j in range(N):
+            if i != j:
+                if dominates(Y[i,:], Y[j,:]):
+                    dom[i,j] = 1
+                    Sp.append(j)
+                elif dominates(Y[j,:], Y[i,:]):
+                    dom[i,j] = 2
+                    n[i] += 1
+        if n[i] == 0:
+            rank[i] = 0
+            Q.append(i)
+        S.append(copy.deepcopy(Sp))
+        Sp = []
+
+    F = []
+    F.append(copy.deepcopy(Q))
+    k = 0
+    while len(F[k]) > 0:
+        Q = []
+        for i in range(len(F[k])):
+            p = F[k][i]
+            for j in range(len(S[p])):
+                q = S[p][j]
+                n[q] -= 1
+                if n[q] == 0:
+                    rank[q]  = k + 1
+                    Q.append(q)
+        k += 1
+        F.append(copy.deepcopy(Q))
+
+    return rank, dom
+
+def dominates(p,q):
+    ''' comparison for multi-objective optimization
+        d = True, if p dominates q
+        d = False, if p not dominates q
+        p and q are 1*nOutput array
+    '''
+    if sum(p > q) == 0:
+        d = True
+    else:
+        d = False
+    return d
+
+
+
+def surrogate_model_train_and_pareto_points_experiment(param_infofile, param_filelist, metric_filelist, outpath, iterflag, num_per_iter, path_CTSM_case='',innum=200):
+    # path_CTSM_case must be provided if there are any binded parameters for calibration
+
+    random.seed(1234567890)
+    
+    # check whether files have been generated
+    flag = False
+    for i in range(num_per_iter):
+        outfile = f'{outpath}/paramset_iter{iterflag+1}_trial{i}.csv'
+        if not os.path.isfile(outfile):
+            flag = True
+            break
+            
+    if flag == False:
+        print('All parameter csv files have been generated. Skip this step')
+    else:
+        # define hyper parameters
+        pop = 200
+        gen = 100
+        crossover_rate = 0.9
+        mu = 20
+        mum = 20
+
+        # define hyperparameter
+        alpha = 1e-3
+        leng_lb = 1e-3
+        leng_ub = 1e3
+        nu = 2.5
+
+        n_sample = num_per_iter # number of selected optimal points
+
+        # input data x (parameter sets) and output data y (objective function values)
+        df_param = pd.concat(map(pd.read_csv, param_filelist))
+        df_metric = pd.concat(map(pd.read_csv, metric_filelist))
+        df_info = read_parameter_csv(param_infofile)
+
+        param_names = df_info['Parameter'].values # exclude binded parameters
+        df_param = df_param[param_names]
+
+        xlb_mean = np.array([np.nanmean(v) for v in df_info['Lower']])
+        xub_mean = np.array([np.nanmean(v) for v in df_info['Upper']])
+
+        x = df_param.to_numpy()
+        y = df_metric.to_numpy()
+
+        ind = ~np.isnan( np.sum(x,axis=1) + np.sum(y,axis=1))
+        x, y = x[ind, :], y[ind, :]
+
+        
+        # # select some non-dominant parameters
+        # # print: using the best 200 parameter sets
+        # print('Using the best y inputs')
+        # print('raw x/y size', x.shape, y.shape)
+        # print('raw ymean', np.nanmean(y, axis=0))
+        
+        # rank,dom=fast_non_dominated_sort(y)
+        # index = np.argsort(rank)[:innum]
+        # x = x[index,:]
+        # y = y[index,:]
+        
+        # print('new x/y size', x.shape, y.shape)
+        # print('new ymean', np.nanmean(y, axis=0))
+        
         nInput = x.shape[1]
         nOutput = y.shape[1]
 

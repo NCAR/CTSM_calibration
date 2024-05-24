@@ -1,5 +1,0 @@
-Traceback (most recent call last):
-  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/main_MOASMO_Derecho_part2.5_optional_evaluate.py", line 235, in <module>
-    for caseflag in range(matching_folders):
-                    ^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: 'list' object cannot be interpreted as an integer
