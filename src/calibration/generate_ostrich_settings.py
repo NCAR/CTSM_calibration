@@ -57,6 +57,7 @@ path_CTSM_case = config_Ostrich['path_CTSM_case']
 file_calib_param = config_Ostrich['file_calib_param']
 file_Qobs = config_Ostrich['file_Qobs']
 ignore_month = config_Ostrich['ignore_month']
+objfunc = config_Ostrich['objfunc']
 RUN_STARTDATE = config_Ostrich['RUN_STARTDATE']
 STOP_N = config_Ostrich['STOP_N']
 STOP_OPTION = config_Ostrich['STOP_OPTION']
@@ -257,6 +258,7 @@ runtrial_setting['lndinfile_ostrich'] = outfile_lndin_base
 runtrial_setting['ostrichRunDir'] = ostrichRunDir
 runtrial_setting['file_param_info'] = outfile_param_info
 runtrial_setting['ostrichScriptDir'] = path_script_Ostrich
+runtrial_setting['objfunc'] = objfunc
 
 
 # evaluation period

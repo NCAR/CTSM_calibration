@@ -249,11 +249,13 @@ if __name__ == '__main__':
     date_start = sys.argv[3] # '%Y-%m-%d' or 'default'. if default, the date from control_file_summa will be used
     date_end = sys.argv[4]
 
+    objfunc = sys.argv[5]
+
     # reference files (streamflow, snow cover). if a file cannot be found, it won't be inclulded in the calibration
-    ref_streamflow = sys.argv[5]
+    ref_streamflow = sys.argv[6]
 
     # add_flow_file. sometimes upstream flow needs to be added to the incremental downstream area runoff
-    add_flow_file = sys.argv[6]
+    add_flow_file = sys.argv[7]
 
 
     ######## default variable names
@@ -304,15 +306,30 @@ if __name__ == '__main__':
     d2_monthly = ds_simu[clm_q_name].groupby('time.month').mean().values
     maxabserror_q = get_max_abs_error(d1_monthly, d2_monthly)
 
-    mean_error = (abs_err + maxabserror_q) / 2
-    print(f'Evaluation result: kge_q={kge_q}, maxabserror_q={maxabserror_q}, MAE={abs_err}, mean_error={mean_error}')
+    mean_2error = (abs_err + maxabserror_q) / 2
+    print(f'Evaluation result: kge_q={kge_q}, maxabserror_q={maxabserror_q}, MAE={abs_err}, mean_2error={mean_2error}')
 
     ########################################################################################################################
     # write metric to file
+    stat_lines = np.array([f'{kge_q:.6f}\t#streamflow_KGE\n', 
+                      f'{rmse_q:.6f}\t#streamflow_RMSE\n', 
+                      f'{abs_err:.6f}\t#streamflow_abserr\n', 
+                      f'{maxabserror_q:.6f}\t#streamflow_maxmontherr\n',
+                      f'{mean_2error:.6f}\t#streamflow_mean2err\n'])
+    
+    
+    if objfunc == 'kge':
+        stat_lines = stat_lines
+    elif objfunc == 'mean_mae_mme':
+        stat_lines = stat_lines[ [4, 0, 1, 2, 3] ]
+    elif objfunc == 'rmse':
+        stat_lines = stat_lines[ [1, 0, 2, 3, 4] ]
+    elif objfunc == 'maxmontherr':
+        stat_lines = stat_lines[ [3, 0, 1, 2, 4] ]
+    else:
+        sys.exit(f'Unknown objfunc: {objfunc}')
+    
     with open(outfile_statistics, 'w+') as f:
-        f.write(f'{mean_error:.6f}\t#streamflow_meanerr\n')
-        f.write(f'{kge_q:.6f}\t#streamflow_KGE\n')
-        f.write(f'{rmse_q:.6f}\t#streamflow_RMSE\n')
-        f.write(f'{abs_err:.6f}\t#streamflow_abserr\n')
-        f.write(f'{maxabserror_q:.6f}\t#streamflow_maxmontherr\n')
+        for l in stat_lines:
+            f.write(l)
 

@@ -1,5 +1,7 @@
 # b=97
-b=256
+# b=256
+# b=514
+b=329
 
 # 1. generate init parameter sets
 

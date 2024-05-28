@@ -21,8 +21,8 @@ infile_basin_info = f'/glade/work/guoqiang/CTSM_CAMELS/data_mesh_surf/HillslopeH
 inpath_camels_data = '/glade/campaign/ral/hap/common/camels/obs_flow_met'
 inpath_Qobs = '/glade/work/guoqiang/CTSM_CAMELS/CAMLES_Qobs'
 
-outpath_case = '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_Ostrich'
-outpath_out = '/glade/derecho/scratch/guoqiang/CTSM_outputs/CAMELS_Calib/Calib_HH_Ostrich'
+outpath_case = '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_Ostrich_m2err_smallrange'
+outpath_out = '/glade/derecho/scratch/guoqiang/CTSM_outputs/CAMELS_Calib/Calib_HH_Ostrich_m2err_smallrange'
 outpath_config = f'{outpath_case}/configuration'
 outfile_config = f'{outpath_config}/{level}-{basin_num}_config.toml'
 
@@ -157,17 +157,21 @@ config_calib['files']['path_script_calib'] = '/glade/u/home/guoqiang/CTSM_repos/
 config_calib['files']['path_script_Ostrich'] = '/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/Ostrich_support'
 
 idi = df_info.iloc[basin_num]['hru_id']
-paramfile = f'/glade/work/guoqiang/CTSM_CAMELS/data_paramcailb/ParamCalib_{idi}.csv'
+# paramfile = f'/glade/work/guoqiang/CTSM_CAMELS/data_paramcailb/ParamCalib_basinparam_{idi}.csv'
+paramfile = f'/glade/work/guoqiang/CTSM_CAMELS/data_paramcailb/ParamCalib_smallrange_basinparam_{idi}.csv'
 if not os.path.isfile(paramfile):
     sys.exit(f'paramfile does not exist: {paramfile}')
 config_calib['files']['file_calib_param'] = paramfile
 # config_calib['files']['file_calib_param'] = '/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/parameter/param_ASG_20221206.csv'
 
 config_calib['files']['file_Qobs'] = file_Qobs
-config_calib['files']['path_calib'] = f"/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_Ostrich/{level}_{basin_num}_OSTRICHcalib" # if not provided, just use default settings (i.e., a folder within the same folder with the CTSM case)
+config_calib['files']['path_calib'] = f"/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_Ostrich_m2err_smallrange/{level}_{basin_num}_OSTRICHcalib" # if not provided, just use default settings (i.e., a folder within the same folder with the CTSM case)
 
 config_calib['eval'] = {}
 config_calib['eval']['ignore_month'] = 12 # the first few months are ignored during evaluation due to spin up
+config_calib['eval']['objfunc'] = 'mean_mae_mme'
+
+
 config_calib['job'] = {}
 config_calib['job']['jobsetting'] = ['#PBS -N OstrichCalib', '#PBS -q develop', '#PBS -l walltime=6:00:00']
 # config_calib['job']['jobsetting'] = ['#PBS -N OstrichCalib', '#PBS -q casper', '#PBS -l walltime=24:00:00']

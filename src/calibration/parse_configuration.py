@@ -46,6 +46,7 @@ def parse_Ostrich_config(config):
                       'file_calib_param': config['calib']['files']['file_calib_param'],
                       'file_Qobs': config['calib']['files']['file_Qobs'],
                       'ignore_month': config['calib']['eval']['ignore_month'],
+                      'objfunc': config['calib']['eval']['objfunc'],
                       'nonstandard_evaluation': config['calib']['eval']['nonstandard_evaluation'],
                       'RUN_STARTDATE': config['CTSM']['settings']['RUN_STARTDATE'],
                       'STOP_N': config['CTSM']['settings']['STOP_N'],

@@ -1,0 +1,1 @@
+cp /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO/configuration/_level1-329_config_MOASMO.toml ~/CTSM_repos/CTSM_calibration/src/MOASMO_onebasin_test/
