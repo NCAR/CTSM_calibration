@@ -358,7 +358,7 @@ def surrogate_model_train_and_pareto_points(param_infofile, param_filelist, metr
         print('All parameter csv files have been generated. Skip this step')
     else:
         # define hyper parameters
-        pop = 100
+        pop = 200
         gen = 100
         crossover_rate = 0.9
         mu = 20
@@ -423,9 +423,9 @@ def surrogate_model_train_and_pareto_points(param_infofile, param_filelist, metr
                 sm.fit(x, y)
             elif flag == 2:
                 sm = gp.GPR_Matern(x, y, nInput, nOutput, x.shape[0], xlb_mean, xub_mean, alpha=alpha, leng_sb=[leng_lb, leng_ub], nu=nu)
-                bestx_sm, besty_sm, x_sm, y_sm = NSGA2.optimization(sm, nInput, nOutput, xlb_mean, xub_mean, pop, gen, crossover_rate, mu, mum)
-                D = NSGA2.crowding_distance(besty_sm)
-                print('model sample number:', D.shape[0])
+            bestx_sm, besty_sm, x_sm, y_sm = NSGA2.optimization(sm, nInput, nOutput, xlb_mean, xub_mean, pop, gen, crossover_rate, mu, mum)
+            D = NSGA2.crowding_distance(besty_sm)
+            print('model sample number:', D.shape[0])
 
         sm_filename = f'{outpath}/surrogate_model_for_iter{iterflag}'
         pickle.dump(sm, open(sm_filename, 'wb'))
@@ -449,8 +449,7 @@ def surrogate_model_train_and_pareto_points(param_infofile, param_filelist, metr
         # load default parameter dataframe (file will be saved after first generation)
         df_defaultparam = read_save_load_all_default_parameters(param_filelist, outpath, path_CTSM_case)
         param0 = df_defaultparam['Value'].values
-
-
+        
         # generate a parameter dataframe for next trial
         for i in range(x_resample.shape[0]):
             # outfile = f'{outpath}/paramset_iter{iterflag+1}_trial{i}.csv'
@@ -474,7 +473,11 @@ def surrogate_model_train_and_pareto_points(param_infofile, param_filelist, metr
             #dfi.to_csv(outfile, index=False)
             dfi.to_pickle(outfile)
 
-
+        # save intermediate outputs for check
+        outfile = f'{outpath}/intermediate_output_iter{iterflag+1}.pkl'
+        np.savez_compressed(outfile, x_resample=x_resample, y_resample=y_resample, xlb_mean=xlb_mean, xub_mean=xub_mean, 
+                           param_upper_bound_mean=param_upper_bound_mean, param_lower_bound_mean=param_lower_bound_mean, param0=param0, x=x, y=y
+                           )
 
 ########################
 # for experiments
@@ -637,9 +640,9 @@ def surrogate_model_train_and_pareto_points_experiment(param_infofile, param_fil
                 sm.fit(x, y)
             elif flag == 2:
                 sm = gp.GPR_Matern(x, y, nInput, nOutput, x.shape[0], xlb_mean, xub_mean, alpha=alpha, leng_sb=[leng_lb, leng_ub], nu=nu)
-                bestx_sm, besty_sm, x_sm, y_sm = NSGA2.optimization(sm, nInput, nOutput, xlb_mean, xub_mean, pop, gen, crossover_rate, mu, mum)
-                D = NSGA2.crowding_distance(besty_sm)
-                print('model sample number:', D.shape[0])
+            bestx_sm, besty_sm, x_sm, y_sm = NSGA2.optimization(sm, nInput, nOutput, xlb_mean, xub_mean, pop, gen, crossover_rate, mu, mum)
+            D = NSGA2.crowding_distance(besty_sm)
+            print('model sample number:', D.shape[0])
 
         sm_filename = f'{outpath}/surrogate_model_for_iter{iterflag}'
         pickle.dump(sm, open(sm_filename, 'wb'))
