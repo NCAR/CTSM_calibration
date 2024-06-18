@@ -399,8 +399,8 @@ def surrogate_model_train_and_pareto_points(param_infofile, param_filelist, metr
         rf_kge_cv = rf_emulator_cv(x, y, outpath, iterflag)
 
         # train the surrogate model 
-        if gpr_kge_cv['kge_mean'].values[-1] > rf_kge_cv['kge_mean'].values[-1]:
-        # if True: # always use GPR
+        # if gpr_kge_cv['kge_mean'].values[-1] > rf_kge_cv['kge_mean'].values[-1]:
+        if False: # always use GPR
             print('Use GPR model')
             sm = gp.GPR_Matern(x, y, nInput, nOutput, x.shape[0], xlb_mean, xub_mean, alpha=alpha, leng_sb=[leng_lb, leng_ub], nu=nu)
             flag = 1
@@ -476,7 +476,8 @@ def surrogate_model_train_and_pareto_points(param_infofile, param_filelist, metr
         # save intermediate outputs for check
         outfile = f'{outpath}/intermediate_output_iter{iterflag+1}.pkl'
         np.savez_compressed(outfile, x_resample=x_resample, y_resample=y_resample, xlb_mean=xlb_mean, xub_mean=xub_mean, 
-                           param_upper_bound_mean=param_upper_bound_mean, param_lower_bound_mean=param_lower_bound_mean, param0=param0, x=x, y=y
+                           param_upper_bound_mean=param_upper_bound_mean, param_lower_bound_mean=param_lower_bound_mean, param0=param0, x=x, y=y, 
+                            bestx_sm=bestx_sm, besty_sm=besty_sm, x_sm=x_sm, y_sm=y_sm, D=D,
                            )
 
 ########################
