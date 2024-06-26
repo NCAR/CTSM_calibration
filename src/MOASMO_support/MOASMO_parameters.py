@@ -252,10 +252,10 @@ def generate_initial_parameter_sets(file_parameter_list, sampling_method, outpat
 ########################################################################################################################
 # Pareto optimal points:
 
-def gpr_emulator_cv(x, y, alpha, leng_lb, leng_ub, nu, xlb_mean, xub_mean, outpath, iterflag):
+def gpr_emulator_cv(x, y, alpha, leng_lb, leng_ub, nu, xlb_mean, xub_mean, outpath, iterflag, rndseed=1234567890):
 
-    random.seed(1234567890)
-    np.random.seed(1234567890)
+    random.seed(rndseed)
+    np.random.seed(rndseed)
 
     n_splits = 5
     
@@ -349,16 +349,16 @@ def surrogate_model_train_and_pareto_points(param_infofile, param_filelist, metr
     # check whether files have been generated
     flag = False
     for i in range(num_per_iter):
-        outfile = f'{outpath}/paramset_iter{iterflag+1}_trial{i}.csv'
+        outfile = f'{outpath}/paramset_iter{iterflag+1}_trial{i}.pkl'
         if not os.path.isfile(outfile):
             flag = True
             break
             
     if flag == False:
-        print('All parameter csv files have been generated. Skip this step')
+        print('All parameter pickle files have been generated. Skip this step')
     else:
         # define hyper parameters
-        pop = 200
+        pop = 100
         gen = 100
         crossover_rate = 0.9
         mu = 20
@@ -395,12 +395,29 @@ def surrogate_model_train_and_pareto_points(param_infofile, param_filelist, metr
 
         # decide the most suitable emulator based on cross validation
         os.makedirs(outpath, exist_ok=True)
-        gpr_kge_cv = gpr_emulator_cv(x, y, alpha, leng_lb, leng_ub, nu, xlb_mean, xub_mean, outpath, iterflag)
+        gpr_kge_cv0 = gpr_emulator_cv(x, y, alpha, leng_lb, leng_ub, nu, xlb_mean, xub_mean, outpath, iterflag)
+
+        
+        # Check if any KGE values are negative
+        if np.any(gpr_kge_cv0[['kge1', 'kge2']].values < 0):
+            # Try other random seeds
+            gpr_kge_cv = []
+            for i in range(5):  # Try at most 5 more times
+                random_seed = np.random.randint(0, 1234567890, dtype=int)
+                gpr_kge_cvi = gpr_emulator_cv(x, y, alpha, leng_lb, leng_ub, nu, xlb_mean, xub_mean, outpath, f'{iterflag}_try{i+1}', rndseed=random_seed)
+                if np.all(gpr_kge_cvi[['kge1', 'kge2']].values > 0):
+                    gpr_kge_cv = gpr_kge_cvi
+                    break
+            if len(gpr_kge_cv) == 0:
+                gpr_kge_cv = gpr_kge_cvi
+        else:
+            gpr_kge_cv = gpr_kge_cv0
+        
         rf_kge_cv = rf_emulator_cv(x, y, outpath, iterflag)
 
         # train the surrogate model 
-        # if gpr_kge_cv['kge_mean'].values[-1] > rf_kge_cv['kge_mean'].values[-1]:
-        if False: # always use GPR
+        if gpr_kge_cv['kge_mean'].values[-1] > rf_kge_cv['kge_mean'].values[-1]:
+        # if True: # always use GPR
             print('Use GPR model')
             sm = gp.GPR_Matern(x, y, nInput, nOutput, x.shape[0], xlb_mean, xub_mean, alpha=alpha, leng_sb=[leng_lb, leng_ub], nu=nu)
             flag = 1
@@ -552,7 +569,7 @@ def surrogate_model_train_and_pareto_points_experiment(param_infofile, param_fil
     # check whether files have been generated
     flag = False
     for i in range(num_per_iter):
-        outfile = f'{outpath}/paramset_iter{iterflag+1}_trial{i}.csv'
+        outfile = f'{outpath}/paramset_iter{iterflag+1}_trial{i}.pkl'
         if not os.path.isfile(outfile):
             flag = True
             break

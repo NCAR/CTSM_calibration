@@ -15,7 +15,7 @@ export TMPDIR=/glade/derecho/scratch/$USER/temp
 mkdir -p $TMPDIR
 
 script="/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/main_MOASMO_Derecho_part1_initparams.py"
-config_path="/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO/configuration"
+config_path="/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/configuration"
 
 iter_start=0
 iter_end=1 # due to the method range(iter_start, iter_end), it will only run iteration 0

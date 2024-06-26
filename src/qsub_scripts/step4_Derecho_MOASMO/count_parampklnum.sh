@@ -1,9 +1,9 @@
 
 iter=$1
 
-threshold=20
+threshold=40
 
-path="/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO"
+path="/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO_bigrange"
 
 
 echo "print folder information if its $iter iteration parameter.pkl number is smaller than $threshold"

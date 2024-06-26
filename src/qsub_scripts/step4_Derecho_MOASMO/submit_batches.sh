@@ -1,7 +1,7 @@
 
-iter=iter8
+iter=iter3
 
-path=/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO/run_model_mpiserial/$iter
+path=/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO_bigrange/run_model_mpiserial/$iter
 
 for b in {0..20}
 do

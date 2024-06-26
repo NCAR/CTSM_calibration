@@ -16,8 +16,8 @@ print('Proecssing iteration', iter)
 print('basin_on_one_node', basin_on_one_node)
 
 
-inpath = f'/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO'
-outpath = f'/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO/run_model_mpiserial/iter{iter}'
+inpath = f'/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO_bigrange'
+outpath = f'/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO_bigrange/run_model_mpiserial/iter{iter}'
 os.makedirs(outpath, exist_ok=True)
 
 
@@ -32,7 +32,7 @@ cpu_per_node = 128
 
 jobparams = [ "#PBS -N MOAcalib", "#PBS -q main", 
               "#PBS -l select=1:ncpus=128", "#PBS -l walltime=12:00:00", 
-              #"#PBS -l job_priority=economy",
+              "#PBS -l job_priority=economy",
               "#PBS -A P08010000",
              "\n",
               "module load conda nco cdo",

@@ -8,11 +8,11 @@ mkdir -p $cmdpath
 # Variables for looping through basins and files
 total_basins=627  # Updated total basins
 basins_per_file=128
-file_count=1
+file_count=2
 basin_count=1
 
 # Loop through basins in steps of 5
-for i in $(seq 0 5 $(($total_basins - 1)))
+for i in $(seq 1 5 $(($total_basins - 1)))
 do
   # Determine the current level and basin number
   if [ $i -le 626 ]; then  # Including basin 626 in Level 1

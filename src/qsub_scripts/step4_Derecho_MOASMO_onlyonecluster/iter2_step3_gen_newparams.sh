@@ -14,7 +14,7 @@ export TMPDIR=/glade/derecho/scratch/$USER/temp
 mkdir -p $TMPDIR
 
 script="/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/main_MOASMO_Derecho_part3_newparam.py"
-config_path="/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO/configuration"
+config_path="/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/configuration"
 
 iter_end=3
 

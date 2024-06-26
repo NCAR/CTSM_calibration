@@ -5,7 +5,8 @@
 #PBS -l select=1:ncpus=128
 #PBS -e /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_Ostrich/logs/runmodel/
 #PBS -o /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_Ostrich/logs/runmodel/
-####PBS -J 1-5:1
+#PBS -r y
+#PBS -J 1-5:1
 
 
 module load conda
@@ -16,7 +17,7 @@ module load parallel
 export TMPDIR=/glade/derecho/scratch/$USER/temp
 mkdir -p $TMPDIR
 
-PBS_ARRAY_INDEX=1
+#PBS_ARRAY_INDEX=1
 cmdfile=/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_Ostrich_m2err/submission/Ostcalib_part${PBS_ARRAY_INDEX}.txt
 
 echo "Processing ${cmdfile}"
