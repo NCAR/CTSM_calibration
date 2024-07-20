@@ -224,6 +224,7 @@ def mo_evaluate_return_many_metrics(outfile_metric, CTSMfilelist, fsurdat, date_
 
     # calculate mean daily MAE
     abs_err = get_mean_abs_error(obs=d1, sim=d2)
+    n_abs_err = abs_err / np.nanmean(d1)
 
     # calculate nse
     nse = get_nse(obs=d1, sim=d2)
@@ -284,17 +285,18 @@ def mo_evaluate_return_many_metrics(outfile_metric, CTSMfilelist, fsurdat, date_
     d1_monthly = ds_q_obs[ref_q_name].groupby('time.month').mean().values
     d2_monthly = ds_simu[clm_q_name].groupby('time.month').mean().values
     maxabserror_q = get_max_abs_error(d1_monthly, d2_monthly)
+    n_maxabserror_q = maxabserror_q / np.nanmean(d1_monthly)
 
 ########################################################################################################################
     # write objective functions to file.
     # metrics will be minimized during optimization
     # dfout = pd.DataFrame([[1 - kge_q, maxabserror_q]], columns=['metric1', 'metric2'])
-    dfout = pd.DataFrame([[kge_q, abs_err, nse, cc, rmse, maxabserror_q, q90_mae, q10_mae, 
+    dfout = pd.DataFrame([[kge_q, abs_err, n_abs_err, nse, cc, rmse, maxabserror_q, n_maxabserror_q, q90_mae, q10_mae, 
                            q90_days_err, q10_days_err, kge_log_q, 
                            kge_summer, kge_winter, kge_spring, kge_autumn,
                            mae_summer, mae_winter, mae_spring, mae_autumn, 
                            ge_q25_mae, ge_q50_mae, ge_q75_mae]], 
-                         columns=['kge', 'mae', 'nse', 'cc', 'rmse', 'max_mon_abs_err', 'q90_mae', 'q10_mae', 
+                         columns=['kge', 'mae', 'n_mae', 'nse', 'cc', 'rmse', 'max_mon_abs_err', 'n_max_mon_abs_err', 'q90_mae', 'q10_mae', 
                                  'q90_days_err', 'q10_days_err', 'kge_log_q', 
                                  'kge_summer', 'kge_winter', 'kge_spring', 'kge_autumn', 
                                  'mae_summer', 'mae_winter', 'mae_spring', 'mae_autumn',

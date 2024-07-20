@@ -1,5 +1,5 @@
 
-iter=iter3
+iter=iter8
 
 path=/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO_bigrange/run_model_mpiserial/$iter
 

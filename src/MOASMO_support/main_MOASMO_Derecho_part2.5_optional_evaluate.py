@@ -119,8 +119,8 @@ def run_trial(params):
     infilelist = glob.glob(f'{path_archive}/{caseflag}/lnd/hist/*.clm2.h1.*.nc')
     infilelist.sort()
     fsurdat = get_parameter_from_Namelist_or_lndin('fsurdat', f'{path_CTSM_base}/user_nl_clm', f'{path_CTSM_base}/Buildconf/clmconf/lnd_in', type='str')
+    
     outfile_metric = f'{path_archive}/{caseflag}/evaluation_many_metrics.csv'
-
     if not os.path.isfile(outfile_metric):
         print('saving', outfile_metric)
         if len(infilelist) > 0:
@@ -128,10 +128,47 @@ def run_trial(params):
         else:
             print(f"No input files found for {caseflag} in basin {basin}.")
 
+    # the other two periods
+    date_start = (pd.Timestamp(RUN_STARTDATE) + pd.offsets.DateOffset(months=ignore_month)).strftime('%Y-%m-%d')
+    if STOP_OPTION == 'nyears':
+        date_end = (pd.Timestamp(RUN_STARTDATE) + pd.offsets.DateOffset(years=4)).strftime('%Y-%m-%d')
+    elif STOP_OPTION == 'nmonths':
+        date_end = (pd.Timestamp(RUN_STARTDATE) + pd.offsets.DateOffset(months=48)).strftime('%Y-%m-%d')
+    else:
+        print(f'STOP_OPTION must be nyears or nmonths. {STOP_OPTION} is not accepted.')
+        return
+
+    outfile_metric = f'{path_archive}/{caseflag}/evaluation_many_metrics_period1.csv'
+    if not os.path.isfile(outfile_metric):
+        print('saving', outfile_metric)
+        if len(infilelist) > 0:
+            mo_evaluate_return_many_metrics(outfile_metric, infilelist, fsurdat, date_start, date_end, ref_streamflow, add_flow_file)
+        else:
+            print(f"No input files found for {caseflag} in basin {basin}.")
+
+
+    date_start = (pd.Timestamp(RUN_STARTDATE) + pd.offsets.DateOffset(months=36)).strftime('%Y-%m-%d')
+    if STOP_OPTION == 'nyears':
+        date_end = (pd.Timestamp(RUN_STARTDATE) + pd.offsets.DateOffset(years=STOP_N)).strftime('%Y-%m-%d')
+    elif STOP_OPTION == 'nmonths':
+        date_end = (pd.Timestamp(RUN_STARTDATE) + pd.offsets.DateOffset(months=STOP_N)).strftime('%Y-%m-%d')
+    else:
+        print(f'STOP_OPTION must be nyears or nmonths. {STOP_OPTION} is not accepted.')
+        return
+
+    outfile_metric = f'{path_archive}/{caseflag}/evaluation_many_metrics_period2.csv'
+    if not os.path.isfile(outfile_metric):
+        print('saving', outfile_metric)
+        if len(infilelist) > 0:
+            mo_evaluate_return_many_metrics(outfile_metric, infilelist, fsurdat, date_start, date_end, ref_streamflow, add_flow_file)
+        else:
+            print(f"No input files found for {caseflag} in basin {basin}.")
+
+
 if __name__ == '__main__':
     # Example usage
 
-    num_processes = 128 
+    num_processes = 1 
     basin_num = 627
 
     pool = Pool(processes=num_processes)
@@ -139,9 +176,9 @@ if __name__ == '__main__':
     tasks = []
     for basin in range(basin_num):
         print('basin', basin)
-        configfile = f'/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO/configuration/_level1-{basin}_config_MOASMO.toml'
+        configfile = f'/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/configuration/_level1-{basin}_config_MOASMO.toml'
 
-        pattern = f'/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO/level1_{basin}_MOASMOcalib/ctsm_outputs/iter*_trial*'
+        pattern = f'/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO_bigrange/level1_{basin}_MOASMOcalib/ctsm_outputs/iter0_trial*'
         matching_folders = [f.split('/')[-1] for f in glob.glob(pattern)] # e.g., iter0_trial58
         print('number of folders:', len(matching_folders))
         

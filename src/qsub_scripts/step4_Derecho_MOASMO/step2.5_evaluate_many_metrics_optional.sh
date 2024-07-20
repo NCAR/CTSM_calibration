@@ -1,6 +1,6 @@
 #PBS -N MOAcalib
-#PBS -q main
-#PBS -l select=1:ncpus=128
+#PBS -q casper
+#PBS -l select=1:ncpus=36
 #PBS -l walltime=6:00:00
 #PBS -A P08010000
 
