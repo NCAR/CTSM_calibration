@@ -9,7 +9,7 @@
 
 import os, sys, subprocess, time, toml
 import pandas as pd
-from MOASMO_parameters import generate_initial_parameter_sets, surrogate_model_train_and_pareto_points, surrogate_model_train_and_pareto_points_experiment
+from MOASMO_parameters import generate_initial_parameter_sets, surrogate_model_train_and_pareto_points, surrogate_model_train_and_pareto_points_experiment, surrogate_model_train_and_pareto_points_oneobjfunc
 import run_multiple_paramsets_Derecho
 
 ########################################################################################################################
@@ -21,6 +21,9 @@ config = toml.load(config_file)
 
 iter_end = int(sys.argv[2]) # e.g., iter_end=2 means outputs from iter0 and iter1 will be used to generate new paprameters for iter 2
 
+emulator = 'allbasin' # allbasin or one basin
+objfunc = 'norm2err' # twoerror, oneobjfunc, norm2err
+print('Objective function is ', objfunc)
 
 # inputs
 file_parameter_list = config['file_calib_param']
@@ -43,12 +46,21 @@ if config['path_calib'] == 'NA':
     path_MOASMOcalib = f'{path_CTSM_base}_MOASMOcalib'
 else:
     path_MOASMOcalib = config['path_calib']
-    
-path_paramset = f'{path_MOASMOcalib}/param_sets'
-path_submit = f'{path_MOASMOcalib}/run_model'
-path_archive = f'{path_MOASMOcalib}/ctsm_outputs'
-os.makedirs(path_MOASMOcalib, exist_ok=True)
 
+if objfunc == 'twoerror':
+    path_paramset = f'{path_MOASMOcalib}/param_sets'
+    path_submit = f'{path_MOASMOcalib}/run_model'
+    path_archive = f'{path_MOASMOcalib}/ctsm_outputs'
+elif objfunc == 'oneobjfunc':
+    path_paramset = f'{path_MOASMOcalib}/param_sets_normKGE'
+    path_submit = f'{path_MOASMOcalib}/run_model_normKGE'
+    path_archive = f'{path_MOASMOcalib}/ctsm_outputs_normKGE'   
+elif objfunc == 'norm2err':
+    path_paramset = f'{path_MOASMOcalib}/param_sets_norm2err'
+    path_submit = f'{path_MOASMOcalib}/run_model_norm2err'
+    path_archive = f'{path_MOASMOcalib}/ctsm_outputs_norm2err'
+    
+os.makedirs(path_MOASMOcalib, exist_ok=True)
 
 # MO-ASMO parameters
 sampling_method = config['sampling_method']
@@ -129,8 +141,14 @@ for it in range(0, iter_end):
     file_param_all.append(file_param_iter)
 
 # train a surrogate model and select pareto parameter sets
-
-surrogate_model_train_and_pareto_points(file_parameter_list, file_param_all, file_metric_all, path_paramset, iterflag, num_per_iter, path_CTSM_base)
+if objfunc == 'twoerror':
+    surrogate_model_train_and_pareto_points(file_parameter_list, file_param_all, file_metric_all, path_paramset, iterflag, num_per_iter, path_CTSM_base)
+elif objfunc == 'norm2err':
+    surrogate_model_train_and_pareto_points(file_parameter_list, file_param_all, file_metric_all, path_paramset, iterflag, num_per_iter, path_CTSM_base, normalize_y=True)
+elif objfunc == 'oneobjfunc':
+    # ad-hoc change
+    file_metric_all = [i.replace('all_metric.csv', 'many_metric.csv') for i in file_metric_all]
+    surrogate_model_train_and_pareto_points_oneobjfunc(file_parameter_list, file_param_all, file_metric_all, path_paramset, iterflag, num_per_iter, path_CTSM_base)
 
 # innums = [320, 380, 440, 500, 560] # from iter 0 to 1, 2, ...
 # print('using innum', innums[iter_end-1])

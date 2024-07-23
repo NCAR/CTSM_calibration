@@ -6,7 +6,7 @@
 
 
 module load conda nco cdo
-conda activate npl-2024a
+conda activate npl-2024a-tgq
 
 script='/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/main_MOASMO_Derecho_part2.5_optional_evaluate_partbasins.py'
 

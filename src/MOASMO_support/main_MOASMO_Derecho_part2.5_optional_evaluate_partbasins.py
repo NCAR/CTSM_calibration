@@ -1,4 +1,3 @@
-
 ####################################################
 # parallel version
 
@@ -101,7 +100,7 @@ if __name__ == '__main__':
     pool = Pool(processes=num_processes)
     
     tasks = []
-    for basin in range(1, basin_num, 10):
+    for basin in range(basin_num):
         print('basin', basin)
         configfile = f'/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/configuration/_level1-{basin}_config_MOASMO.toml'
 

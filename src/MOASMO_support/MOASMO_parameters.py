@@ -284,8 +284,10 @@ def gpr_emulator_cv(x, y, alpha, leng_lb, leng_ub, nu, xlb_mean, xub_mean, outpa
     kge_scores_df = pd.DataFrame()
     kge_scores_df['Fold'] = list(np.arange(n_splits)+1) + ['mean']
     kge_scores_df['kge1'] = kge_scores[:, 0]
-    kge_scores_df['kge2'] = kge_scores[:, 1]
-    kge_scores_df['kge_mean'] = (kge_scores[:, 0] + kge_scores[:, 1])/2
+
+    if kge_scores.shape[1]>1:
+        kge_scores_df['kge2'] = kge_scores[:, 1]
+        kge_scores_df['kge_mean'] = (kge_scores[:, 0] + kge_scores[:, 1])/2
     
     print("GPR CV KGE Score for metric1/metric2:")
     print(kge_scores_df)
@@ -316,6 +318,9 @@ def rf_emulator_cv(x, y, outpath, iterflag):
         
         # Predict using the trained model
         y_pred = sm.predict(x_test)  # Adjust this method call based on your model's API
+
+        if y.shape[1] == 1:
+            y_pred = y_pred[:, np.newaxis]
         
         # Evaluate the model using KGE
         for i in range(y.shape[1]):
@@ -329,9 +334,11 @@ def rf_emulator_cv(x, y, outpath, iterflag):
     kge_scores_df = pd.DataFrame()
     kge_scores_df['Fold'] = list(np.arange(n_splits)+1) + ['mean']
     kge_scores_df['kge1'] = kge_scores[:, 0]
-    kge_scores_df['kge2'] = kge_scores[:, 1]
-    kge_scores_df['kge_mean'] = (kge_scores[:, 0] + kge_scores[:, 1])/2
-    
+
+    if kge_scores.shape[1]>1:
+        kge_scores_df['kge2'] = kge_scores[:, 1]
+        kge_scores_df['kge_mean'] = (kge_scores[:, 0] + kge_scores[:, 1])/2
+        
     print("RF CV KGE Score for metric1/metric2:")
     print(kge_scores_df)
     
@@ -341,11 +348,12 @@ def rf_emulator_cv(x, y, outpath, iterflag):
     return kge_scores_df
 
 
-def surrogate_model_train_and_pareto_points(param_infofile, param_filelist, metric_filelist, outpath, iterflag, num_per_iter, path_CTSM_case=''):
+def surrogate_model_train_and_pareto_points(param_infofile, param_filelist, metric_filelist, outpath, iterflag, num_per_iter, path_CTSM_case='', normalize_y=False):
     # path_CTSM_case must be provided if there are any binded parameters for calibration
 
     random.seed(1234567890)
-    
+    print('Normalize_y', normalize_y)
+
     # check whether files have been generated
     flag = False
     for i in range(num_per_iter):
@@ -389,9 +397,12 @@ def surrogate_model_train_and_pareto_points(param_infofile, param_filelist, metr
         ind = ~np.isnan( np.sum(x,axis=1) + np.sum(y,axis=1))
         x, y = x[ind, :], y[ind, :]
 
+        if normalize_y == True:
+            for i in range(y.shape[1]):
+                y[:,i] = (y[:,i] - np.nanmin(y[:,i])) / (np.nanmax(y[:, i]) - np.nanmin(y[:,i]))
+
         nInput = x.shape[1]
         nOutput = y.shape[1]
-
 
         # decide the most suitable emulator based on cross validation
         os.makedirs(outpath, exist_ok=True)
@@ -464,7 +475,7 @@ def surrogate_model_train_and_pareto_points(param_infofile, param_filelist, metr
         param_lower_bound_mean = np.array([np.nanmean(p) for p in param_lower_bound])
         
         # load default parameter dataframe (file will be saved after first generation)
-        df_defaultparam = read_save_load_all_default_parameters(param_filelist, outpath, path_CTSM_case)
+        df_defaultparam = read_save_load_all_default_parameters(param_infofile, outpath, path_CTSM_case)
         param0 = df_defaultparam['Value'].values
         
         # generate a parameter dataframe for next trial
@@ -496,6 +507,184 @@ def surrogate_model_train_and_pareto_points(param_infofile, param_filelist, metr
                            param_upper_bound_mean=param_upper_bound_mean, param_lower_bound_mean=param_lower_bound_mean, param0=param0, x=x, y=y, 
                             bestx_sm=bestx_sm, besty_sm=besty_sm, x_sm=x_sm, y_sm=y_sm, D=D,
                            )
+
+
+###############
+# single objective optimization
+
+from pymoo.algorithms.soo.nonconvex.ga import GA
+from pymoo.optimize import minimize
+from pymoo.core.problem import Problem
+from pymoo.operators.sampling.rnd import FloatRandomSampling
+from pymoo.operators.crossover.sbx import SimulatedBinaryCrossover
+from pymoo.operators.mutation.pm import PolynomialMutation
+from pymoo.termination import get_termination
+
+class MyProblem(Problem):
+    def __init__(self, xlb_mean, xub_mean, em_model):
+        super().__init__(n_var=len(xlb_mean), n_obj=1, n_constr=0, xl=xlb_mean, xu=xub_mean, elementwise_evaluation=False)
+        self.em_model = em_model
+
+    def _evaluate(self, x, out, *args, **kwargs):
+        out["F"] = -self.em_model.predict(x)  # Return negative to maximize
+
+
+def run_ga_optimization(em_model, xlb_mean, xub_mean, num_runs=100, pop_size=100, num_generations=100):
+    ga_all_solutions = []
+    ga_all_outputs = []
+
+    for i in range(num_runs):  # run the model `num_runs` times
+        problem = MyProblem(xlb_mean, xub_mean, em_model)
+        
+        algorithm = GA(
+            pop_size=pop_size,
+            sampling=FloatRandomSampling(),
+            crossover=SimulatedBinaryCrossover(prob=0.9, eta=15),
+            mutation=PolynomialMutation(eta=20),
+            eliminate_duplicates=True
+        )
+        
+        res = minimize(problem,
+                       algorithm,
+                       termination=get_termination("n_gen", num_generations),
+                       verbose=False)
+        
+        optimized_features = res.X
+        max_output = -res.F
+        
+        ga_all_solutions.append(optimized_features)
+        ga_all_outputs.append(np.squeeze(max_output))
+    
+    return np.array(ga_all_solutions), np.array(ga_all_outputs)
+
+
+def surrogate_model_train_and_pareto_points_oneobjfunc(param_infofile, param_filelist, metric_filelist, outpath, iterflag, num_per_iter, path_CTSM_case=''):
+    # path_CTSM_case must be provided if there are any binded parameters for calibration
+
+    random.seed(1234567890)
+
+    tarmetric = 'normKGE'
+
+    # gpr hyper parameters
+    alpha = 1e-3
+    leng_lb = 1e-3
+    leng_ub = 1e3
+    nu = 2.5
+    
+    # check whether files have been generated
+    flag = False
+    for i in range(num_per_iter):
+        outfile = f'{outpath}/paramset_iter{iterflag+1}_trial{i}.pkl'
+        if not os.path.isfile(outfile):
+            flag = True
+            break
+            
+    if flag == False:
+        print('All parameter pickle files have been generated. Skip this step')
+    else:
+        n_sample = num_per_iter # number of selected optimal points
+
+        # input data x (parameter sets) and output data y (objective function values)
+        df_param = pd.concat(map(pd.read_csv, param_filelist))
+        df_metric = pd.concat(map(pd.read_csv, metric_filelist))
+        df_info = read_parameter_csv(param_infofile)
+
+        param_names = df_info['Parameter'].values # exclude binded parameters
+        df_param = df_param[param_names]
+
+        xlb_mean = np.array([np.nanmean(v) for v in df_info['Lower']])
+        xub_mean = np.array([np.nanmean(v) for v in df_info['Upper']])
+
+        x = df_param.to_numpy()
+        
+        if tarmetric == 'normKGE':
+            y = np.squeeze(df_metric[["kge"]].values.copy())
+            y = y / (2 - y) # normalize KGE: -1 to 1
+
+        ind = ~np.isnan( np.sum(x,axis=1) + y)
+        x, y = x[ind, :], y[ind]
+        y = y[:, np.newaxis]
+
+        # decide the most suitable emulator based on cross validation
+        os.makedirs(outpath, exist_ok=True)
+        gpr_kge_cv0 = gpr_emulator_cv(x, y, alpha, leng_lb, leng_ub, nu, xlb_mean, xub_mean, outpath, iterflag)
+        
+        # Check if any KGE values are negative
+        if np.any(gpr_kge_cv0['kge1'].values < 0):
+            # Try other random seeds
+            gpr_kge_cv = []
+            for i in range(5):  # Try at most 5 more times
+                random_seed = np.random.randint(0, 1234567890, dtype=int)
+                gpr_kge_cvi = gpr_emulator_cv(x, y, alpha, leng_lb, leng_ub, nu, xlb_mean, xub_mean, outpath, f'{iterflag}_try{i+1}', rndseed=random_seed)
+                if np.all(gpr_kge_cvi['kge1'].values > 0):
+                    gpr_kge_cv = gpr_kge_cvi
+                    break
+            if len(gpr_kge_cv) == 0:
+                gpr_kge_cv = gpr_kge_cvi
+        else:
+            gpr_kge_cv = gpr_kge_cv0
+        
+        rf_kge_cv = rf_emulator_cv(x, y, outpath, iterflag)
+
+        # train the surrogate model 
+        if gpr_kge_cv['kge1'].values[-1] > rf_kge_cv['kge1'].values[-1]:
+        # if True: # always use GPR
+            print('Use GPR model')
+            nInput = x.shape[0]
+            nOutput = 1
+            sm = gp.GPR_Matern(x, y, nInput, nOutput, x.shape[0], xlb_mean, xub_mean, alpha=alpha, leng_sb=[leng_lb, leng_ub], nu=nu)
+            flag = 1
+        else:
+            print('Use RF model')
+            sm = RandomForestRegressor()
+            sm.fit(x, y)
+            flag = 2
+        
+        # perform optimization using the surrogate model
+        x_resample, y_resample = run_ga_optimization(sm, xlb_mean, xub_mean, num_runs=n_sample, pop_size=60, num_generations=60) # for larger pop_size/num_generations, outputs from different runs could be similar
+
+        param_upper_bound = df_info['Upper'].values
+        param_lower_bound = df_info['Lower'].values
+        param_upper_bound_mean = np.array([np.nanmean(p) for p in param_upper_bound])
+        param_lower_bound_mean = np.array([np.nanmean(p) for p in param_lower_bound])
+        
+        # load default parameter dataframe (file will be saved after first generation)
+        df_defaultparam = read_save_load_all_default_parameters(param_infofile, outpath, path_CTSM_case)
+        param0 = df_defaultparam['Value'].values
+        
+        # generate a parameter dataframe for next trial
+        for i in range(x_resample.shape[0]):
+            # outfile = f'{outpath}/paramset_iter{iterflag+1}_trial{i}.csv'
+            outfile = f'{outpath}/paramset_iter{iterflag+1}_trial{i}.pkl'
+            print('Generating parameter file:', outfile)
+
+            dfi = df_info.copy()
+            factors = (x_resample[i, :] - xlb_mean) / (xub_mean - xlb_mean)
+            factors[factors<0] = 0.01
+            factors[factors>1] = 0.99
+            dfi['Factor'] = factors
+            
+            meanparam = factors * (param_upper_bound_mean - param_lower_bound_mean) + param_lower_bound_mean
+            newparam =  [meanparam[j] / np.nanmean(param0[j]) * param0[j] for j in range(len(param0))]
+            dfi['Value'] = newparam
+
+            # process binded parameters
+            dfi = check_and_generate_binded_parameters(dfi, path_CTSM_case)
+
+            # write
+            #dfi.to_csv(outfile, index=False)
+            dfi.to_pickle(outfile)
+
+        # save intermediate outputs for check
+        outfile = f'{outpath}/intermediate_output_iter{iterflag+1}.pkl'
+        np.savez_compressed(outfile, x_resample=x_resample, y_resample=y_resample, xlb_mean=xlb_mean, xub_mean=xub_mean, 
+                           param_upper_bound_mean=param_upper_bound_mean, param_lower_bound_mean=param_lower_bound_mean, param0=param0, x=x, y=y, 
+                           )
+
+
+# single objective optimization
+#################
+
 
 ########################
 # for experiments
@@ -708,6 +897,7 @@ def surrogate_model_train_and_pareto_points_experiment(param_infofile, param_fil
             # write
             #dfi.to_csv(outfile, index=False)
             dfi.to_pickle(outfile)
-
+# for experiments
+########################
 
 

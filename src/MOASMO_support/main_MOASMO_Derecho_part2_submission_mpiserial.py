@@ -17,12 +17,15 @@ print('basin_on_one_node', basin_on_one_node)
 
 
 inpath = f'/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO_bigrange'
-outpath = f'/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO_bigrange/run_model_mpiserial/iter{iter}'
+# outpath = f'/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO_bigrange/run_model_mpiserial_normKGE/iter{iter}'
+# outpath = f'/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO_bigrange/run_model_mpiserial/iter{iter}'
+outpath = f'/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO_bigrange/run_model_mpiserial_norm2err/iter{iter}'
 os.makedirs(outpath, exist_ok=True)
 
 
 # basins = [f'level1_{i}' for i in range(627)] + [f'level2_{i}' for i in range(40)] + [f'level3_{i}' for i in range(4)]
-basins = [f'level1_{i}' for i in range(627)] # Just level-1
+# basins = [f'level1_{i}' for i in range(627)] # Just level-1
+basins = [f'level1_{i}' for i in range(1, 627, 10)] # Just level-1
 
 bnum = len(basins)
 
@@ -36,7 +39,7 @@ jobparams = [ "#PBS -N MOAcalib", "#PBS -q main",
               "#PBS -A P08010000",
              "\n",
               "module load conda nco cdo",
-             "conda activate npl-2024a",
+             "conda activate npl-2024a-tgq",
              "\n",
             ]
 
@@ -52,7 +55,10 @@ for i in range(nbatch):
     # generate command line file
     newcommands = []
     for j in range(bstart, bend):
-        infileij = f'{inpath}/{basins[j]}_MOASMOcalib/run_model/iter{iter}/commands_run_iter{iter}.txt'
+        # infileij = f'{inpath}/{basins[j]}_MOASMOcalib/run_model_normKGE/iter{iter}/commands_run_iter{iter}.txt'
+        # infileij = f'{inpath}/{basins[j]}_MOASMOcalib/run_model/iter{iter}/commands_run_iter{iter}.txt'
+        infileij = f'{inpath}/{basins[j]}_MOASMOcalib/run_model_norm2err/iter{iter}/commands_run_iter{iter}.txt'
+        
         with open(infileij, 'r') as f:
             linesj = f.readlines()
         for l in linesj:

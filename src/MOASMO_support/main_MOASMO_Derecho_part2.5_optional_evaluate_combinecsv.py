@@ -12,7 +12,7 @@ def process_basin(basin, inpath_moasmo, nmet=24):
 
 
     for trialflag in range(totnum):
-        path_archive = f'{inpath_moasmo}/level1_{basin}_MOASMOcalib/ctsm_outputs'
+        path_archive = f'{inpath_moasmo}/level1_{basin}_MOASMOcalib/ctsm_outputs_emutest'
         caseflag = f'iter{iterflag}_trial{trialflag}'
         outfile_metric = f'{path_archive}/{caseflag}/evaluation_many_metrics.csv'
 

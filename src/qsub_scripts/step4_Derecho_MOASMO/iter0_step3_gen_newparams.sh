@@ -7,7 +7,7 @@
 # based on results from iteration-0, generate new parameter sets for iteration-1
 
 module load conda cdo
-conda activate npl-2022b
+conda activate npl-2024a-tgq
 
 
 export TMPDIR=/glade/derecho/scratch/$USER/temp
