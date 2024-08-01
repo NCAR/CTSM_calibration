@@ -1,4 +1,4 @@
-####################################################
+    ####################################################
 # parallel version
 
 import numpy as np
@@ -39,7 +39,7 @@ def run_trial(params):
         path_MOASMOcalib = f'{path_CTSM_base}_MOASMOcalib'
     else:
         path_MOASMOcalib = config['path_calib']
-    path_archive = f'{path_MOASMOcalib}/ctsm_outputs_emutest'
+    path_archive = f'{path_MOASMOcalib}/ctsm_outputs_normKGE'
     
     # evaluate model results
     infilelist = glob.glob(f'{path_archive}/{caseflag}/lnd/hist/*.clm2.h1.*.nc')
@@ -104,7 +104,7 @@ if __name__ == '__main__':
         print('basin', basin)
         configfile = f'/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/configuration/_level1-{basin}_config_MOASMO.toml'
 
-        pattern = f'/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO_bigrange/level1_{basin}_MOASMOcalib/ctsm_outputs_emutest/iter1_trial*'
+        pattern = f'/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO_bigrange/level1_{basin}_MOASMOcalib/ctsm_outputs_normKGE/iter1_trial*'
         matching_folders = [f.split('/')[-1] for f in glob.glob(pattern)] # e.g., iter0_trial58
         print('number of folders:', len(matching_folders))
         

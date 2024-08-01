@@ -12,7 +12,7 @@ import os, sys, glob, subprocess, pathlib, random, time
 import numpy as np
 import pandas as pd
 import xarray as xr
-from mo_evaluation import mo_evaluate
+from mo_evaluation import mo_evaluate, mo_evaluate_return_many_metrics
 import mo_evaluation_nonstandard
 from MOASMO_parameters import get_parameter_from_Namelist_or_lndin
 from xml_addcpubind import insert_cpu_bind
@@ -174,6 +174,25 @@ def update_ctsm_parameters(path_CTSM_case, file_parameter_set):
 
     print('Successfully update parameters!')
 
+
+def simple_split_period(date_start, date_end):
+    # assume water year input
+    total_years = int(date_end[:4]) - int(date_start[:4])
+    half_years = total_years // 2
+    if total_years % 2 != 0:
+        half_years += 1
+
+    p1_start = date_start
+    p1_end = str(int(date_start[:4]) + half_years) + date_start[4:]
+    p1_end = ( pd.to_datetime(p1_end) - pd.Timedelta(days=1) ).strftime('%Y-%m-%d')
+
+
+    p2_start = str(int(date_end[:4]) - half_years) + date_end[4:]
+    p2_start = ( pd.to_datetime(p2_start) + pd.Timedelta(days=1) ).strftime('%Y-%m-%d')
+    p2_end = date_end
+
+    return [p1_start, p1_end], [p2_start, p2_end]
+
 if __name__ == '__main__':
 
     # input arguments
@@ -322,6 +341,8 @@ if __name__ == '__main__':
 
     ########################################################################################################################
     # evaluate model results
+
+    # pre defined objective functions (e.g., two error metrics)
     outfile_metric = f'{path_archive}/{caseflag}/evaluation_metric.csv'
     if os.path.isfile(outfile_metric) and overwrite_previous == False:
         print('The evaluation metric file exists. no need to run evaluation')
@@ -333,6 +354,34 @@ if __name__ == '__main__':
         print('Use standard lump evaluation')
         mo_evaluate(outfile_metric, infilelist, fsurdat, date_start, date_end, ref_streamflow, add_flow_file)
 
+    # 24 error metrics
+    outfile_metric = f'{path_archive}/{caseflag}/evaluation_many_metrics.csv'
+    if not os.path.isfile(outfile_metric):
+        print('saving', outfile_metric)
+        if len(infilelist) > 0:
+            mo_evaluate_return_many_metrics(outfile_metric, infilelist, fsurdat, date_start, date_end, ref_streamflow, add_flow_file)
+        else:
+            print(f"No input files found for {caseflag} in basin {basin}.")
+    
+    # divide the period into two parts
+    p1, p2 = simple_split_period(date_start, date_end)
+    outfile_metric = f'{path_archive}/{caseflag}/evaluation_many_metrics_period1.csv'
+    if not os.path.isfile(outfile_metric):
+        print('saving', outfile_metric)
+        if len(infilelist) > 0:
+            mo_evaluate_return_many_metrics(outfile_metric, infilelist, fsurdat, p1[0], p1[1], ref_streamflow, add_flow_file)
+        else:
+            print(f"No input files found for {caseflag} in basin {basin}.")
+
+    outfile_metric = f'{path_archive}/{caseflag}/evaluation_many_metrics_period2.csv'
+    if not os.path.isfile(outfile_metric):
+        print('saving', outfile_metric)
+        if len(infilelist) > 0:
+            mo_evaluate_return_many_metrics(outfile_metric, infilelist, fsurdat, p2[0], p2[1], ref_streamflow, add_flow_file)
+        else:
+            print(f"No input files found for {caseflag} in basin {basin}.")
+
+    
     # move cpu file from busy to idle
     if exclusive_flag==True:
         os.rename(cpufile_use2, cpufile_use) # release the cpu

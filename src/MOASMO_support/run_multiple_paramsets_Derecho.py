@@ -159,6 +159,9 @@ def check_if_all_runs_are_finsihed(path_archive, iterflag, tarnum, sleep=10):
         if True:
             # print(f'All runs dones: the number of {path_archive}/*iter{iterflag}_*/ folders equal to {tarnum}')
             outfile_metric, outfile_param = merge_parameter_metric_csv(path_archive, iterflag, tarnum)
+
+            merge_many_metric_csv(path_archive, iterflag, tarnum) # merge many metric csv output
+            
             flag = False
 
     return outfile_metric, outfile_param
@@ -208,3 +211,69 @@ def merge_parameter_metric_csv(path_archive, iterflag, tarnum):
         dfout.to_csv(outfile_param, index=False)
 
     return outfile_metric, outfile_param
+
+
+def merge_many_metric_csv(path_archive, iterflag, tarnum):
+    # merge parameters and metric values from all runs to one csv file
+
+    outfile_metric = f'{path_archive}/iter{iterflag}_many_metric.csv'
+    if (not os.path.isfile(outfile_metric)):
+        flag = True
+        metric_values = []
+        for i in range(tarnum):
+            file_metric = f'{path_archive}/iter{iterflag}_trial{i}/evaluation_many_metrics.csv'
+            if not os.path.isfile(file_metric):
+                print(f'Warning! File does not exist: {file_metric}')
+                continue
+            df_met = pd.read_csv(file_metric)
+            if flag:
+                metric_names = list(df_met.columns)
+                metric_values = np.nan * np.zeros([tarnum, len(metric_names)])
+                flag = False
+            metric_values[i, :] = df_met.iloc[0].values
+
+        print(f'Write all metrics for {tarnum} trials in iteration {iterflag} to {outfile_metric}')
+        dfout = pd.DataFrame(metric_values, columns=metric_names)
+        dfout.to_csv(outfile_metric, index=False)
+
+        
+    outfile_metric = f'{path_archive}/iter{iterflag}_many_metric_period1.csv'
+    if (not os.path.isfile(outfile_metric)):
+        flag = True
+        metric_values = []
+        for i in range(tarnum):
+            file_metric = f'{path_archive}/iter{iterflag}_trial{i}/evaluation_many_metrics_period1.csv'
+            if not os.path.isfile(file_metric):
+                print(f'Warning! File does not exist: {file_metric}')
+                continue
+            df_met = pd.read_csv(file_metric)
+            if flag:
+                metric_names = list(df_met.columns)
+                metric_values = np.nan * np.zeros([tarnum, len(metric_names)])
+                flag = False
+            metric_values[i, :] = df_met.iloc[0].values
+
+        print(f'Write all metrics for {tarnum} trials in iteration {iterflag} to {outfile_metric}')
+        dfout = pd.DataFrame(metric_values, columns=metric_names)
+        dfout.to_csv(outfile_metric, index=False)
+
+
+    outfile_metric = f'{path_archive}/iter{iterflag}_many_metric_period2.csv'
+    if (not os.path.isfile(outfile_metric)):
+        flag = True
+        metric_values = []
+        for i in range(tarnum):
+            file_metric = f'{path_archive}/iter{iterflag}_trial{i}/evaluation_many_metrics_period2.csv'
+            if not os.path.isfile(file_metric):
+                print(f'Warning! File does not exist: {file_metric}')
+                continue
+            df_met = pd.read_csv(file_metric)
+            if flag:
+                metric_names = list(df_met.columns)
+                metric_values = np.nan * np.zeros([tarnum, len(metric_names)])
+                flag = False
+            metric_values[i, :] = df_met.iloc[0].values
+
+        print(f'Write all metrics for {tarnum} trials in iteration {iterflag} to {outfile_metric}')
+        dfout = pd.DataFrame(metric_values, columns=metric_names)
+        dfout.to_csv(outfile_metric, index=False)

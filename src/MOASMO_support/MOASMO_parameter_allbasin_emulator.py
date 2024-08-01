@@ -239,12 +239,12 @@ def run_ga_optimization(em_model, xlb_mean, xub_mean, num_runs=100, pop_size=100
     return np.array(ga_all_solutions), np.array(ga_all_outputs)
 
 
-def generate_param_files(tarbasin, em_model, xlb_mean, xub_mean, param_names, inpath_moasmo, numruns):
+def generate_param_files(tarbasin, em_model, xlb_mean, xub_mean, param_names, inpath_moasmo, numruns, iterend):
     path_CTSM_case = f'/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_{tarbasin}'
     outpath = f'{inpath_moasmo}/level1_{tarbasin}_MOASMOcalib/param_sets_emutest'
     os.makedirs(outpath, exist_ok=True)
 
-    outfile_ga = f'{outpath}/ga_output_iter1.npz'
+    outfile_ga = f'{outpath}/ga_output_iter{iterend}.npz'
     if os.path.isfile(outfile_ga):
         dtmp = np.load(outfile_ga)
         ga_all_solutions = dtmp['ga_all_solutions']
@@ -262,7 +262,7 @@ def generate_param_files(tarbasin, em_model, xlb_mean, xub_mean, param_names, in
     indexp = [np.where(param_names == p)[0][0] for p in df_info['Parameter'].values if p in param_names]
 
     for i in range(ga_all_solutions_array.shape[0]):
-        outfile = f'{outpath}/paramset_iter1_trial{i}.pkl'
+        outfile = f'{outpath}/paramset_iter{iterend}_trial{i}.pkl'
         if os.path.isfile(outfile):
             continue
 
@@ -271,10 +271,11 @@ def generate_param_files(tarbasin, em_model, xlb_mean, xub_mean, param_names, in
         dfi = check_and_generate_binded_parameters(dfi, path_CTSM_case)
         dfi.to_pickle(outfile)
 
+    print('finish basin', tarbasin)
 
 def process_basin(args):
     try:
-        tarbasin, df_basinid, df_param_lb, df_param_ub, x_all, df_input, y_all, param_names, inputnames, em_model, inpath_moasmo, numruns = args
+        tarbasin, df_basinid, df_param_lb, df_param_ub, x_all, df_input, y_all, param_names, inputnames, em_model, inpath_moasmo, numruns, iterend = args
         print(tarbasin)
         index = np.where(df_basinid["basin_num"].values == tarbasin)[0]
         attnames = [i for i in inputnames if i not in param_names]
@@ -287,13 +288,13 @@ def process_basin(args):
         x_tar = x_all[index, :]
         xlb_mean = np.hstack([param_lb_mean, attrvalues])
         xub_mean = np.hstack([param_ub_mean, attrvalues])
-        generate_param_files(tarbasin, em_model, xlb_mean, xub_mean, param_names, inpath_moasmo, numruns)
+        generate_param_files(tarbasin, em_model, xlb_mean, xub_mean, param_names, inpath_moasmo, numruns, iterend)
     except Exception as e:
         print(f"Error processing basin {tarbasin}: {e}")
 
 
-def parallel_process_basins(df_basin_info, df_basinid, df_param_lb, df_param_ub, x_all, df_input, y_all, param_names, inputnames, em_model, inpath_moasmo, ncpus, numruns):
-    args = [(tarbasin, df_basinid, df_param_lb, df_param_ub, x_all, df_input, y_all, param_names, inputnames, em_model, inpath_moasmo, numruns) for tarbasin in range(len(df_basin_info))]
+def parallel_process_basins(df_basin_info, df_basinid, df_param_lb, df_param_ub, x_all, df_input, y_all, param_names, inputnames, em_model, inpath_moasmo, ncpus, numruns, iterend):
+    args = [(tarbasin, df_basinid, df_param_lb, df_param_ub, x_all, df_input, y_all, param_names, inputnames, em_model, inpath_moasmo, numruns, iterend) for tarbasin in range(len(df_basin_info))]
     
     with Pool(processes=ncpus) as pool:
         pool.map(process_basin, args)
@@ -323,7 +324,7 @@ def allbasin_emulator_train_and_optimize(infile_basin_info, infile_param_info, i
     file_param_ub = f'{outpath}/camels_627basin_ctsm_all_param_ub.gz'
     df_param_lb, df_param_ub = load_basin_param_bounds(inpath_moasmo, df_param_defa, file_param_lb, file_param_ub)
 
-    file_camels_attribute = f'camels_627basin_attribute.pkl'
+    file_camels_attribute = f'{outpath}/camels_627basin_attribute.pkl'
     df_att = read_camels_attributes(infile_basin_info, file_camels_attribute)
     
     df_att_foruse = pd.read_csv(infile_attr_foruse)
@@ -409,5 +410,5 @@ def allbasin_emulator_train_and_optimize(infile_basin_info, infile_param_info, i
             pickle.dump(em_model, file)
 
     param_names = df_param_info['Parameter'].values
-    parallel_process_basins(df_basin_info, df_basinid, df_param_lb, df_param_ub, x_all, df_input, y_all, param_names, inputnames, em_model, inpath_moasmo, ncpus, numruns)
+    parallel_process_basins(df_basin_info, df_basinid, df_param_lb, df_param_ub, x_all, df_input, y_all, param_names, inputnames, em_model, inpath_moasmo, ncpus, numruns, iterend)
 

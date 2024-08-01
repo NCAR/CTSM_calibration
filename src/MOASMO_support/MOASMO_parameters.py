@@ -252,7 +252,10 @@ def generate_initial_parameter_sets(file_parameter_list, sampling_method, outpat
 ########################################################################################################################
 # Pareto optimal points:
 
-def gpr_emulator_cv(x, y, alpha, leng_lb, leng_ub, nu, xlb_mean, xub_mean, outpath, iterflag, rndseed=1234567890):
+def get_rmse(d1, d2):
+    return ( np.nanmean( (d1-d2)**2 ) ) ** 0.5
+
+def gpr_emulator_cv(x, y, alpha, leng_lb, leng_ub, nu, xlb_mean, xub_mean, outpath, iterflag, rndseed=1234567890, usemet='kge'):
 
     random.seed(rndseed)
     np.random.seed(rndseed)
@@ -274,7 +277,12 @@ def gpr_emulator_cv(x, y, alpha, leng_lb, leng_ub, nu, xlb_mean, xub_mean, outpa
         
         # Evaluate the model using KGE
         for i in range(y.shape[1]):
-            kge_scores[fold_idx-1, i] = get_modified_KGE(y_test[:,i], y_pred[:,i])
+            if usemet == 'kge':
+                kge_scores[fold_idx-1, i] = get_modified_KGE(y_test[:,i], y_pred[:,i])
+            elif usemet == 'rmse': # temporary codes 
+                kge_scores[fold_idx-1, i] = get_rmse(y_test[:,i], y_pred[:,i])
+            else:
+                sys.exit('Unknown metric')
     
     # Calculate the mean KGE score across all folds
     mean_kge_score = np.nanmean(kge_scores, axis=0)[np.newaxis, :]
@@ -283,11 +291,11 @@ def gpr_emulator_cv(x, y, alpha, leng_lb, leng_ub, nu, xlb_mean, xub_mean, outpa
     # Convert the list of KGE scores into a pandas DataFrame
     kge_scores_df = pd.DataFrame()
     kge_scores_df['Fold'] = list(np.arange(n_splits)+1) + ['mean']
-    kge_scores_df['kge1'] = kge_scores[:, 0]
+    kge_scores_df[f'{usemet}1'] = kge_scores[:, 0]
 
     if kge_scores.shape[1]>1:
-        kge_scores_df['kge2'] = kge_scores[:, 1]
-        kge_scores_df['kge_mean'] = (kge_scores[:, 0] + kge_scores[:, 1])/2
+        kge_scores_df[f'{usemet}2'] = kge_scores[:, 1]
+        kge_scores_df[f'{usemet}_mean'] = (kge_scores[:, 0] + kge_scores[:, 1])/2
     
     print("GPR CV KGE Score for metric1/metric2:")
     print(kge_scores_df)
@@ -298,7 +306,7 @@ def gpr_emulator_cv(x, y, alpha, leng_lb, leng_ub, nu, xlb_mean, xub_mean, outpa
     return kge_scores_df
 
 
-def rf_emulator_cv(x, y, outpath, iterflag):
+def rf_emulator_cv(x, y, outpath, iterflag, usemet='kge'):
 
     random.seed(1234567890)
     np.random.seed(1234567890)
@@ -324,7 +332,12 @@ def rf_emulator_cv(x, y, outpath, iterflag):
         
         # Evaluate the model using KGE
         for i in range(y.shape[1]):
-            kge_scores[fold_idx-1, i] = get_modified_KGE(y_test[:,i], y_pred[:,i])
+            if usemet == 'kge':
+                kge_scores[fold_idx-1, i] = get_modified_KGE(y_test[:,i], y_pred[:,i])
+            elif usemet == 'rmse': # temporary codes 
+                kge_scores[fold_idx-1, i] = get_rmse(y_test[:,i], y_pred[:,i])
+            else:
+                sys.exit('Unknown metric')
     
     # Calculate the mean KGE score across all folds
     mean_kge_score = np.nanmean(kge_scores, axis=0)[np.newaxis, :]
@@ -333,11 +346,11 @@ def rf_emulator_cv(x, y, outpath, iterflag):
     # Convert the list of KGE scores into a pandas DataFrame
     kge_scores_df = pd.DataFrame()
     kge_scores_df['Fold'] = list(np.arange(n_splits)+1) + ['mean']
-    kge_scores_df['kge1'] = kge_scores[:, 0]
+    kge_scores_df[f'{usemet}1'] = kge_scores[:, 0]
 
     if kge_scores.shape[1]>1:
-        kge_scores_df['kge2'] = kge_scores[:, 1]
-        kge_scores_df['kge_mean'] = (kge_scores[:, 0] + kge_scores[:, 1])/2
+        kge_scores_df[f'{usemet}2'] = kge_scores[:, 1]
+        kge_scores_df[f'{usemet}_mean'] = (kge_scores[:, 0] + kge_scores[:, 1])/2
         
     print("RF CV KGE Score for metric1/metric2:")
     print(kge_scores_df)
@@ -579,7 +592,8 @@ def surrogate_model_train_and_pareto_points_oneobjfunc(param_infofile, param_fil
             flag = True
             break
             
-    if flag == False:
+    # if flag == False:
+    if False:
         print('All parameter pickle files have been generated. Skip this step')
     else:
         n_sample = num_per_iter # number of selected optimal points
@@ -607,27 +621,13 @@ def surrogate_model_train_and_pareto_points_oneobjfunc(param_infofile, param_fil
 
         # decide the most suitable emulator based on cross validation
         os.makedirs(outpath, exist_ok=True)
-        gpr_kge_cv0 = gpr_emulator_cv(x, y, alpha, leng_lb, leng_ub, nu, xlb_mean, xub_mean, outpath, iterflag)
+        gpr_kge_cv = gpr_emulator_cv(x, y, alpha, leng_lb, leng_ub, nu, xlb_mean, xub_mean, outpath, iterflag, usemet='rmse')
         
-        # Check if any KGE values are negative
-        if np.any(gpr_kge_cv0['kge1'].values < 0):
-            # Try other random seeds
-            gpr_kge_cv = []
-            for i in range(5):  # Try at most 5 more times
-                random_seed = np.random.randint(0, 1234567890, dtype=int)
-                gpr_kge_cvi = gpr_emulator_cv(x, y, alpha, leng_lb, leng_ub, nu, xlb_mean, xub_mean, outpath, f'{iterflag}_try{i+1}', rndseed=random_seed)
-                if np.all(gpr_kge_cvi['kge1'].values > 0):
-                    gpr_kge_cv = gpr_kge_cvi
-                    break
-            if len(gpr_kge_cv) == 0:
-                gpr_kge_cv = gpr_kge_cvi
-        else:
-            gpr_kge_cv = gpr_kge_cv0
-        
-        rf_kge_cv = rf_emulator_cv(x, y, outpath, iterflag)
+
+        rf_kge_cv = rf_emulator_cv(x, y, outpath, iterflag, usemet='rmse')
 
         # train the surrogate model 
-        if gpr_kge_cv['kge1'].values[-1] > rf_kge_cv['kge1'].values[-1]:
+        if gpr_kge_cv['rmse1'].values[-1] < rf_kge_cv['rmse'].values[-1]:
         # if True: # always use GPR
             print('Use GPR model')
             nInput = x.shape[0]

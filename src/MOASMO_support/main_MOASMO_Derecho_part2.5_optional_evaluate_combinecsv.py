@@ -6,8 +6,8 @@ from concurrent.futures import ProcessPoolExecutor
 def process_basin(basin, inpath_moasmo, nmet=24):
     if np.mod(basin, 50) == 0:
         print(f'Processing basin {basin}')
-    iterflag = 1
-    totnum = 40    
+    iterflag = 2
+    totnum = 100    
     metrics = np.nan * np.zeros([totnum, nmet])
 
 

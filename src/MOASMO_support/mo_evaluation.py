@@ -186,6 +186,11 @@ def add_upstream_flow(add_flow_file, ds_simu, ref_q_date, ref_q_name, clm_q_name
 
 def mo_evaluate_return_many_metrics(outfile_metric, CTSMfilelist, fsurdat, date_start, date_end, ref_streamflow, add_flow_file=''):
 
+    if os.path.isfile(outfile_metric):
+        print('metric outfile exists', outfile_metric)
+        print('no need to evaluate again')
+        return
+    
     ######## default variable names
     clm_q_name = 'QRUNOFF' # default runoff variable name
     clm_q_sdim = 'lndgrid' # spatial dim name
@@ -306,6 +311,11 @@ def mo_evaluate_return_many_metrics(outfile_metric, CTSMfilelist, fsurdat, date_
 
 
 def mo_evaluate(outfile_metric, CTSMfilelist, fsurdat, date_start, date_end, ref_streamflow, add_flow_file=''):
+
+    if os.path.isfile(outfile_metric):
+        print('metric outfile exists', outfile_metric)
+        print('no need to evaluate again')
+        return
 
     ######## default variable names
     clm_q_name = 'QRUNOFF' # default runoff variable name

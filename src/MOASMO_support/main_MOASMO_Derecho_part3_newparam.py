@@ -21,8 +21,7 @@ config = toml.load(config_file)
 
 iter_end = int(sys.argv[2]) # e.g., iter_end=2 means outputs from iter0 and iter1 will be used to generate new paprameters for iter 2
 
-emulator = 'allbasin' # allbasin or one basin
-objfunc = 'norm2err' # twoerror, oneobjfunc, norm2err
+objfunc = 'oneobjfunc' # twoerror, oneobjfunc, norm2err
 print('Objective function is ', objfunc)
 
 # inputs
