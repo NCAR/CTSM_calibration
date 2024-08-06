@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# Copy iter-0 results to another folder so we can use the workflow to create new simulations
-
 create_symlinks() {
   local src_dir=$1
   local dst_dir=$2
@@ -32,21 +30,28 @@ create_symlinks() {
   done
 }
 
-for i in {0..626..1}; do
+process_iteration() {
+  local i=$1
+
   src_dir="/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO_bigrange/level1_${i}_MOASMOcalib/ctsm_outputs"
-  dst_dir="/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO_bigrange/level1_${i}_MOASMOcalib/ctsm_outputs_LSEtrain"
+  dst_dir="/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO_bigrange/level1_${i}_MOASMOcalib/ctsm_outputs_LSEall2err"
   create_symlinks "$src_dir" "$dst_dir" "iter0"
 
   src_dir="/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO_bigrange/level1_${i}_MOASMOcalib/param_sets"
-  dst_dir="/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO_bigrange/level1_${i}_MOASMOcalib/param_sets_LSEtrain"
+  dst_dir="/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO_bigrange/level1_${i}_MOASMOcalib/param_sets_LSEall2err"
   create_symlinks "$src_dir" "$dst_dir" "iter0"
   create_symlinks "$src_dir" "$dst_dir" "all_default_parameters.pkl"
 
-  # remove files that should not be linked
-  dst_dir="/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO_bigrange/level1_${i}_MOASMOcalib/param_sets_LSEtrain"
-  rm ${dst_dir}/RF_for_iter0_CV_kge.csv
-  rm ${dst_dir}/surrogate_model_for_iter0
-  rm ${dst_dir}/GPR_for_iter0_CV_kge.csv
-  rm ${dst_dir}/GPR_for_iter0_try*_CV_kge.csv
-done
+  # Remove files that should not be linked
+  dst_dir="/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO_bigrange/level1_${i}_MOASMOcalib/param_sets_LSEall2err"
+  rm -f ${dst_dir}/RF_for_iter0_CV_kge.csv
+  rm -f ${dst_dir}/surrogate_model_for_iter0
+  rm -f ${dst_dir}/GPR_for_iter0_CV_kge.csv
+  rm -f ${dst_dir}/GPR_for_iter0_try*_CV_kge.csv
+}
 
+export -f create_symlinks
+export -f process_iteration
+
+# Parallel execution
+parallel -j 128 process_iteration ::: {0..626}

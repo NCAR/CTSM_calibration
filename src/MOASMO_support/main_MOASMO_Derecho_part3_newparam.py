@@ -21,7 +21,7 @@ config = toml.load(config_file)
 
 iter_end = int(sys.argv[2]) # e.g., iter_end=2 means outputs from iter0 and iter1 will be used to generate new paprameters for iter 2
 
-objfunc = 'oneobjfunc' # twoerror, oneobjfunc, norm2err
+objfunc = 'norm2err' # twoerror, oneobjfunc, norm2err
 print('Objective function is ', objfunc)
 
 # inputs
@@ -66,6 +66,9 @@ sampling_method = config['sampling_method']
 num_init = config['num_init'] # initial number of samples
 num_per_iter = config['num_per_iter'] # number of selected pareto parameter sets for each iteration
 num_iter = config['num_iter'] # including the initial iteration
+
+if objfunc == 'oneobjfunc':
+    num_per_iter = 100
 
 # evaluation period
 RUN_STARTDATE = config['RUN_STARTDATE']

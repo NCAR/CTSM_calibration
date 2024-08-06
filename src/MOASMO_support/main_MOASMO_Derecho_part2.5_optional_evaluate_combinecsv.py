@@ -6,13 +6,13 @@ from concurrent.futures import ProcessPoolExecutor
 def process_basin(basin, inpath_moasmo, nmet=24):
     if np.mod(basin, 50) == 0:
         print(f'Processing basin {basin}')
-    iterflag = 2
-    totnum = 100    
+    iterflag = 1
+    totnum = 40    
     metrics = np.nan * np.zeros([totnum, nmet])
 
 
     for trialflag in range(totnum):
-        path_archive = f'{inpath_moasmo}/level1_{basin}_MOASMOcalib/ctsm_outputs_emutest'
+        path_archive = f'{inpath_moasmo}/level1_{basin}_MOASMOcalib/ctsm_outputs_LSEall2err'
         caseflag = f'iter{iterflag}_trial{trialflag}'
         outfile_metric = f'{path_archive}/{caseflag}/evaluation_many_metrics.csv'
 
@@ -22,11 +22,13 @@ def process_basin(basin, inpath_moasmo, nmet=24):
                 metrics[trialflag, :] = df.values[0]
             except Exception as e:
                 print(f'Failed reading {outfile_metric}: {e}')
+        else:
+            print('File not exist', outfile_metric)
 
     # Save metrics
     outfile = f'{path_archive}/iter{iterflag}_many_metric.csv'
     # if os.path.isfile(outfile):
-    if False:
+    if False: # always overwrite
     
         print(f'{outfile} already exists')
     else:

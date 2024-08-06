@@ -77,6 +77,24 @@ def get_nse(obs, sim):
 def main_read_CTSM_streamflow(fsurdat, CTSMfilelist, date_start, date_end, clm_q_name):
     ########################################################################################################################
     # read files
+
+    if len(CTSMfilelist) == 0:
+        print('No input file')
+        return []
+    
+    CTSMfilelist.sort()
+    # check whether the last file is complete (sometimes due to model failure)
+    try:
+        with xr.open_dataset(CTSMfilelist[-1]) as ds:
+            pass
+    except:
+        print('Remove incomplete last:', CTSMfilelist[-1])
+        if len(CTSMfilelist)>=3:
+            CTSMfilelist = CTSMfilelist[:-1]
+        else:
+            print('CTSMfilelist is too short to remove the last one. ')
+            return []
+    
     ds_simu = xr.open_mfdataset(CTSMfilelist)
     ds_simu = ds_simu[[clm_q_name]]
 
@@ -199,7 +217,16 @@ def mo_evaluate_return_many_metrics(outfile_metric, CTSMfilelist, fsurdat, date_
 
     ########################################################################################################################
     # load CTSM streamflow (m3/s)
-    ds_simu = main_read_CTSM_streamflow(fsurdat, CTSMfilelist, date_start, date_end, clm_q_name)
+    try:
+        ds_simu = main_read_CTSM_streamflow(fsurdat, CTSMfilelist, date_start, date_end, clm_q_name)
+    except:
+        print('Fail to read CTSMfilelist:', CTSMfilelist)
+        return
+
+    if len(ds_simu) == 0:
+        print('Not enough files in CTSMfilelist:', CTSMfilelist)
+        return
+
     ds_simu = ds_simu.mean(dim=clm_q_sdim, skipna=True)
 
     ########################################################################################################################

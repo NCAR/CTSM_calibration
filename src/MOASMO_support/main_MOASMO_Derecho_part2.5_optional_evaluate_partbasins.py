@@ -1,4 +1,4 @@
-    ####################################################
+####################################################
 # parallel version
 
 import numpy as np
@@ -39,7 +39,7 @@ def run_trial(params):
         path_MOASMOcalib = f'{path_CTSM_base}_MOASMOcalib'
     else:
         path_MOASMOcalib = config['path_calib']
-    path_archive = f'{path_MOASMOcalib}/ctsm_outputs_normKGE'
+    path_archive = f'{path_MOASMOcalib}/ctsm_outputs_LSEtrain'
     
     # evaluate model results
     infilelist = glob.glob(f'{path_archive}/{caseflag}/lnd/hist/*.clm2.h1.*.nc')
@@ -53,6 +53,8 @@ def run_trial(params):
             mo_evaluate_return_many_metrics(outfile_metric, infilelist, fsurdat, date_start, date_end, ref_streamflow, add_flow_file)
         else:
             print(f"No input files found for {caseflag} in basin {basin}.")
+    else:
+        print('outfile exists', outfile_metric)
 
     # the other two periods
     date_start = (pd.Timestamp(RUN_STARTDATE) + pd.offsets.DateOffset(months=ignore_month)).strftime('%Y-%m-%d')
@@ -90,7 +92,6 @@ def run_trial(params):
         else:
             print(f"No input files found for {caseflag} in basin {basin}.")
 
-
 if __name__ == '__main__':
     # Example usage
 
@@ -104,7 +105,7 @@ if __name__ == '__main__':
         print('basin', basin)
         configfile = f'/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/configuration/_level1-{basin}_config_MOASMO.toml'
 
-        pattern = f'/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO_bigrange/level1_{basin}_MOASMOcalib/ctsm_outputs_normKGE/iter1_trial*'
+        pattern = f'/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO_bigrange/level1_{basin}_MOASMOcalib/ctsm_outputs_LSEtrain/iter1_trial*'
         matching_folders = [f.split('/')[-1] for f in glob.glob(pattern)] # e.g., iter0_trial58
         print('number of folders:', len(matching_folders))
         

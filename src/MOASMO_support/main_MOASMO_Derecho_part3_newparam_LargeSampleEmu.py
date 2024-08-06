@@ -1,15 +1,9 @@
-# functions needed for MO-ASMO calibration for one basin
-# Gong et al., (2015) Multiobjective adaptive surrogate modeling-based optimization for parameter estimation of large, complex geophysical models, WRR
-# https://github.com/gongw03/MO-ASMO
-
-# The Derecho version can run many cases within one node to be efficient, but manual submission is needed
-
-# generate new parameter sets by using MO-ASMO algorithms
-
+# Large-sample emulator (LSE) train over 80% basins and predict parameters in the remaining 20% basins
 
 import os, sys, subprocess, time, toml
 import pandas as pd
-from MOASMO_parameter_allbasin_emulator import allbasin_emulator_train_and_optimize
+import numpy as np
+from MOASMO_parameter_allbasin_emulator import allbasin_emulator_train_and_optimize, allbasin_emulator_CV_traintest_and_optimize
 import run_multiple_paramsets_Derecho
 from multiprocessing import Pool
 
@@ -27,10 +21,44 @@ infile_attr_foruse = '/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/data/ca
 inpath_moasmo = "/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO_bigrange"
 path_CTSM_case_all = f'/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange'
 
+trainmode = 'trainbasin' # allbasin; trainbasin
+# trainmode = 'allbasin_2err'
+trainmode = 'spaceCV' 
+
+
+########################################################################################################################
+# train on what basins?
+
+if trainmode == 'allbasin':
+    target_index = np.arange(627)
+    suffix = 'emutest'
+    outpathname = 'allbasin_emulator'
+    objfunc = 'normKGE'
+
+elif trainmode == 'allbasin_2err':
+    target_index = np.arange(627)
+    suffix = 'LSEall2err'
+    outpathname = 'allbasin_2err_emulator'
+    objfunc = 'norm2err'
+
+elif trainmode == 'trainbasin':
+    infile_traintest_index = '/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO_bigrange/LargeSampleEmulator_predict_ungauged/basin627_train_test_index.npz'
+    dtmp = np.load(infile_traintest_index)
+    target_index = dtmp['target_index']
+    suffix = 'LSEtrain'
+    outpathname = 'LargeSampleEmulator_predict_ungauged'
+    objfunc = 'normKGE'
+
+elif trainmode == 'spaceCV':
+    target_index = np.arange(627)
+    outpathname = 'LSE_spaceCV_PredictParam'
+    suffix = 'LSEspaceCV'
+    objfunc = 'normKGE'
+    numruns = 10
 
 ########################################################################################################################
 # check whether runs are finished and merge output csv/pkl files
-def check_runs_and_merge(tarbasin, iter_end, numruns, path_CTSM_case_all):
+def check_runs_and_merge(tarbasin, iter_end, numruns, path_CTSM_case_all, suffix):
     config_file = f'{path_CTSM_case_all}/configuration/_level1-{tarbasin}_config_MOASMO.toml'
     config = toml.load(config_file)
 
@@ -39,7 +67,7 @@ def check_runs_and_merge(tarbasin, iter_end, numruns, path_CTSM_case_all):
         path_MOASMOcalib = f'{path_CTSM_base}_MOASMOcalib'
     else:
         path_MOASMOcalib = config['path_calib']
-    path_archive = f'{path_MOASMOcalib}/ctsm_outputs_emutest'
+    path_archive = f'{path_MOASMOcalib}/ctsm_outputs_{suffix}'
         
     os.makedirs(path_MOASMOcalib, exist_ok=True) 
 
@@ -55,11 +83,11 @@ def check_runs_and_merge(tarbasin, iter_end, numruns, path_CTSM_case_all):
         file_metric_iter, file_param_iter = run_multiple_paramsets_Derecho.check_if_all_runs_are_finsihed(path_archive, it, sample_num)
     return (tarbasin, file_metric_iter, file_param_iter)
 
-def parallel_check_and_merge(iter_end, ncpus, numruns, infile_basin_info, infile_param_info, infile_attr_foruse, inpath_moasmo, path_CTSM_case_all):
+def parallel_check_and_merge(iter_end, ncpus, numruns, infile_param_info, infile_attr_foruse, inpath_moasmo, path_CTSM_case_all, target_index, suffix):
     # Create a pool of workers
     with Pool(processes=ncpus) as pool:
         # Prepare the arguments for each process
-        args = [(tarbasin, iter_end, numruns, path_CTSM_case_all) for tarbasin in range(627)]
+        args = [(tarbasin, iter_end, numruns, path_CTSM_case_all, suffix) for tarbasin in target_index]
         
         # Run the processes in parallel
         results = pool.starmap(check_runs_and_merge, args)
@@ -69,7 +97,7 @@ def parallel_check_and_merge(iter_end, ncpus, numruns, infile_basin_info, infile
             tarbasin, file_metric_iter, file_param_iter = result
             print(f"Processed basin {tarbasin}: {file_metric_iter}, {file_param_iter}")
 
-parallel_check_and_merge(iter_end, ncpus, numruns, infile_basin_info, infile_param_info, infile_attr_foruse, inpath_moasmo, path_CTSM_case_all)
+parallel_check_and_merge(iter_end, ncpus, numruns, infile_param_info, infile_attr_foruse, inpath_moasmo, path_CTSM_case_all, target_index, suffix)
 
 if only_checkruns == True:
     sys.exit(0)
@@ -77,14 +105,17 @@ if only_checkruns == True:
 ########################################################################################################################
 # build emulator and generate outputs
 
-allbasin_emulator_train_and_optimize(infile_basin_info, infile_param_info, infile_attr_foruse, inpath_moasmo, path_CTSM_case_all, iter_end, ncpus, numruns)
+if trainmode == 'spaceCV':
+    allbasin_emulator_CV_traintest_and_optimize(infile_basin_info, infile_param_info, infile_attr_foruse, inpath_moasmo, outpathname, path_CTSM_case_all, iter_end, ncpus, suffix, numruns=numruns, objfunc=objfunc)
+else:
+    allbasin_emulator_train_and_optimize(infile_basin_info, infile_param_info, infile_attr_foruse, inpath_moasmo, outpathname, path_CTSM_case_all, iter_end, ncpus, target_index, suffix, numruns, objfunc)
 
 
 ########################################################################################################################
 # generate submission settings
 
 
-for tarbasin in range(627):
+for tarbasin in target_index:
     config_file = f'{path_CTSM_case_all}/configuration/_level1-{tarbasin}_config_MOASMO.toml'
     config = toml.load(config_file)
     
@@ -109,9 +140,9 @@ for tarbasin in range(627):
         path_MOASMOcalib = config['path_calib']
         
     # outputs
-    path_paramset = f'{path_MOASMOcalib}/param_sets_emutest'
-    path_submit = f'{path_MOASMOcalib}/run_model_emutest'
-    path_archive = f'{path_MOASMOcalib}/ctsm_outputs_emutest'
+    path_paramset = f'{path_MOASMOcalib}/param_sets_{suffix}'
+    path_submit = f'{path_MOASMOcalib}/run_model_{suffix}'
+    path_archive = f'{path_MOASMOcalib}/ctsm_outputs_{suffix}'
         
     os.makedirs(path_MOASMOcalib, exist_ok=True) 
     

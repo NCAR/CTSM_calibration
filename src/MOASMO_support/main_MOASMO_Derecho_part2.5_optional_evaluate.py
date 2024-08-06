@@ -113,7 +113,7 @@ def run_trial(params):
         path_MOASMOcalib = f'{path_CTSM_base}_MOASMOcalib'
     else:
         path_MOASMOcalib = config['path_calib']
-    path_archive = f'{path_MOASMOcalib}/ctsm_outputs'
+    path_archive = f'{path_MOASMOcalib}/ctsm_outputs_LSEtrain'
     
     # evaluate model results
     infilelist = glob.glob(f'{path_archive}/{caseflag}/lnd/hist/*.clm2.h1.*.nc')
@@ -127,6 +127,8 @@ def run_trial(params):
             mo_evaluate_return_many_metrics(outfile_metric, infilelist, fsurdat, date_start, date_end, ref_streamflow, add_flow_file)
         else:
             print(f"No input files found for {caseflag} in basin {basin}.")
+    else:
+        print('outfile exists', outfile_metric)
 
     # the other two periods
     date_start = (pd.Timestamp(RUN_STARTDATE) + pd.offsets.DateOffset(months=ignore_month)).strftime('%Y-%m-%d')

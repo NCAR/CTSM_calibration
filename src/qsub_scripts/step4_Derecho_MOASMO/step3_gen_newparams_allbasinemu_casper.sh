@@ -1,8 +1,8 @@
 #PBS -N gennewparam
-#PBS -q main
+#PBS -q casper
 #PBS -l walltime=3:00:00
 #PBS -A P08010000
-#PBS -l select=1:ncpus=128
+#PBS -l select=1:ncpus=36
 
 # based on results from iteration-0, generate new parameter sets for iteration-1
 
@@ -17,5 +17,5 @@ script="/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/ma
 
 iter_end=1
 
-python $script ${iter_end} 128
+python $script ${iter_end} 36
 

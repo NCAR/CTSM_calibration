@@ -1,4 +1,4 @@
-=# group different basins in one node
+# group different basins in one node
 # generate submission scripts. don't submit real jobs
 
 # if using MPILIB=mpi-serial, using this script which is much simpler
@@ -16,18 +16,20 @@ print('Proecssing iteration', iter)
 print('basin_on_one_node', basin_on_one_node)
 
 
+suffix = 'LSEtrain'
+
 inpath = f'/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO_bigrange'
-# outpath = f'/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO_bigrange/run_model_mpiserial_normKGE/iter{iter}'
-outpath = f'/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO_bigrange/run_model_mpiserial_emutest/iter{iter}'
+outpath = f'/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO_bigrange/run_model_mpiserial_{suffix}/iter{iter}'
+# outpath = f'/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO_bigrange/run_model_mpiserial_emutest/iter{iter}'
 # outpath = f'/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO_bigrange/run_model_mpiserial/iter{iter}'
 # outpath = f'/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO_bigrange/run_model_mpiserial_norm2err/iter{iter}'
 os.makedirs(outpath, exist_ok=True)
 
 
 # basins = [f'level1_{i}' for i in range(627)] + [f'level2_{i}' for i in range(40)] + [f'level3_{i}' for i in range(4)]
-# basins = [f'level1_{i}' for i in range(627)] # Just level-1
+basins = [f'level1_{i}' for i in range(627)] # Just level-1
 # basins = [f'level1_{i}' for i in range(1, 627, 10)] # Just level-1
-basins = [f'level1_{i}' for i in range(627) if not i in np.arange(1, 627, 10)] # Just level-
+# basins = [f'level1_{i}' for i in range(627) if not i in np.arange(1, 627, 10)] # Just level-
 
 bnum = len(basins)
 
@@ -57,8 +59,8 @@ for i in range(nbatch):
     # generate command line file
     newcommands = []
     for j in range(bstart, bend):
-        infileij = f'{inpath}/{basins[j]}_MOASMOcalib/run_model_emutest/iter{iter}/commands_run_iter{iter}.txt'
-        # infileij = f'{inpath}/{basins[j]}_MOASMOcalib/run_model_normKGE/iter{iter}/commands_run_iter{iter}.txt'
+        # infileij = f'{inpath}/{basins[j]}_MOASMOcalib/run_model_emutest/iter{iter}/commands_run_iter{iter}.txt'
+        infileij = f'{inpath}/{basins[j]}_MOASMOcalib/run_model_{suffix}/iter{iter}/commands_run_iter{iter}.txt'
         # infileij = f'{inpath}/{basins[j]}_MOASMOcalib/run_model/iter{iter}/commands_run_iter{iter}.txt'
         # infileij = f'{inpath}/{basins[j]}_MOASMOcalib/run_model_norm2err/iter{iter}/commands_run_iter{iter}.txt'
         

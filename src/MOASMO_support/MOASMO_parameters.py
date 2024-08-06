@@ -627,7 +627,7 @@ def surrogate_model_train_and_pareto_points_oneobjfunc(param_infofile, param_fil
         rf_kge_cv = rf_emulator_cv(x, y, outpath, iterflag, usemet='rmse')
 
         # train the surrogate model 
-        if gpr_kge_cv['rmse1'].values[-1] < rf_kge_cv['rmse'].values[-1]:
+        if gpr_kge_cv['rmse1'].values[-1] < rf_kge_cv['rmse1'].values[-1]:
         # if True: # always use GPR
             print('Use GPR model')
             nInput = x.shape[0]
