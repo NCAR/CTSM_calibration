@@ -21,7 +21,7 @@ config = toml.load(config_file)
 
 iter_end = int(sys.argv[2]) # e.g., iter_end=2 means outputs from iter0 and iter1 will be used to generate new paprameters for iter 2
 
-objfunc = 'norm2err' # twoerror, oneobjfunc, norm2err
+objfunc = 'oneobjfunc_200iter0' # twoerror, oneobjfunc, norm2err, oneobjfunc_200iter0
 print('Objective function is ', objfunc)
 
 # inputs
@@ -58,7 +58,12 @@ elif objfunc == 'norm2err':
     path_paramset = f'{path_MOASMOcalib}/param_sets_norm2err'
     path_submit = f'{path_MOASMOcalib}/run_model_norm2err'
     path_archive = f'{path_MOASMOcalib}/ctsm_outputs_norm2err'
-    
+elif objfunc == 'oneobjfunc_200iter0':
+    path_paramset = f'{path_MOASMOcalib}/param_sets_normKGE_200iter0'
+    path_submit = f'{path_MOASMOcalib}/run_model_normKGE_200iter0'
+    path_archive = f'{path_MOASMOcalib}/ctsm_outputs_normKGE_200iter0' 
+
+
 os.makedirs(path_MOASMOcalib, exist_ok=True)
 
 # MO-ASMO parameters
@@ -69,6 +74,9 @@ num_iter = config['num_iter'] # including the initial iteration
 
 if objfunc == 'oneobjfunc':
     num_per_iter = 100
+elif objfunc == 'oneobjfunc_200iter0':
+    num_per_iter = 10
+    
 
 # evaluation period
 RUN_STARTDATE = config['RUN_STARTDATE']
@@ -147,7 +155,7 @@ if objfunc == 'twoerror':
     surrogate_model_train_and_pareto_points(file_parameter_list, file_param_all, file_metric_all, path_paramset, iterflag, num_per_iter, path_CTSM_base)
 elif objfunc == 'norm2err':
     surrogate_model_train_and_pareto_points(file_parameter_list, file_param_all, file_metric_all, path_paramset, iterflag, num_per_iter, path_CTSM_base, normalize_y=True)
-elif objfunc == 'oneobjfunc':
+elif objfunc == 'oneobjfunc' or objfunc == 'oneobjfunc_200iter0':
     # ad-hoc change
     file_metric_all = [i.replace('all_metric.csv', 'many_metric.csv') for i in file_metric_all]
     surrogate_model_train_and_pareto_points_oneobjfunc(file_parameter_list, file_param_all, file_metric_all, path_paramset, iterflag, num_per_iter, path_CTSM_base)

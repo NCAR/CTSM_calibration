@@ -11,7 +11,7 @@ iter_end = int(sys.argv[1]) # e.g., iter_end=2 means outputs from iter0 and iter
 ncpus = int(sys.argv[2]) 
 # ncpus = 20
 # iterend = 1
-numruns = 100
+numruns = 10
 
 only_checkruns = False
 
@@ -21,9 +21,10 @@ infile_attr_foruse = '/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/data/ca
 inpath_moasmo = "/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO_bigrange"
 path_CTSM_case_all = f'/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange'
 
-trainmode = 'trainbasin' # allbasin; trainbasin
+# trainmode = 'trainbasin' # allbasin; trainbasin
 # trainmode = 'allbasin_2err'
-trainmode = 'spaceCV' 
+# trainmode = 'spaceCV'
+trainmode = 'allbasin_50iter0'
 
 
 ########################################################################################################################
@@ -33,6 +34,12 @@ if trainmode == 'allbasin':
     target_index = np.arange(627)
     suffix = 'emutest'
     outpathname = 'allbasin_emulator'
+    objfunc = 'normKGE'
+
+elif trainmode == 'allbasin_50iter0':
+    target_index = np.arange(627)
+    suffix = 'emutest_50iter0'
+    outpathname = 'allbasin_emulator_50iter0'
     objfunc = 'normKGE'
 
 elif trainmode == 'allbasin_2err':
