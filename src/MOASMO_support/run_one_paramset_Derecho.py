@@ -105,7 +105,7 @@ def update_CTSM_parameter_NamelistFile(param_names, param_values, file_namelist)
 def update_CTSM_parameter_SurfdataFile(param_names, param_values, path_CTSM_case, outfile_newsurfdata):
 
     file_surfdata = ''
-    file_user_nl_clm = f'{path_CTSM_clone}/user_nl_clm'
+    file_user_nl_clm = f'{path_CTSM_case}/user_nl_clm'
     with open(file_user_nl_clm) as f:
         for line in f:
             line = line.strip()
