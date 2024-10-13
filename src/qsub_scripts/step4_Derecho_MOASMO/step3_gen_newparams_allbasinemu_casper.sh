@@ -2,7 +2,7 @@
 #PBS -q casper
 #PBS -l walltime=3:00:00
 #PBS -A P08010000
-#PBS -l select=1:ncpus=36
+#PBS -l select=1:ncpus=36:mem=220GB
 
 # based on results from iteration-0, generate new parameter sets for iteration-1
 
@@ -15,7 +15,7 @@ mkdir -p $TMPDIR
 
 script="/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/main_MOASMO_Derecho_part3_newparam_LargeSampleEmu.py"
 
-iter_end=1
+iter_end=5
 
 python $script ${iter_end} 36
 

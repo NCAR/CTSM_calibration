@@ -3,7 +3,7 @@
 # just create cases which is fast
 
 script="/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/calibration/main_CC.py"
-cmdpath="/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/submission"
+cmdpath="/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_emulator/submission"
 mkdir -p $cmdpath
 
 cmdfile="${cmdpath}/create_cases_1-671.txt"
@@ -12,7 +12,7 @@ rm $cmdfile
 
 for i in {1..626}
 do
-configfile=/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/configuration/level1-${i}_config.toml
+configfile=/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_emulator/configuration/level1-${i}_config.toml
 #python /glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/calibration/main_CC.py $configfile Build,MOASMO,NameList
 cmd="python /glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/calibration/main_CC.py $configfile Build,MOASMO,NameList"
 echo $cmd >> $cmdfile

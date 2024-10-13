@@ -41,6 +41,12 @@ projectCode = config_CTSMcase['projectCode']
 CLONEROOT = config_CTSMcase['CLONEROOT']
 CLONEsettings = config_CTSMcase['CLONEsettings']
 
+if 'file_CTSM_ROFMESH' in config_CTSMcase:
+    file_CTSM_ROFMESH = config_CTSMcase['file_CTSM_ROFMESH']
+else:
+    file_CTSM_ROFMESH = ''
+
+print('file_CTSM_ROFMESH', file_CTSM_ROFMESH)
 
 #####################
 # Model settings to be changed: list
@@ -57,7 +63,7 @@ xmlchange_settings = [f"ATM_DOMAIN_MESH={file_CTSM_mesh}",
                       # build/run parent path
                       f"CIME_OUTPUT_ROOT={path_CTSM_CIMEout}",
                       # turn off MOSART_MODE to save time
-                      "MOSART_MODE=NULL",
+                      # "MOSART_MODE=NULL",
                       # change forcing data
                       "DATM_MODE=CLMGSWP3v1",
                       # change MPI to MPILIB: MPILIB from the default mpich to mpi-serial
@@ -69,6 +75,9 @@ xmlchange_settings = [f"ATM_DOMAIN_MESH={file_CTSM_mesh}",
                       # change computation resource requirement if needed
                       # NTASKS: the total number of MPI tasks, a negative value indicates nodes rather than tasks
                       ]
+
+if len(file_CTSM_ROFMESH)>0:
+    xmlchange_settings.append(f"ROF_DOMAIN_MESH={file_CTSM_ROFMESH}")
 
 if NTASKS > -999:
     xmlchange_settings.append(f"NTASKS={NTASKS}")
@@ -87,7 +96,7 @@ if NTASKS == 1:
     xmlchange_settings = xmlchange_settings + xmlchange_settings2
 
 # if clone is used, only change these settings to avoid recompiling
-select_settings_if_clone = ['ATM_DOMAIN_MESH', 'LND_DOMAIN_MESH', 'MASK_MESH', 'DATM_MODE', 'STOP_N', 'RUN_STARTDATE', 'STOP_OPTION']
+select_settings_if_clone = ['ATM_DOMAIN_MESH', 'LND_DOMAIN_MESH', 'MASK_MESH', 'ROF_DOMAIN_MESH', 'DATM_MODE', 'STOP_N', 'RUN_STARTDATE', 'STOP_OPTION']
 
 xmlquery_settings = 'ATM_DOMAIN_MESH,LND_DOMAIN_MESH,MASK_MESH,RUNDIR,DOUT_S_ROOT,MOSART_MODE,DATM_MODE,RUN_STARTDATE,STOP_N,STOP_OPTION,NTASKS,NTASKS_PER_INST'
 

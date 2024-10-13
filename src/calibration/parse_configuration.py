@@ -24,6 +24,9 @@ def parse_CTSMcase_config(config):
     
     if 'replacefiles' in config['CTSM']:
         config_CTSMcase['replacefiles'] = config['CTSM']['replacefiles']
+
+    if 'file_CTSM_ROFMESH' in config['CTSM']['files']:
+        config_CTSMcase['file_CTSM_ROFMESH'] = config['CTSM']['files']['file_CTSM_ROFMESH']
         
     # # simpler but less obvious
     # config_CTSMcase = config['CTSM']['files'] | config['CTSM']['settings'] | config['HPC']
