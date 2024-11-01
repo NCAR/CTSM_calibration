@@ -113,7 +113,12 @@ if len(filelist_simulations) == 0:
 else:
     for f in filelist_simulations:
         # print('Archive best model output:', f)
-        _ = subprocess.run(f'cp {f} {pathOstrichSave}', shell=True)
+        _ = subprocess.run(f'mv {f} {pathOstrichSave}', shell=True)
+
+
+# copy mizuroute
+_ = subprocess.run(f'mv {patharchive}/mizuroute/ {pathOstrichSave}/', shell=True)
+_ = subprocess.run(f'mv {patharchive}/*.csv {pathOstrichSave}/', shell=True)
 
 # save parameters
 _ = subprocess.run(f'cp {file_parameter} {pathOstrichSave}', shell=True)

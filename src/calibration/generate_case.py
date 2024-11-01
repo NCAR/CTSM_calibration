@@ -63,7 +63,7 @@ xmlchange_settings = [f"ATM_DOMAIN_MESH={file_CTSM_mesh}",
                       # build/run parent path
                       f"CIME_OUTPUT_ROOT={path_CTSM_CIMEout}",
                       # turn off MOSART_MODE to save time
-                      # "MOSART_MODE=NULL",
+                      "MOSART_MODE=NULL",
                       # change forcing data
                       "DATM_MODE=CLMGSWP3v1",
                       # change MPI to MPILIB: MPILIB from the default mpich to mpi-serial

@@ -1,8 +1,8 @@
 #!/bin/bash
 # basin 1-671
 
-calibpath="/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_Ostrich_m2err_smallrange"
-cmdpath="/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_Ostrich_m2err_smallrange/submission"
+calibpath="/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_Ostrich_SameParam_KGE"
+cmdpath="/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_Ostrich_SameParam_KGE/submission"
 mkdir -p $cmdpath
 
 # Variables for looping through basins and files
@@ -27,7 +27,7 @@ do
   fi
 
   # Command to be added
-  cmd="cd ${calibpath}/${level}_${basin_number}_OSTRICHcalib/run && ./OstrichGCC"
+  cmd="cd ${calibpath}/${level}_${basin_number}_calib/run && ./OstrichGCC"
 
   # File to write to
   cmdfile="${cmdpath}/Ostcalib_part${file_count}.txt"

@@ -255,6 +255,8 @@ if __name__ == '__main__':
         ########################################################################################################################
         # clone case
         path_CTSM_clone = f'{path_CTSM_base}_{caseflag}'
+        if os.path.isdir(path_CTSM_clone):
+            os.system(f'rm -r {path_CTSM_clone}')
         clone_case_name = pathlib.Path(path_CTSM_clone).name
         clone_CTSM_model_case(script_clone, path_CTSM_base, path_CTSM_clone)
 
@@ -412,44 +414,44 @@ if __name__ == '__main__':
             print(f"No input files found for {caseflag} in basin {basin}.")
 
 
-    ########## MOSART evaluation
-    # mosart output files
-    infilelist_mosart = glob.glob(f'{path_archive}/{caseflag}/rof/hist/*.mosart.h1.*.nc')
-    infilelist_mosart.sort()
+    # ########## MOSART evaluation
+    # # mosart output files
+    # infilelist_mosart = glob.glob(f'{path_archive}/{caseflag}/rof/hist/*.mosart.h1.*.nc')
+    # infilelist_mosart.sort()
     
-    outfile_metric_mosart = f'{path_archive}/{caseflag}/evaluation_metric_mosart.csv'
-    if os.path.isfile(outfile_metric_mosart) and overwrite_previous == False:
-        print('The evaluation metric file exists. no need to run evaluation')
-    else:
-        mo_evaluate_mosart(outfile_metric_mosart, infilelist_mosart, date_start, date_end, ref_streamflow)
+    # outfile_metric_mosart = f'{path_archive}/{caseflag}/evaluation_metric_mosart.csv'
+    # if os.path.isfile(outfile_metric_mosart) and overwrite_previous == False:
+    #     print('The evaluation metric file exists. no need to run evaluation')
+    # else:
+    #     mo_evaluate_mosart(outfile_metric_mosart, infilelist_mosart, date_start, date_end, ref_streamflow)
         
 
-    outfile_metric_mosart = f'{path_archive}/{caseflag}/evaluation_many_metrics_mosart.csv'
-    if os.path.isfile(outfile_metric_mosart) and overwrite_previous == False:
-        print('The evaluation metric file exists. no need to run evaluation')
-    else:
-        if len(infilelist_mosart) > 0:
-            mo_evaluate_return_many_metrics_mosart(outfile_metric_mosart, infilelist_mosart, date_start, date_end, ref_streamflow)
-        else:
-            print(f"No input files found for {caseflag} in basin {basin}.")
+    # outfile_metric_mosart = f'{path_archive}/{caseflag}/evaluation_many_metrics_mosart.csv'
+    # if os.path.isfile(outfile_metric_mosart) and overwrite_previous == False:
+    #     print('The evaluation metric file exists. no need to run evaluation')
+    # else:
+    #     if len(infilelist_mosart) > 0:
+    #         mo_evaluate_return_many_metrics_mosart(outfile_metric_mosart, infilelist_mosart, date_start, date_end, ref_streamflow)
+    #     else:
+    #         print(f"No input files found for {caseflag} in basin {basin}.")
 
 
-    outfile_metric_mosart = f'{path_archive}/{caseflag}/evaluation_many_metrics_mosart_s-1.csv'
-    if not os.path.isfile(outfile_metric_mosart):
-        mo_evaluate_return_many_metrics_mosart(outfile_metric_mosart, infilelist_mosart, date_start, date_end, ref_streamflow, shift=-1)
+    # outfile_metric_mosart = f'{path_archive}/{caseflag}/evaluation_many_metrics_mosart_s-1.csv'
+    # if not os.path.isfile(outfile_metric_mosart):
+    #     mo_evaluate_return_many_metrics_mosart(outfile_metric_mosart, infilelist_mosart, date_start, date_end, ref_streamflow, shift=-1)
 
-    outfile_metric_mosart = f'{path_archive}/{caseflag}/evaluation_many_metrics_mosart_s1.csv'
-    if not os.path.isfile(outfile_metric_mosart):
-        mo_evaluate_return_many_metrics_mosart(outfile_metric_mosart, infilelist_mosart, date_start, date_end, ref_streamflow, shift=1)
+    # outfile_metric_mosart = f'{path_archive}/{caseflag}/evaluation_many_metrics_mosart_s1.csv'
+    # if not os.path.isfile(outfile_metric_mosart):
+    #     mo_evaluate_return_many_metrics_mosart(outfile_metric_mosart, infilelist_mosart, date_start, date_end, ref_streamflow, shift=1)
 
 
-    # temporary eval
-    basinnum = int(path_CTSM_base.split('_')[-1])
-    mosartlocinfo = pd.read_csv('/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/prepare_CAMELS/step2_subset_mosart/CAMELS_level1_MOSART_matchinfo.csv')
-    latind = int(mosartlocinfo.iloc[basinnum]['latind'])
-    lonind = int(mosartlocinfo.iloc[basinnum]['lonind'])
-    outfile_metric_mosart = f'{path_archive}/{caseflag}/evaluation_many_metrics_mosartMG.csv'
-    mo_evaluate_return_many_metrics_mosart(outfile_metric_mosart, infilelist_mosart, date_start, date_end, ref_streamflow, latind=latind, lonind=lonind)
+    # # temporary eval
+    # basinnum = int(path_CTSM_base.split('_')[-1])
+    # mosartlocinfo = pd.read_csv('/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/prepare_CAMELS/step2_subset_mosart/CAMELS_level1_MOSART_matchinfo.csv')
+    # latind = int(mosartlocinfo.iloc[basinnum]['latind'])
+    # lonind = int(mosartlocinfo.iloc[basinnum]['lonind'])
+    # outfile_metric_mosart = f'{path_archive}/{caseflag}/evaluation_many_metrics_mosartMG.csv'
+    # mo_evaluate_return_many_metrics_mosart(outfile_metric_mosart, infilelist_mosart, date_start, date_end, ref_streamflow, latind=latind, lonind=lonind)
 
     ########## mizuroute evaluation
     infilelist_mizuroute = glob.glob(f'{path_archive}/{caseflag}/mizuroute/sflow*.nc')
@@ -459,7 +461,7 @@ if __name__ == '__main__':
     if os.path.isfile(outfile_metric_mizuroute) and overwrite_previous == False:
         print('The evaluation metric file exists. No need to run evaluation')
     else:
-        if len(infilelist_mosart) > 0:
+        if len(infilelist_mizuroute) > 0:
             mo_evaluate_return_many_metrics_mizuroute(outfile_metric_mizuroute, infilelist_mizuroute, date_start, date_end, ref_streamflow)
         else:
             print(f"No input files found for {caseflag} in basin {basin}.")

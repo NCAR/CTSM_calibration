@@ -8,12 +8,12 @@
 
 
 module load conda cdo
-conda activate npl-2023b
+conda activate npl-2024a
 
 export TMPDIR=/glade/derecho/scratch/$USER/temp
 mkdir -p $TMPDIR
 
-cmdfile=/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_Ostrich_m2err_smallrange/submission/create_cases_1-671.txt
+cmdfile=/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_Ostrich_SameParam_KGE/submission/create_cases_1-671.txt
 
 echo "Processing ${cmdfile}"
 

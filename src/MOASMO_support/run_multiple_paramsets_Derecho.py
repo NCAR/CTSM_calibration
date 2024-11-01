@@ -175,34 +175,52 @@ def merge_parameter_metric_csv(path_archive, iterflag, tarnum):
     if (not os.path.isfile(outfile_metric)) or (not os.path.isfile(outfile_param)):
 
         flag = True
+        metric_values = []
         for i in range(tarnum):
-            #file_param = f'{path_archive}/iter{iterflag}_trial{i}/paramset_iter{iterflag}_trial{i}.csv'
-            file_param = f'{path_archive}/iter{iterflag}_trial{i}/paramset_iter{iterflag}_trial{i}.pkl'
             file_metric = f'{path_archive}/iter{iterflag}_trial{i}/evaluation_metric.csv'
 
             if not os.path.isfile(file_metric):
                 print(f'Warning! File does not exist: {file_metric}')
                 continue
+            
+            df_met = pd.read_csv(file_metric)
+            if flag:
+                metric_names = list(df_met.columns)
+                metric_values = np.nan * np.zeros([tarnum, len(metric_names)])
+                flag = False
+
+            metric_values[i, :] = df_met.iloc[0].values
+
+        flag = True
+        param_meanvalues = []
+        for i in range(tarnum):
+            file_param = f'{path_archive}/iter{iterflag}_trial{i}/paramset_iter{iterflag}_trial{i}.pkl'
 
             if not os.path.isfile(file_param):
                 print(f'Warning! File does not exist: {file_param}')
                 continue
             
-            df_met = pd.read_csv(file_metric)
-            #df_param = read_parameter_csv(file_param)
             df_param = pd.read_pickle(file_param)
             if flag:
                 param_names = list(df_param['Parameter'].values)
                 param_meanvalues = np.nan * np.zeros([tarnum, len(param_names)])
-    
-                metric_names = list(df_met.columns)
-                metric_values = np.nan * np.zeros([tarnum, len(metric_names)])
-
                 flag = False
     
             param_meanvalues[i, :] = np.array([np.nanmean(v) for v in df_param['Value'].values])
-            metric_values[i, :] = df_met.iloc[0].values
-    
+
+        
+        if len(metric_values) == 0:
+            file_metric = f'{path_archive}/iter0_trial0/evaluation_metric.csv'
+            df_met = pd.read_csv(file_metric)
+            metric_names = list(df_met.columns)
+            metric_values = np.nan * np.zeros([tarnum, len(metric_names)])
+
+        if len(param_meanvalues) == 0:
+            file_param = f'{path_archive}/iter{iterflag}_trial{i}/paramset_iter0_trial0.pkl'
+            df_param = pd.read_csv(file_param)
+            param_names = list(df_param.columns)
+            param_meanvalues = np.nan * np.zeros([tarnum, len(param_names)])
+            
         print(f'Write all metrics for {tarnum} trials in iteration {iterflag} to {outfile_metric}')
         dfout = pd.DataFrame(metric_values, columns=metric_names)
         dfout.to_csv(outfile_metric, index=False)
@@ -217,12 +235,14 @@ def merge_parameter_metric_csv(path_archive, iterflag, tarnum):
 def merge_many_metric_csv(path_archive, iterflag, tarnum):
     # merge parameters and metric values from all runs to one csv file
 
-    outfile_metric = f'{path_archive}/iter{iterflag}_many_metrics.csv'
-    if (not os.path.isfile(outfile_metric)):
+    outfile_metric = f'{path_archive}/iter{iterflag}_many_metrics_mizuroute_s-1.csv'
+    if os.path.isfile(outfile_metric):
+        print('Outfile exists:', outfile_metric)
+    else:
         flag = True
         metric_values = []
         for i in range(tarnum):
-            file_metric = f'{path_archive}/iter{iterflag}_trial{i}/evaluation_many_metrics.csv'
+            file_metric = f'{path_archive}/iter{iterflag}_trial{i}/evaluation_many_metrics_mizuroute_s-1.csv'
             if not os.path.isfile(file_metric):
                 print(f'Warning! File does not exist: {file_metric}')
                 continue
@@ -234,47 +254,53 @@ def merge_many_metric_csv(path_archive, iterflag, tarnum):
             metric_values[i, :] = df_met.iloc[0].values
 
         print(f'Write all metrics for {tarnum} trials in iteration {iterflag} to {outfile_metric}')
+        if len(metric_values) == 0:
+            file_metric = f'{path_archive}/iter0_trial0/evaluation_many_metrics_mizuroute_s-1.csv'
+            df_met = pd.read_csv(file_metric)
+            metric_names = list(df_met.columns)
+            metric_values = np.nan * np.zeros([tarnum, len(metric_names)])
+            
         dfout = pd.DataFrame(metric_values, columns=metric_names)
         dfout.to_csv(outfile_metric, index=False)
 
         
-    outfile_metric = f'{path_archive}/iter{iterflag}_many_metric_period1.csv'
-    if (not os.path.isfile(outfile_metric)):
-        flag = True
-        metric_values = []
-        for i in range(tarnum):
-            file_metric = f'{path_archive}/iter{iterflag}_trial{i}/evaluation_many_metrics_period1.csv'
-            if not os.path.isfile(file_metric):
-                print(f'Warning! File does not exist: {file_metric}')
-                continue
-            df_met = pd.read_csv(file_metric)
-            if flag:
-                metric_names = list(df_met.columns)
-                metric_values = np.nan * np.zeros([tarnum, len(metric_names)])
-                flag = False
-            metric_values[i, :] = df_met.iloc[0].values
+    # outfile_metric = f'{path_archive}/iter{iterflag}_many_metric_period1.csv'
+    # if (not os.path.isfile(outfile_metric)):
+    #     flag = True
+    #     metric_values = []
+    #     for i in range(tarnum):
+    #         file_metric = f'{path_archive}/iter{iterflag}_trial{i}/evaluation_many_metrics_period1.csv'
+    #         if not os.path.isfile(file_metric):
+    #             print(f'Warning! File does not exist: {file_metric}')
+    #             continue
+    #         df_met = pd.read_csv(file_metric)
+    #         if flag:
+    #             metric_names = list(df_met.columns)
+    #             metric_values = np.nan * np.zeros([tarnum, len(metric_names)])
+    #             flag = False
+    #         metric_values[i, :] = df_met.iloc[0].values
 
-        print(f'Write all metrics for {tarnum} trials in iteration {iterflag} to {outfile_metric}')
-        dfout = pd.DataFrame(metric_values, columns=metric_names)
-        dfout.to_csv(outfile_metric, index=False)
+    #     print(f'Write all metrics for {tarnum} trials in iteration {iterflag} to {outfile_metric}')
+    #     dfout = pd.DataFrame(metric_values, columns=metric_names)
+    #     dfout.to_csv(outfile_metric, index=False)
 
 
-    outfile_metric = f'{path_archive}/iter{iterflag}_many_metric_period2.csv'
-    if (not os.path.isfile(outfile_metric)):
-        flag = True
-        metric_values = []
-        for i in range(tarnum):
-            file_metric = f'{path_archive}/iter{iterflag}_trial{i}/evaluation_many_metrics_period2.csv'
-            if not os.path.isfile(file_metric):
-                print(f'Warning! File does not exist: {file_metric}')
-                continue
-            df_met = pd.read_csv(file_metric)
-            if flag:
-                metric_names = list(df_met.columns)
-                metric_values = np.nan * np.zeros([tarnum, len(metric_names)])
-                flag = False
-            metric_values[i, :] = df_met.iloc[0].values
+    # outfile_metric = f'{path_archive}/iter{iterflag}_many_metric_period2.csv'
+    # if (not os.path.isfile(outfile_metric)):
+    #     flag = True
+    #     metric_values = []
+    #     for i in range(tarnum):
+    #         file_metric = f'{path_archive}/iter{iterflag}_trial{i}/evaluation_many_metrics_period2.csv'
+    #         if not os.path.isfile(file_metric):
+    #             print(f'Warning! File does not exist: {file_metric}')
+    #             continue
+    #         df_met = pd.read_csv(file_metric)
+    #         if flag:
+    #             metric_names = list(df_met.columns)
+    #             metric_values = np.nan * np.zeros([tarnum, len(metric_names)])
+    #             flag = False
+    #         metric_values[i, :] = df_met.iloc[0].values
 
-        print(f'Write all metrics for {tarnum} trials in iteration {iterflag} to {outfile_metric}')
-        dfout = pd.DataFrame(metric_values, columns=metric_names)
-        dfout.to_csv(outfile_metric, index=False)
+    #     print(f'Write all metrics for {tarnum} trials in iteration {iterflag} to {outfile_metric}')
+    #     dfout = pd.DataFrame(metric_values, columns=metric_names)
+    #     dfout.to_csv(outfile_metric, index=False)

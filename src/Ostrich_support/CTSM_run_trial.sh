@@ -31,8 +31,9 @@ DateEvalEnd="2001-12-31"       # end date for calculating statistics
 # scripts
 ostrichScriptDir="/glade/u/home/guoqiang/CTSM_repos/CTSM_Guoqiang/Calibration/Ostrich_calib_support"
 script_updateparam="${ostrichScriptDir}/update_GlobalParam.py"
-script_calculate_stats="${ostrichScriptDir}/cal_metrics_NoRouting.py"
+script_calculate_stats="${ostrichScriptDir}/cal_metrics_Routing.py"
 #script_check_job_status="${ostrichScriptDir}/check_job_status.py"
+script_runmodel="/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/Ostrich_support/run_CTSM_mizu.py"
 
 # objective function
 objfunc="kge"
@@ -80,20 +81,23 @@ echo " "
 
 date | awk '{printf("%s: submitting CTSM\n",$0)}' >> $ostrichRunDir/timetrack.log
 
-cwd=$PWD
-cd ${pathCTSMcase} || exit
+# cwd=$PWD
+# cd ${pathCTSMcase} || exit
 
-## Method-1: run case.submit which costs queue time
-#./case.submit
-## check job status of case.submit to ensure the below codes are excuted after case.submit is complete
-#python ${script_check_job_status} ${pathCTSMcase}
+# ## Method-1: run case.submit which costs queue time
+# #./case.submit
+# ## check job status of case.submit to ensure the below codes are excuted after case.submit is complete
+# #python ${script_check_job_status} ${pathCTSMcase}
 
-# Method-2: direct run
-#Python .case.run
-./case.submit --no-batch
-#Python case.st_archive
+# # Method-2: direct run
+# #Python .case.run
+# ./case.submit --no-batch
+# #Python case.st_archive
 
-cd $cwd
+# cd $cwd
+
+
+python ${script_runmodel} ${pathCTSMcase} $DateEvalStart $DateEvalEnd $ref_flow_file
 
 # ------------------------------------------------------------------------------
 # --- 3.  calculate statistics for Ostrich                                   ---

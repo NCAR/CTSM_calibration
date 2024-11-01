@@ -143,7 +143,7 @@ for tarbasin in target_index:
     script_clone = f'{path_CTSM_source}/cime/scripts/create_clone'
 
     if config['path_calib'] == 'NA':
-        path_MOASMOcalib = f'{path_CTSM_base}_MOASMOcalib'
+        path_MOASMOcalib = f'{path_CTSM_base}_calib'
     else:
         path_MOASMOcalib = config['path_calib']
         

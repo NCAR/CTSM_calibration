@@ -112,17 +112,26 @@ if __name__ == '__main__':
     basin_num = 627
 
     pool = Pool(processes=num_processes)
-    
+
+    # #### LSE
+    # tasks = []
+    # for basin in range(basin_num):
+    #     print('basin', basin)
+    #     configfile = f'/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/configuration/_level1-{basin}_config_MOASMO.toml'
+    #     # folder = f'/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/LongTermSimu/Defa/level1_{basin}'
+    #     # tasks.append((folder, configfile))
+    #     # for i in range(2, 6):
+    #     for i in [10, 20]:
+    #         folder = f'/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/LongTermSimu/LSEallbasin/level1_{basin}/normKGEr{i}'
+    #         tasks.append((folder, configfile))
+
+    #### DDS
     tasks = []
-    for basin in range(basin_num):
+    for basin in range(0, basin_num, 5):
         print('basin', basin)
-        configfile = f'/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/configuration/_level1-{basin}_config_MOASMO.toml'
-        # folder = f'/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/LongTermSimu/Defa/level1_{basin}'
-        # tasks.append((folder, configfile))
-        # for i in range(2, 6):
-        for i in [10, 20]:
-            folder = f'/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/LongTermSimu/LSEallbasin/level1_{basin}/normKGEr{i}'
-            tasks.append((folder, configfile))
+        configfile = f'/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_Ostrich_kge/configuration/_level1-{basin}_config_Ostrich.toml'
+        folder = f'/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/LongTermSimu/DDS/level1_{basin}/normKGEr{i}'
+        tasks.append((folder, configfile))
     
     pool.map(run_trial, tasks)
     pool.close()  # Close the pool to prevent any more tasks from being submitted

@@ -33,25 +33,25 @@ create_symlinks() {
 process_iteration() {
   local i=$1
 
-  src_dir="/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO_bigrange/level1_${i}_MOASMOcalib/ctsm_outputs"
-  dst_dir="/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO_bigrange/level1_${i}_MOASMOcalib/ctsm_outputs_LSEall2err"
+  src_dir="/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_emulator/level1_${i}_calib/ctsm_outputs"
+  dst_dir="/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_emulator/level1_${i}_calib/ctsm_outputs_SSEnormKGE"
   create_symlinks "$src_dir" "$dst_dir" "iter0"
 
-  src_dir="/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO_bigrange/level1_${i}_MOASMOcalib/param_sets"
-  dst_dir="/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO_bigrange/level1_${i}_MOASMOcalib/param_sets_LSEall2err"
+  src_dir="/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_emulator/level1_${i}_calib/param_sets"
+  dst_dir="/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_emulator/level1_${i}_calib/param_sets_SSEnormKGE"
   create_symlinks "$src_dir" "$dst_dir" "iter0"
   create_symlinks "$src_dir" "$dst_dir" "all_default_parameters.pkl"
 
-  # Remove files that should not be linked
-  dst_dir="/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_MOASMO_bigrange/level1_${i}_MOASMOcalib/param_sets_LSEall2err"
-  rm -f ${dst_dir}/RF_for_iter0_CV_kge.csv
-  rm -f ${dst_dir}/surrogate_model_for_iter0
-  rm -f ${dst_dir}/GPR_for_iter0_CV_kge.csv
-  rm -f ${dst_dir}/GPR_for_iter0_try*_CV_kge.csv
+  # # Remove files that should not be linked
+  # dst_dir="/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_emulator/level1_${i}_calib/param_sets_SSEnormKGE"
+  # rm -f ${dst_dir}/RF_for_iter0_CV_kge.csv
+  # rm -f ${dst_dir}/surrogate_model_for_iter0
+  # rm -f ${dst_dir}/GPR_for_iter0_CV_kge.csv
+  # rm -f ${dst_dir}/GPR_for_iter0_try*_CV_kge.csv
 }
 
 export -f create_symlinks
 export -f process_iteration
 
 # Parallel execution
-parallel -j 128 process_iteration ::: {0..626}
+parallel -j 30 process_iteration ::: {0..626}

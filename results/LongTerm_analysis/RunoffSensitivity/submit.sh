@@ -11,4 +11,4 @@ conda activate npl-2024a-tgq
 export TMPDIR=/glade/derecho/scratch/$USER/temp
 mkdir -p $TMPDIR
 
-python cal_runoff_sensitivity.py 5
+python cal_runoff_sensitivity.py 20
