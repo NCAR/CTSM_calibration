@@ -8,7 +8,6 @@ from sklearn.preprocessing import OneHotEncoder
 from multiprocessing import Pool, cpu_count, shared_memory
 from sklearn.neural_network import MLPRegressor
 from sklearn.preprocessing import StandardScaler
-from sklearn.neural_network import MLPRegressor
 
 from MOASMO_parameters import *
 
@@ -58,9 +57,9 @@ def train_nn_model_pytorch(x_train_scaled, y_train, x_val_scaled, y_val, n_epoch
 
     # Convert data to PyTorch tensors
     x_train_tensor = torch.tensor(x_train_scaled, dtype=torch.float32)
-    y_train_tensor = torch.tensor(y_train, dtype=torch.float32).unsqueeze(1)
+    y_train_tensor = torch.tensor(y_train, dtype=torch.float32).view(-1, 1)
     x_val_tensor = torch.tensor(x_val_scaled, dtype=torch.float32)
-    y_val_tensor = torch.tensor(y_val, dtype=torch.float32).unsqueeze(1)
+    y_val_tensor = torch.tensor(y_val, dtype=torch.float32).view(-1, 1)
 
     # Initialize the model, loss function, and optimizer
     model = SimpleNN(input_size=x_train_tensor.shape[1])
@@ -622,6 +621,9 @@ def generate_param_files_norm(tarbasin, tarbasin_id, em_model, xlb_mean, xub_mea
         if normdict['method'] == 'z-score':
             print('reverse normalization')
             final_solutions_array = final_solutions_array*normdict['std'] + normdict['mean']
+        elif normdict['method'] == 'min-max':
+            print('reverse normalization min-max')
+            final_solutions_array = final_solutions_array*(normdict['max'] - normdict['min']) + normdict['min']
 
     for i in range(final_solutions_array.shape[0]):
         outfile = f'{outpath}/paramset_iter{iterend}_trial{i}.pkl'
@@ -663,6 +665,10 @@ def process_basin_norm(args):
         if normdict['method'] == 'z-score':
             xlb_mean_scaled = (xlb_mean - normdict['mean']) / normdict['std']
             xub_mean_scaled = (xub_mean - normdict['mean']) / normdict['std']
+        elif normdict['method'] == 'min-max':
+            print('reverse normalization min-max')
+            xlb_mean_scaled = (xlb_mean - normdict['min']) / (normdict['max'] - normdict['min'])
+            xub_mean_scaled = (xub_mean - normdict['min']) / (normdict['max'] - normdict['min'])
         else:
             sys.exit('empty normdict')
         
@@ -1444,8 +1450,10 @@ def allbasin_emulator_CV_traintest_and_optimize_2_ann(infile_basin_info, infile_
     # scaler = StandardScaler()
     # x_train_scaled = scaler.fit_transform(x_train)
     # x_val_scaled = scaler.transform(x_val)
-    x_train_mean = np.mean(x_train, axis=0)
-    x_train_std = np.std(x_train, axis=0)
+    # x_train_mean = np.mean(x_train, axis=0)
+    # x_train_std = np.std(x_train, axis=0)
+    x_train_mean = np.mean(x_all, axis=0)
+    x_train_std = np.std(x_all, axis=0)    
     x_train_scaled = (x_train - x_train_mean) / x_train_std
     x_val_scaled = (x_val - x_train_mean) / x_train_std
 
@@ -1495,6 +1503,456 @@ def allbasin_emulator_CV_traintest_and_optimize_2_ann(infile_basin_info, infile_
     normdict = {'method': 'z-score',
                 'mean': x_train_mean,
                 'std': x_train_std,
+               }
+    
+    parallel_process_basins_predictunseen_norm(xlb_mean_test_scaled, xub_mean_test_scaled, param_names, em_model, inpath_moasmo, ncpus, numruns_test, iterend, test_index, suffixtest, num_objfunc, normdict)
+
+
+def allbasin_emulator_CV_traintest_and_optimize_2_sklearnANN(infile_basin_info, infile_param_info, infile_attr_foruse,
+                                                  inpath_moasmo, outpathname, path_CTSM_case, iterend, ncpus, suffix,
+                                                  train_index, numruns=100, objfunc='normKGE'):
+    # implementation - 2
+    # (1) iter-0 simulations
+    # (2) divide basins into 5 folds.
+    # (3) For each fold, using 80% for training and 20% for testing
+    # Iterative training based on the 80% basins. In this process, the 20% basins are never used. This could lead to iter-1, iter-2, …, iter-x, until saturated calibration. The implementation is the same with a typical joint emulator
+    # For trained emulator in each iteration (iter-1, iter-2, iter-3, …, iter-x), it can be used to predict parameters in 20% testing basins. The number of predicted parameters can range from 1 to inf. This number can be smaller than 100 since we don’t need 100 optimized parameter sets in unseen basins. In practice, simply using iter-x is also fine
+    # (3) is repeated five times to get validation results in each testing basins. (edited)
+
+    # to implement that in a CV way, divide all basins into five folds. For each fold, name the suffix as "CV1", "CV2", "CV3", ... "CV5".
+    # then, using train_index (80% stations) and test_index (20% stations)  as inputs
+    # note other inputs such as infile_basin_info still contain all basins and should correspond to the index from train_index and test_index
+    # train_index and test_index needs to be generated outside this function, maybe following the below method
+    # train_indices = []
+    # test_indices = []
+    # for i in range(cv_num):
+    #     ind1 = all_index[i::cv_num]
+    #     ind2 = np.setdiff1d(all_index, ind1)
+    #     test_indices.append(ind1)
+    #     train_indices.append(ind2)
+
+    # infile_basin_info = f"/glade/work/guoqiang/CTSM_CAMELS/data_mesh_surf/HillslopeHydrology/CAMELS_level1_basin_info.csv"
+    # infile_param_info = '/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/parameter/CTSM_CAMELS_calibparam_2410.csv'
+    # infile_attr_foruse = '/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/data/camels_attributes_table_TrainModel.csv'
+    # inpath_moasmo = "/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_emulator"
+    # outpathname = "emulator_CV_test"
+    # path_CTSM_case = f'/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_emulator'
+    # train_index = np.setdiff1d(np.arange(627), np.arange(0, 627, 5))
+    # numruns=100
+    # objfunc='normKGE'
+    # ncpus = 1
+    # iterend = 1
+    # suffix = 'CV1'
+    # suffix_defa_source = 'LSEnormKGE' # temporary suffix if CV1 has not been generated
+
+
+    outpath = f"{inpath_moasmo}/{outpathname}"
+    os.makedirs(outpath, exist_ok=True)
+
+    # Load data: same for all iterations
+    df_basin_info = pd.read_csv(infile_basin_info)
+    df_basin_info.index = np.arange(len(df_basin_info))
+    all_index = np.arange(len(df_basin_info))
+
+    test_index = np.setdiff1d(all_index, train_index)
+
+    # information for all basins
+    df_param_info = pd.read_csv(infile_param_info)
+
+    file_defa_param = f'{outpath}/camels_ctsm_defa_param_train_{suffix}.csv'
+    df_param_defa_train = read_allbasin_defa_params(path_CTSM_case, infile_param_info, file_defa_param, train_index)
+    file_defa_param = f'{outpath}/camels_ctsm_defa_param_test_{suffix}.csv'
+    df_param_defa_test = read_allbasin_defa_params(path_CTSM_case, infile_param_info, file_defa_param, test_index)
+
+    file_param_lb = f'{outpath}/camels_ctsm_all_param_lb_train_{suffix}.gz'
+    file_param_ub = f'{outpath}/camels_ctsm_all_param_ub_train_{suffix}.gz'
+    
+    df_param_lb_train, df_param_ub_train = load_basin_param_bounds(inpath_moasmo, df_param_defa_train, file_param_lb, file_param_ub, train_index, suffix)
+    file_param_lb = f'{outpath}/camels_ctsm_all_param_lb_test_{suffix}.gz'
+    file_param_ub = f'{outpath}/camels_ctsm_all_param_ub_test_{suffix}.gz'
+    df_param_lb_test, df_param_ub_test = load_basin_param_bounds(inpath_moasmo, df_param_defa_test, file_param_lb, file_param_ub, test_index, suffix)
+
+    
+    file_camels_attribute = f'{outpath}/camels_basin_attribute_train_{suffix}.pkl'
+    df_att_train = read_camels_attributes(infile_basin_info, file_camels_attribute, train_index)
+    file_camels_attribute = f'{outpath}/camels_basin_attribute_test_{suffix}.pkl'
+    df_att_test = read_camels_attributes(infile_basin_info, file_camels_attribute, test_index)
+
+    df_att_foruse = pd.read_csv(infile_attr_foruse)
+    useattrs = list(df_att_foruse[df_att_foruse['att_Xie2021'].values]['Attribute_text'].values)
+    print("The number of attributes used:", len(useattrs))
+    print(useattrs)
+
+
+    # Load data: outputs from each iteration from training basins
+    for iter in range(0, iterend):
+        file_all_param = f'{outpath}/camels_ctsm_all_param_train_{suffix}_iter{iter}.gz'
+        file_all_metric = f'{outpath}/camels_ctsm_all_metric_train_{suffix}_iter{iter}.gz'
+        file_all_basinid = f'{outpath}/camels_ctsm_all_basinid_train_{suffix}_iter{iter}.gz'
+
+        df_param_i, df_metric_i, df_basinid_i = load_all_basin_params_metrics(inpath_moasmo, df_param_defa_train,
+                                                                              df_basin_info, iter, file_all_param,
+                                                                              file_all_metric, file_all_basinid,
+                                                                              train_index, suffix)
+
+        df_basinid_i['iter'] = iter
+
+        if iter == 0:
+            df_param = df_param_i
+            df_metric = df_metric_i
+            df_basinid = df_basinid_i
+        else:
+            df_param = pd.concat([df_param, df_param_i])
+            df_metric = pd.concat([df_metric, df_metric_i])
+            df_basinid = pd.concat([df_basinid, df_basinid_i])
+
+    df_param.index = np.arange(len(df_param))
+    df_metric.index = np.arange(len(df_metric))
+    df_basinid.index = np.arange(len(df_basinid))
+
+    index = np.isnan(np.sum(df_metric.values, axis=1) + np.sum(df_param.values, axis=1))
+    df_param = df_param[~index]
+    df_metric = df_metric[~index]
+    df_basinid = df_basinid[~index]
+
+    df_param.index = np.arange(len(df_param))
+    df_metric.index = np.arange(len(df_metric))
+    df_basinid.index = np.arange(len(df_basinid))
+
+    print('Number of nan samples:', np.sum(index))
+    print("Number of original parameter sets:", len(index))
+    print("Number of final parameter sets:", len(df_param))
+
+
+    # One-hot encoding for categorical attributes
+    df_att = pd.concat([df_att_train, df_att_test])
+    df_att.index = np.arange(len(df_att))
+    df_att_use = df_att[useattrs + ["hru_id"]]
+    for att in useattrs:
+        if df_att_use[att].dtype == "object":
+            print('Convert', att, 'to one-hot encoding')
+            enc = OneHotEncoder(sparse_output=False)
+            enc.fit(df_att_use[[att]])
+            encnames = [att + "_" + str(i) for i in range(len(enc.categories_[0]))]
+            print('New columns:', encnames)
+            df_enc = pd.DataFrame(enc.transform(df_att_use[[att]]), columns=encnames)
+            df_att_use = pd.concat([df_att_use, df_enc], axis=1)
+            df_att_use = df_att_use.drop([att], axis=1)
+
+    df_att_use_train = df_att_use[:len(df_att_train)]
+    df_att_use_test = df_att_use[len(df_att_train):]
+    df_att_use_train.index = np.arange(len(df_att_use_train))
+    df_att_use_test.index = np.arange(len(df_att_use_test))
+    
+    useattrs = list(df_att_use_train.columns)
+    useattrs.remove('hru_id')
+
+    # Prepare model input and output
+    df_input = df_param.copy()
+    df_input["hru_id"] = df_basinid["hru_id"]
+    df_input = df_input.merge(df_att_use_train[useattrs + ["hru_id"]], on="hru_id", how="left")
+    df_input = df_input.drop(["hru_id"], axis=1)
+
+    inputnames = list(df_param.columns) + useattrs
+    x_all = df_input[inputnames].values.copy()
+    print("Input shape:", x_all.shape)
+
+    print('Train/test model')
+    print('Train index:', train_index)
+
+    # Normalize the features
+    x_train_mean = np.mean(x_all, axis=0)
+    x_train_std = np.std(x_all, axis=0)    
+    x_all_scaled = (x_all - x_train_mean) / x_train_std
+
+
+    if objfunc == 'normKGE':
+        print('Use normalized KGE as output')
+        df_output = df_metric.copy()
+        y_all = df_output[["kge"]].values.copy()
+        y_all = y_all / (2 - y_all)  # Normalize KGE
+
+        # File path to save or load the model
+        outfile = f'{outpath}/MLP_emulator_for_iter{iterend}_{suffix}.pkl'
+        
+        # Check if the model file exists
+        if os.path.isfile(outfile):
+            # Load the existing model
+            with open(outfile, 'rb') as file:
+                em_model = pickle.load(file)
+        else:
+            # Model configuration for MLP
+            modelconfig = {
+                'hidden_layer_sizes': (100, 100),
+                'max_iter': 1000,
+                'alpha': 0.001,
+                'random_state': 42,
+                'early_stopping': True,
+                'validation_fraction': 0.1,  # 10% internal validation for early stopping
+                'n_iter_no_change': 10
+            }
+        
+            # Initialize and train the model
+            em_model = MLPRegressor(**modelconfig)
+            em_model.fit(x_all_scaled, y_all)
+        
+            # Save the trained model
+            with open(outfile, 'wb') as file:
+                pickle.dump(em_model, file)
+
+    normdict = {'method': 'z-score',
+                'mean': x_train_mean,
+                'std': x_train_std,
+               }
+    param_names = df_param_info['Parameter'].values
+    parallel_process_basins_norm(df_basinid, df_param_lb_train, df_param_ub_train,
+                            x_all, df_input, y_all,
+                            param_names, inputnames, em_model, inpath_moasmo, ncpus, numruns, iterend, train_index, suffix, normdict)
+
+    #### predict parameter in unseen basins
+    suffixtest = suffix+'test'
+    numruns_test = 1 # can be smaller
+    if objfunc == 'normKGE':
+        num_objfunc=1
+    else:
+        sys.exit('Not tested objfunc')
+
+    df_att_use_test2 = df_att_use_test.drop(['hru_id'], axis=1)
+
+    xlb_mean_test = np.nan * np.zeros([len(df_param_lb_test), len(inputnames)])
+    xub_mean_test = np.nan * np.zeros([len(df_param_ub_test), len(inputnames)])   
+    for i in range(len(df_param_lb_test)):
+        param_lb_mean = df_param_lb_test.values[i, :]
+        param_ub_mean = df_param_ub_test.values[i, :]
+        attrvalues = df_att_use_test2.values[i,:]
+        xlb_mean_test[i,:] = np.hstack([param_lb_mean, attrvalues])
+        xub_mean_test[i,:] = np.hstack([param_ub_mean, attrvalues])
+
+    xlb_mean_test_scaled = (xlb_mean_test - x_train_mean) / x_train_std
+    xub_mean_test_scaled = (xub_mean_test - x_train_mean) / x_train_std
+    normdict = {'method': 'z-score',
+                'mean': x_train_mean,
+                'std': x_train_std,
+               }
+    
+    parallel_process_basins_predictunseen_norm(xlb_mean_test_scaled, xub_mean_test_scaled, param_names, em_model, inpath_moasmo, ncpus, numruns_test, iterend, test_index, suffixtest, num_objfunc, normdict)
+
+
+def allbasin_emulator_CV_traintest_and_optimize_2_sklearnRF(infile_basin_info, infile_param_info, infile_attr_foruse,
+                                                  inpath_moasmo, outpathname, path_CTSM_case, iterend, ncpus, suffix,
+                                                  train_index, numruns=100, objfunc='normKGE'):
+    # implementation - 2
+    # (1) iter-0 simulations
+    # (2) divide basins into 5 folds.
+    # (3) For each fold, using 80% for training and 20% for testing
+    # Iterative training based on the 80% basins. In this process, the 20% basins are never used. This could lead to iter-1, iter-2, …, iter-x, until saturated calibration. The implementation is the same with a typical joint emulator
+    # For trained emulator in each iteration (iter-1, iter-2, iter-3, …, iter-x), it can be used to predict parameters in 20% testing basins. The number of predicted parameters can range from 1 to inf. This number can be smaller than 100 since we don’t need 100 optimized parameter sets in unseen basins. In practice, simply using iter-x is also fine
+    # (3) is repeated five times to get validation results in each testing basins. (edited)
+
+    # to implement that in a CV way, divide all basins into five folds. For each fold, name the suffix as "CV1", "CV2", "CV3", ... "CV5".
+    # then, using train_index (80% stations) and test_index (20% stations)  as inputs
+    # note other inputs such as infile_basin_info still contain all basins and should correspond to the index from train_index and test_index
+    # train_index and test_index needs to be generated outside this function, maybe following the below method
+    # train_indices = []
+    # test_indices = []
+    # for i in range(cv_num):
+    #     ind1 = all_index[i::cv_num]
+    #     ind2 = np.setdiff1d(all_index, ind1)
+    #     test_indices.append(ind1)
+    #     train_indices.append(ind2)
+
+    # infile_basin_info = f"/glade/work/guoqiang/CTSM_CAMELS/data_mesh_surf/HillslopeHydrology/CAMELS_level1_basin_info.csv"
+    # infile_param_info = '/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/parameter/CTSM_CAMELS_calibparam_2410.csv'
+    # infile_attr_foruse = '/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/data/camels_attributes_table_TrainModel.csv'
+    # inpath_moasmo = "/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_emulator"
+    # outpathname = "emulator_CV_test"
+    # path_CTSM_case = f'/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_emulator'
+    # train_index = np.setdiff1d(np.arange(627), np.arange(0, 627, 5))
+    # numruns=100
+    # objfunc='normKGE'
+    # ncpus = 1
+    # iterend = 1
+    # suffix = 'CV1'
+    # suffix_defa_source = 'LSEnormKGE' # temporary suffix if CV1 has not been generated
+
+
+    outpath = f"{inpath_moasmo}/{outpathname}"
+    os.makedirs(outpath, exist_ok=True)
+
+    # Load data: same for all iterations
+    df_basin_info = pd.read_csv(infile_basin_info)
+    df_basin_info.index = np.arange(len(df_basin_info))
+    all_index = np.arange(len(df_basin_info))
+
+    test_index = np.setdiff1d(all_index, train_index)
+
+    # information for all basins
+    df_param_info = pd.read_csv(infile_param_info)
+
+    file_defa_param = f'{outpath}/camels_ctsm_defa_param_train_{suffix}.csv'
+    df_param_defa_train = read_allbasin_defa_params(path_CTSM_case, infile_param_info, file_defa_param, train_index)
+    file_defa_param = f'{outpath}/camels_ctsm_defa_param_test_{suffix}.csv'
+    df_param_defa_test = read_allbasin_defa_params(path_CTSM_case, infile_param_info, file_defa_param, test_index)
+
+    file_param_lb = f'{outpath}/camels_ctsm_all_param_lb_train_{suffix}.gz'
+    file_param_ub = f'{outpath}/camels_ctsm_all_param_ub_train_{suffix}.gz'
+    
+    df_param_lb_train, df_param_ub_train = load_basin_param_bounds(inpath_moasmo, df_param_defa_train, file_param_lb, file_param_ub, train_index, suffix)
+    file_param_lb = f'{outpath}/camels_ctsm_all_param_lb_test_{suffix}.gz'
+    file_param_ub = f'{outpath}/camels_ctsm_all_param_ub_test_{suffix}.gz'
+    df_param_lb_test, df_param_ub_test = load_basin_param_bounds(inpath_moasmo, df_param_defa_test, file_param_lb, file_param_ub, test_index, suffix)
+
+    
+    file_camels_attribute = f'{outpath}/camels_basin_attribute_train_{suffix}.pkl'
+    df_att_train = read_camels_attributes(infile_basin_info, file_camels_attribute, train_index)
+    file_camels_attribute = f'{outpath}/camels_basin_attribute_test_{suffix}.pkl'
+    df_att_test = read_camels_attributes(infile_basin_info, file_camels_attribute, test_index)
+
+    df_att_foruse = pd.read_csv(infile_attr_foruse)
+    useattrs = list(df_att_foruse[df_att_foruse['att_Xie2021'].values]['Attribute_text'].values)
+    print("The number of attributes used:", len(useattrs))
+    print(useattrs)
+
+
+    # Load data: outputs from each iteration from training basins
+    for iter in range(0, iterend):
+        file_all_param = f'{outpath}/camels_ctsm_all_param_train_{suffix}_iter{iter}.gz'
+        file_all_metric = f'{outpath}/camels_ctsm_all_metric_train_{suffix}_iter{iter}.gz'
+        file_all_basinid = f'{outpath}/camels_ctsm_all_basinid_train_{suffix}_iter{iter}.gz'
+
+        df_param_i, df_metric_i, df_basinid_i = load_all_basin_params_metrics(inpath_moasmo, df_param_defa_train,
+                                                                              df_basin_info, iter, file_all_param,
+                                                                              file_all_metric, file_all_basinid,
+                                                                              train_index, suffix)
+
+        df_basinid_i['iter'] = iter
+
+        if iter == 0:
+            df_param = df_param_i
+            df_metric = df_metric_i
+            df_basinid = df_basinid_i
+        else:
+            df_param = pd.concat([df_param, df_param_i])
+            df_metric = pd.concat([df_metric, df_metric_i])
+            df_basinid = pd.concat([df_basinid, df_basinid_i])
+
+    df_param.index = np.arange(len(df_param))
+    df_metric.index = np.arange(len(df_metric))
+    df_basinid.index = np.arange(len(df_basinid))
+
+    index = np.isnan(np.sum(df_metric.values, axis=1) + np.sum(df_param.values, axis=1))
+    df_param = df_param[~index]
+    df_metric = df_metric[~index]
+    df_basinid = df_basinid[~index]
+
+    df_param.index = np.arange(len(df_param))
+    df_metric.index = np.arange(len(df_metric))
+    df_basinid.index = np.arange(len(df_basinid))
+
+    print('Number of nan samples:', np.sum(index))
+    print("Number of original parameter sets:", len(index))
+    print("Number of final parameter sets:", len(df_param))
+
+
+    # One-hot encoding for categorical attributes
+    df_att = pd.concat([df_att_train, df_att_test])
+    df_att.index = np.arange(len(df_att))
+    df_att_use = df_att[useattrs + ["hru_id"]]
+    for att in useattrs:
+        if df_att_use[att].dtype == "object":
+            print('Convert', att, 'to one-hot encoding')
+            enc = OneHotEncoder(sparse_output=False)
+            enc.fit(df_att_use[[att]])
+            encnames = [att + "_" + str(i) for i in range(len(enc.categories_[0]))]
+            print('New columns:', encnames)
+            df_enc = pd.DataFrame(enc.transform(df_att_use[[att]]), columns=encnames)
+            df_att_use = pd.concat([df_att_use, df_enc], axis=1)
+            df_att_use = df_att_use.drop([att], axis=1)
+
+    df_att_use_train = df_att_use[:len(df_att_train)]
+    df_att_use_test = df_att_use[len(df_att_train):]
+    df_att_use_train.index = np.arange(len(df_att_use_train))
+    df_att_use_test.index = np.arange(len(df_att_use_test))
+    
+    useattrs = list(df_att_use_train.columns)
+    useattrs.remove('hru_id')
+
+    # Prepare model input and output
+    df_input = df_param.copy()
+    df_input["hru_id"] = df_basinid["hru_id"]
+    df_input = df_input.merge(df_att_use_train[useattrs + ["hru_id"]], on="hru_id", how="left")
+    df_input = df_input.drop(["hru_id"], axis=1)
+
+    inputnames = list(df_param.columns) + useattrs
+    x_all = df_input[inputnames].values.copy()
+    print("Input shape:", x_all.shape)
+
+    print('Train/test model')
+    print('Train index:', train_index)
+
+    # Normalize the features
+    x_train_min = np.min(x_all, axis=0)
+    x_train_max = np.max(x_all, axis=0)    
+    x_all_scaled = (x_all - x_train_min) / (x_train_max - x_train_min)
+
+
+    if objfunc == 'normKGE':
+        print('Use normalized KGE as output')
+        df_output = df_metric.copy()
+        y_all = df_output[["kge"]].values.copy()
+        y_all = y_all / (2 - y_all)  # Normalize KGE
+
+        # File path to save or load the model
+        outfile = f'{outpath}/MLP_emulator_for_iter{iterend}_{suffix}.pkl'
+        
+        # Check if the model file exists
+        if os.path.isfile(outfile):
+            # Load the existing model
+            with open(outfile, 'rb') as file:
+                em_model = pickle.load(file)
+        else:
+            # Model configuration for MLP
+            modelconfig = {'n_estimators': 200, 'random_state': 42, 'max_depth': 40}
+            em_model = RandomForestRegressor(**modelconfig, n_jobs=ncpus)
+            em_model.fit(x_all_scaled, y_all)
+        
+            # Save the trained model
+            with open(outfile, 'wb') as file:
+                pickle.dump(em_model, file)
+
+    normdict = {'method': 'min-max',
+                'min': x_train_min,
+                'max': x_train_max,
+               }
+    param_names = df_param_info['Parameter'].values
+    parallel_process_basins_norm(df_basinid, df_param_lb_train, df_param_ub_train,
+                            x_all, df_input, y_all,
+                            param_names, inputnames, em_model, inpath_moasmo, ncpus, numruns, iterend, train_index, suffix, normdict)
+
+    #### predict parameter in unseen basins
+    suffixtest = suffix+'test'
+    numruns_test = 1 # can be smaller
+    if objfunc == 'normKGE':
+        num_objfunc=1
+    else:
+        sys.exit('Not tested objfunc')
+
+    df_att_use_test2 = df_att_use_test.drop(['hru_id'], axis=1)
+
+    xlb_mean_test = np.nan * np.zeros([len(df_param_lb_test), len(inputnames)])
+    xub_mean_test = np.nan * np.zeros([len(df_param_ub_test), len(inputnames)])   
+    for i in range(len(df_param_lb_test)):
+        param_lb_mean = df_param_lb_test.values[i, :]
+        param_ub_mean = df_param_ub_test.values[i, :]
+        attrvalues = df_att_use_test2.values[i,:]
+        xlb_mean_test[i,:] = np.hstack([param_lb_mean, attrvalues])
+        xub_mean_test[i,:] = np.hstack([param_ub_mean, attrvalues])
+
+    xlb_mean_test_scaled = (xlb_mean_test - x_train_min) / (x_train_max - x_train_min)
+    xub_mean_test_scaled = (xub_mean_test - x_train_min) / (x_train_max - x_train_min)
+    normdict = {'method': 'min-max',
+                'min': x_train_min,
+                'max': x_train_max,
                }
     
     parallel_process_basins_predictunseen_norm(xlb_mean_test_scaled, xub_mean_test_scaled, param_names, em_model, inpath_moasmo, ncpus, numruns_test, iterend, test_index, suffixtest, num_objfunc, normdict)

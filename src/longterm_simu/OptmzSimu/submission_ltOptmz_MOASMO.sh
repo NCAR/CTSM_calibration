@@ -6,7 +6,7 @@
 #PBS -o /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/submission/LongTermSimu/
 #PBS -e /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/submission/LongTermSimu/
 #PBS -J 1-5
-####PBS -l job_priorityis=economy
+#PBS -l job_priority=economy
 
 
 module load conda cdo
@@ -16,7 +16,7 @@ export TMPDIR=/glade/derecho/scratch/$USER/temp
 mkdir -p $TMPDIR
 
 # Define command file and calculate which lines this job will execute
-cmdfile="/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/submission/LongTermSimu/Optmz20.txt"
+cmdfile="/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_emulator/submission/LongTermSimu/Optmz1.txt"
 
 # Calculate the start and end line numbers for this job in the job array
 start=$(( ($PBS_ARRAY_INDEX - 1) * 128 + 1 ))
