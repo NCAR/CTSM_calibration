@@ -1,0 +1,90 @@
+{
+    "{\"max_depth\": null, \"n_estimators\": 50, \"random_state\": 42}": {
+        "train_rmse": [
+            0.037750283341806065
+        ],
+        "test_rmse": [
+            0.19425060476142852
+        ]
+    },
+    "{\"max_depth\": null, \"n_estimators\": 100, \"random_state\": 42}": {
+        "train_rmse": [
+            0.03675888405457721
+        ],
+        "test_rmse": [
+            0.19369867557685988
+        ]
+    },
+    "{\"max_depth\": 2, \"n_estimators\": 100, \"random_state\": 42}": {
+        "train_rmse": [
+            0.21566231153723697
+        ],
+        "test_rmse": [
+            0.22705263109488039
+        ]
+    },
+    "{\"max_depth\": 5, \"n_estimators\": 100, \"random_state\": 42}": {
+        "train_rmse": [
+            0.17116856474889544
+        ],
+        "test_rmse": [
+            0.20969616062968574
+        ]
+    },
+    "{\"max_depth\": 10, \"n_estimators\": 100, \"random_state\": 42}": {
+        "train_rmse": [
+            0.10959784778584247
+        ],
+        "test_rmse": [
+            0.19856114240298944
+        ]
+    },
+    "{\"max_depth\": 20, \"n_estimators\": 100, \"random_state\": 42}": {
+        "train_rmse": [
+            0.04244132958673633
+        ],
+        "test_rmse": [
+            0.1942358354061299
+        ]
+    },
+    "{\"max_depth\": 40, \"n_estimators\": 100, \"random_state\": 42}": {
+        "train_rmse": [
+            0.036751766511779076
+        ],
+        "test_rmse": [
+            0.19360815284806251
+        ]
+    },
+    "{\"max_depth\": 60, \"n_estimators\": 100, \"random_state\": 42}": {
+        "train_rmse": [
+            0.03675888405457721
+        ],
+        "test_rmse": [
+            0.19369867557685988
+        ]
+    },
+    "{\"max_depth\": null, \"n_estimators\": 200, \"random_state\": 42}": {
+        "train_rmse": [
+            0.03628679241984315
+        ],
+        "test_rmse": [
+            0.19371726353111965
+        ]
+    },
+    "{\"max_depth\": 10, \"n_estimators\": 200, \"random_state\": 42}": {
+        "train_rmse": [
+            0.10944897564095266
+        ],
+        "test_rmse": [
+            0.19884010527171442
+        ]
+    },
+    "{\"max_depth\": 20, \"n_estimators\": 200, \"random_state\": 42}": {
+        "train_rmse": [
+            0.04202799934429644
+        ],
+        "test_rmse": [
+            0.194258778688884
+        ]
+    }
+}

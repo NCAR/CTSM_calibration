@@ -55,9 +55,9 @@ else:
 moasmo_mode = 'Once' # Once or Resubmit
 if 'MOASMO' in runtasks:
     print('MO-ASMO calibration is selected.')
-    script_GenOstrich = config['calib']['files']['path_script_calib'] + '/' + 'generate_MOASMO_settings.py'
+    script_GenMOASMO = config['calib']['files']['path_script_calib'] + '/' + 'generate_MOASMO_settings.py'
     file_config_Ostrich = parsconfig.parse_MOASMO_config(config)
-    _ = subprocess.run(f'python {script_GenOstrich} {file_config_Ostrich} {moasmo_mode}', shell=True)
+    _ = subprocess.run(f'python {script_GenMOASMO} {file_config_Ostrich} {moasmo_mode}', shell=True)
 else:
     print('No need to create MO-ASMO settings')
 

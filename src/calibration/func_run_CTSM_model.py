@@ -53,10 +53,11 @@ def submit_and_run_CTSM_model(direct_run=False, rm_old=True):
     # this function assume that we are already in the folder of model case
     # rm_old: remove old files in RUNDIR
     # direct_run: use "./case.submit --no-batch" to skip job allocation
-
+    
+    RUNDIR = get_xmlquery_output('RUNDIR')
+    
     # clean run folder
     if rm_old == True:
-        RUNDIR = get_xmlquery_output('RUNDIR')
         print('Remove old *.nc output files in RUNDIR:', RUNDIR)
         _ = subprocess.run(f'rm {RUNDIR}/*.nc', shell=True)
 

@@ -1,0 +1,19 @@
+,Type,Process,PPE_DailyQ_Rank,Parameter,Default_glob,Lower_glob,Upper_glob,Lower_raw,Upper_raw,LowUp_vsPPE,Source,Binding,Method,Default,Lower,Upper
+0,Hydrology,Soil storage capacity ,11,sucsat_sf,1.0,0.1,10.0,0.1,10.0,Same,Param,,Multiplicative,1.0,0.1,10.0
+1,Hydrology,Soil water drainage ,10,hksat_sf,1.0,0.1,10.0,0.1,10.0,Same,Param,,Multiplicative,1.0,0.1,10.0
+2,Stomatal resistance and photosynthesis,ET (transpiration),2,medlynslope,4.840379695,2.420189848,7.260569543,3.235949,6.934051,BiggerRange,Param,,Multiplicative,4.840379695349101,2.4201898481745507,7.260569543523652
+3,Hydrology,"Infiltration
+Soil storage",1,fff,0.5,0.02,5.0,0.02,5.0,Same,Param,,Multiplicative,0.5,0.02,5.0
+4,Hydrology,Infiltration,23,e_ice,6.0,0.1,8.0,0.1,8.0,Low0to0.1,Param,,Multiplicative,6.0,0.1,8.0
+5,Hydrology,Infiltration,0,FMAX,0.381669399,0.1908347,0.572504099,0.1,0.9,NotInPPE,Surfdata,,Multiplicative,0.36177924095487396,0.1808896209513802,0.5426688619062542
+6,Hydrology,Soil storage capacity ,9,watsat_sf,1.0,0.25,2.0,0.8,1.2,BiggerRange,Param,,Multiplicative,1.0,0.25,2.0
+7,Snow Processes,Snowpack physics,35,upplim_destruct_metamorph,175.0,10.0,500.0,10.0,500.0,BiggerRange_FromYifan,Namelist,,Multiplicative,175.0,10.0,500.0
+8,Hydrology,Canopy Interception,45,interception_fraction,1.0,0.1,1.0,0.1,1.0,Low0.5to0.1,Namelist,,Multiplicative,1.0,0.1,1.0
+9,Snow Processes,Snowpack physics,17,zsno,0.000775,1e-05,0.07,1e-05,0.07,Same,Param,,Multiplicative,0.000775,1e-05,0.07
+10,Stomatal resistance and photosynthesis,Plant hydraulics,15,kmax,1.91e-08,2.27e-09,3.79e-08,2.27e-09,3.79e-08,Same,Param,,Multiplicative,1.914248914588618e-08,2.275049757128881e-09,3.798431092298881e-08
+11,Hydrology,Infiltration,7,d_max,15.0,5.0,100.0,10.0,60.0,BiggerRange_FromYifan,Param,,Multiplicative,15.0,5.0,100.0
+12,Hydrology,Surface Water Storage,30,slopebeta,-3.0,-10.0,-0.5,-5.0,-1.0,BiggerRange_FromYifan,Param,,Multiplicative,-3.0,-10.0,-0.5
+13,Stomatal resistance and photosynthesis,Photosynthesis,16,jmaxb0,0.0311,0.01,0.05,0.01,0.05,Same,Param,,Multiplicative,0.0311,0.01,0.05
+14,Hydrology,Canopy Water,13,maximum_leaf_wetted_fraction,0.05,0.01,0.5,0.01,0.5,Same,Namelist,,Multiplicative,0.05,0.01,0.5
+15,Hydrology,Baseflow generation,37,n_baseflow,1.0,0.2,5.0,1.0,2.0,BiggerRange,Param,,Multiplicative,1.0,0.2,5.0
+16,Snow Processes,Snow accumulation,24,accum_factor,0.1,0.025,0.4,0.1,0.4,BiggerRange,Param,,Multiplicative,0.1,0.025,0.4

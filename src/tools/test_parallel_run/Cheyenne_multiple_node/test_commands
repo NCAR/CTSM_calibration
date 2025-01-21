@@ -1,0 +1,6 @@
+qsub -I -A NCGD0013 -q regular -l walltime=0:30:00 -l select=2:ncpus=36
+
+module load parallel
+export MPI_DSM_DISTRIBUTE=0
+
+parallel -j 360 < testcmdfile

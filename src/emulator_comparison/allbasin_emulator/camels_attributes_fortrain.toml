@@ -1,0 +1,175 @@
+[att_Feng2020.mean_elev]
+description = "Catchment mean elevation"
+unit = "m"
+
+[att_Feng2020.mean_slope]
+description = "Catchment mean slope"
+unit = "m/km"
+
+[att_Feng2020.area_gauges2]
+description = "Catchment area (GAGESII estimate)"
+unit = "km2"
+
+[att_Feng2020.frac_forest]
+description = "Forest fraction"
+unit = "—"
+
+[att_Feng2020.lai_max]
+description = "Maximum monthly mean of the leaf area index"
+unit = "—"
+
+[att_Feng2020.lai_diff]
+description = "Difference between the maximum and minimum monthly mean of the leaf area index"
+unit = "—"
+
+[att_Feng2020.dom_land_cover_frac]
+description = "Fraction of the catchment area associated with the dominant land cover"
+unit = "—"
+
+[att_Feng2020.dom_land_cover]
+description = "Dominant land cover type"
+unit = "—"
+
+[att_Feng2020.root_depth_50]
+description = "Root depth at 50th percentile, extracted from a root depth distribution based on the International Geosphere-Biosphere Programme (IGBP) land cover"
+unit = "m"
+
+[att_Feng2020.soil_depth_statsgo]
+description = "Soil depth"
+unit = "m"
+
+[att_Feng2020.soil_porosity]
+description = "Volumetric soil porosity"
+unit = "—"
+
+[att_Feng2020.soil_conductivity]
+description = "Saturated hydraulic conductivity"
+unit = "cm/hr"
+
+[att_Feng2020.max_water_content]
+description = "Maximum water content"
+unit = "m"
+
+[att_Feng2020.geol_1st_class]
+description = "Most common geologic class in the catchment basin"
+unit = "—"
+
+[att_Feng2020.geol_2nd_class]
+description = "Second most common geologic class in the catchment basin"
+unit = "—"
+
+[att_Feng2020.geol_porostiy]
+description = "Subsurface porosity"
+unit = "—"
+
+[att_Feng2020.geol_permeability]
+description = "Subsurface permeability"
+unit = "m2"
+
+[att_Xie2021.p_mean]
+description = "Mean daily precipitation"
+unit = "mm"
+
+[att_Xie2021.pet_mean]
+description = "Mean daily potential evapotranspiration"
+unit = "mm"
+
+[att_Xie2021.aridity]
+description = "Ratio of mean PET to mean precipitation"
+unit = "—"
+
+[att_Xie2021.p_seasonality]
+description = "Seasonality and timing of precipitation"
+unit = "mm"
+
+[att_Xie2021.frac_snow]
+description = "Fraction of precipitation falling on days with temperatures below 0 °C"
+unit = "—"
+
+[att_Xie2021.high_prec_freq]
+description = "Frequency of high-precipitation days (≥ 5 times mean daily precipitation)"
+unit = "—"
+
+[att_Xie2021.high_prec_dur]
+description = "Average duration of high-precipitation events"
+unit = "day"
+
+[att_Xie2021.low_prec_freq]
+description = "Frequency of dry days (≤ 1 mm/day)"
+unit = "—"
+
+[att_Xie2021.low_prec_dur]
+description = "Average duration of dry periods"
+unit = "day"
+
+[att_Xie2021.mean_elev]
+description = "Catchment mean elevation"
+unit = "m"
+
+[att_Xie2021.mean_slope]
+description = "Catchment mean slope"
+unit = "m/km"
+
+[att_Xie2021.area_gauges2]
+description = "Catchment area"
+unit = "km2"
+
+[att_Xie2021.frac_forest]
+description = "Forest fraction"
+unit = "—"
+
+[att_Xie2021.lai_max]
+description = "Maximum monthly mean of leaf area index"
+unit = "—"
+
+[att_Xie2021.lai_diff]
+description = "Difference between the max. and min. mean of the leaf area index"
+unit = "—"
+
+[att_Xie2021.dom_land_cover_frac]
+description = "Fraction of the catchment area associated with the dominant land cover"
+unit = "—"
+
+[att_Xie2021.dom_land_cover]
+description = "Dominant land cover type"
+unit = "—"
+
+[att_Xie2021.soil_depth_pelletier]
+description = "Depth to bedrock (maximum 50 m)"
+unit = "m"
+
+[att_Xie2021.soil_depth_statsgo]
+description = "Soil depth (maximum 1.5 m)"
+unit = "m"
+
+[att_Xie2021.soil_porosity]
+description = "Volumetric porosity"
+unit = "—"
+
+[att_Xie2021.soil_conductivity]
+description = "Saturated hydraulic conductivity"
+unit = "cm/hr"
+
+[att_Xie2021.max_water_content]
+description = "Maximum water content of the soil"
+unit = "m"
+
+[att_Xie2021.sand_frac]
+description = "Fraction of sand in the soil"
+unit = "—"
+
+[att_Xie2021.silt_frac]
+description = "Fraction of silt in the soil"
+unit = "—"
+
+[att_Xie2021.clay_frac]
+description = "Fraction of clay in the soil"
+unit = "—"
+
+[att_Xie2021.carbonate_rocks_frac]
+description = "Fraction of Carbonate sedimentary rocks"
+unit = "—"
+
+[att_Xie2021.geol_permeability]
+description = "Surface permeability (log10)"
+unit = "m2"

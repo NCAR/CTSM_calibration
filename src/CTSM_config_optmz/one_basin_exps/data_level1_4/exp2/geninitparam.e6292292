@@ -1,0 +1,558 @@
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial45 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial45/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial36 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial36/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial18 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial18/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial20 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial20/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial8 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial8/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial9 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial9/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial10 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial10/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial11 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial11/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial12 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial12/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial13 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial13/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial14 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial14/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial15 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial15/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial17 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial17/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial19 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial19/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial21 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial21/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial22 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial22/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial23 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial23/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial24 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial24/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial25 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial25/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial26 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial26/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial27 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial27/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial28 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial28/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial29 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial29/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial30 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial30/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial31 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial31/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial32 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial32/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial33 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial33/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial34 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial34/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial37 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial37/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial38 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial38/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial39 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial39/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial40 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial40/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial41 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial41/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial42 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial42/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial43 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial43/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial44 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial44/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial46 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial46/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial47 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial47/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial48 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial48/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial49 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial49/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial16 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial16/Buildconf/clmconf/lnd_in'
+ERROR: New caseroot directory /glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial35 already exists
+/bin/sh: ./case.setup: No such file or directory
+Traceback (most recent call last):
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 308, in <module>
+    update_ctsm_parameters(path_CTSM_clone, file_parameter_set)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 162, in update_ctsm_parameters
+    update_CTSM_parameter_ParamFile(param_names, param_values, path_CTSM_case, outfile_newparam)
+  File "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support/run_one_paramset_Derecho.py", line 71, in update_CTSM_parameter_ParamFile
+    with open(infile_lndin, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_4_iter1_trial35/Buildconf/clmconf/lnd_in'
+varname meshfile is already in stream mod dictionary
+varname datafiles is already in stream mod dictionary
+submit_jobs case.run
+Submit job case.run
+varname meshfile is already in stream mod dictionary
+varname datafiles is already in stream mod dictionary
+check for resubmit
+dout_s True 
+mach derecho 
+resubmit_num 0
+Submit job case.st_archive
+rm: cannot remove '/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/MOASMO_exps/level1_4_exp2/ctsm_outputs_normKGE/iter1_trial0/log/*': No such file or directory
+varname meshfile is already in stream mod dictionary
+varname datafiles is already in stream mod dictionary
+submit_jobs case.run
+Submit job case.run
+varname meshfile is already in stream mod dictionary
+varname datafiles is already in stream mod dictionary
+check for resubmit
+dout_s True 
+mach derecho 
+resubmit_num 0
+Submit job case.st_archive
+rm: cannot remove '/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/MOASMO_exps/level1_4_exp2/ctsm_outputs_normKGE/iter1_trial6/log/*': No such file or directory
+varname meshfile is already in stream mod dictionary
+varname datafiles is already in stream mod dictionary
+submit_jobs case.run
+Submit job case.run
+varname meshfile is already in stream mod dictionary
+varname datafiles is already in stream mod dictionary
+check for resubmit
+dout_s True 
+mach derecho 
+resubmit_num 0
+Submit job case.st_archive
+rm: cannot remove '/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/MOASMO_exps/level1_4_exp2/ctsm_outputs_normKGE/iter1_trial3/log/*': No such file or directory
+varname meshfile is already in stream mod dictionary
+varname datafiles is already in stream mod dictionary
+submit_jobs case.run
+Submit job case.run
+varname meshfile is already in stream mod dictionary
+varname datafiles is already in stream mod dictionary
+check for resubmit
+dout_s True 
+mach derecho 
+resubmit_num 0
+Submit job case.st_archive
+rm: cannot remove '/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/MOASMO_exps/level1_4_exp2/ctsm_outputs_normKGE/iter1_trial2/log/*': No such file or directory
+varname meshfile is already in stream mod dictionary
+varname datafiles is already in stream mod dictionary
+submit_jobs case.run
+Submit job case.run
+varname meshfile is already in stream mod dictionary
+varname datafiles is already in stream mod dictionary
+check for resubmit
+dout_s True 
+mach derecho 
+resubmit_num 0
+Submit job case.st_archive
+rm: cannot remove '/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/MOASMO_exps/level1_4_exp2/ctsm_outputs_normKGE/iter1_trial7/log/*': No such file or directory
+varname meshfile is already in stream mod dictionary
+varname datafiles is already in stream mod dictionary
+submit_jobs case.run
+Submit job case.run
+varname meshfile is already in stream mod dictionary
+varname datafiles is already in stream mod dictionary
+check for resubmit
+dout_s True 
+mach derecho 
+resubmit_num 0
+Submit job case.st_archive
+rm: cannot remove '/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/MOASMO_exps/level1_4_exp2/ctsm_outputs_normKGE/iter1_trial1/log/*': No such file or directory
+varname meshfile is already in stream mod dictionary
+varname datafiles is already in stream mod dictionary
+submit_jobs case.run
+Submit job case.run
+varname meshfile is already in stream mod dictionary
+varname datafiles is already in stream mod dictionary
+check for resubmit
+dout_s True 
+mach derecho 
+resubmit_num 0
+Submit job case.st_archive
+rm: cannot remove '/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/MOASMO_exps/level1_4_exp2/ctsm_outputs_normKGE/iter1_trial4/log/*': No such file or directory
+varname meshfile is already in stream mod dictionary
+varname datafiles is already in stream mod dictionary
+submit_jobs case.run
+Submit job case.run
+varname meshfile is already in stream mod dictionary
+varname datafiles is already in stream mod dictionary
+check for resubmit
+dout_s True 
+mach derecho 
+resubmit_num 0
+Submit job case.st_archive
+rm: cannot remove '/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/MOASMO_exps/level1_4_exp2/ctsm_outputs_normKGE/iter1_trial5/log/*': No such file or directory

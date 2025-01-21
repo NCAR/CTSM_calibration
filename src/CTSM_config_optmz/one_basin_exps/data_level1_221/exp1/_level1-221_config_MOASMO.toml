@@ -1,0 +1,20 @@
+path_CTSM_source = "/glade/u/home/guoqiang/CTSM_repos/CTSM"
+path_script_calib = "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/calibration"
+path_script_MOASMO = "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support"
+path_CTSM_case = "/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO_bigrange/level1_221"
+path_calib = "/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/MOASMO_exps/level1_221_exp1"
+file_calib_param = "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/CTSM_config_optmz/one_basin_exps/data_level1_221/exp1/Param_3384450_bigrange2.csv"
+file_Qobs = "/glade/work/guoqiang/CTSM_CAMELS/CAMLES_Qobs/03384450_streamflow_qc.txt"
+ignore_month = 12
+nonstandard_evaluation = "NA"
+RUN_STARTDATE = "2008-10-01"
+STOP_N = 72
+STOP_OPTION = "nmonths"
+projectCode = "P08010000"
+job_mode = "lumpsubmit"
+job_CTSMiteration = [ "#PBS -N MOAcontrol", "#PBS -q main", "#PBS -l select=1:ncpus=128", "#PBS -l walltime=12:00:00", "#PBS -A P08010000",]
+job_controlMOASMO = [ "#PBS -N MOAcontrol", "#PBS -q main", "#PBS -l select=1:ncpus=128", "#PBS -l walltime=12:00:00", "#PBS -A P08010000",]
+sampling_method = "lh"
+num_init = 400
+num_per_iter = 100
+num_iter = 3
