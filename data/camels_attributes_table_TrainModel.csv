@@ -1,0 +1,61 @@
+Attribute_xlsx,Attribute_text,Type,Description,Unit,Data source,References,Feng2020,att_Xie2021,NCAR
+gauge_id,gauge_id,Name_topography,catchment identifier (8-digit USGS hydrologic unit code),-,N15 - USGS data,-,FALSE,FALSE,FALSE
+huc_02,huc_02,Name_topography,region (2-digit USGS hydrologic unit code),-,N15 - USGS data,-,FALSE,FALSE,FALSE
+gauge_name,gauge_name,Name_topography,"gauge name, followed by the state",-,N15 - USGS data,-,FALSE,FALSE,FALSE
+gauge_lat,gauge_lat,Name_topography,gauge latitude ,° north,N15 - USGS data,-,FALSE,FALSE,TRUE*
+gauge_lon,gauge_lon,Name_topography,gauge longitude,° east,N15 - USGS data,-,FALSE,FALSE,TRUE*
+elev_mean,mean_elev,Name_topography,catchment mean elevation,meter above sea level,N15 - USGS data,-,TRUE,TRUE,TRUE
+slope_mean,mean_slope,Name_topography,catchment mean slope,m/km,N15 - USGS data,-,TRUE,TRUE,TRUE
+area_gages2,area_gauges2,Name_topography,catchment area (GAGESII estimate),km2,N15 - USGS data,Falcone (2011) ,TRUE,TRUE,TRUE
+area_geospa_fabric,area_geospa_fabric,Name_topography,catchment area (Geospatial Fabric estimate),km2,N15 - Geospatial Fabric,"Viger (2014), Viger and Bock (2014)",FALSE,FALSE,FALSE
+p_mean,p_mean,Climate,mean daily precipitation,mm/day,N15 - Daymet*,,FALSE,TRUE,TRUE
+pet_mean,pet_mean,Climate,mean daily PET [estimated by N15 using Priestley-Taylor formulation calibrated for each catchment],mm/day,N15 - Daymet*,,FALSE,TRUE,TRUE
+aridity,aridity,Climate,"aridity (PET/P, ratio of mean PET [estimated by N15 using Priestley-Taylor formulation calibrated for each catchment] to mean precipitation)",-,N15 - Daymet*,-,FALSE,TRUE,TRUE
+p_seasonality,p_seasonality,Climate,"seasonality and timing of precipitation (estimated using sine curves to represent the annual temperature and preciptiation cycles, positive [negative] values indicate that precipitation peaks in summer [winter], values close to 0 indicate uniform precipitation throughout the year)",-,N15 - Daymet*,Eq. 14 in Woods et al. (2009),FALSE,TRUE,TRUE
+frac_snow,frac_snow,Climate,fraction of precipitation falling as snow (i.e. on days colder than 0°C),-,N15 - Daymet*,-,FALSE,TRUE,TRUE
+high_prec_freq,high_prec_freq,Climate,frequency of high precipitation days ( >= 5 times mean daily precip.),days/year,N15 - Daymet*,-,FALSE,TRUE,TRUE
+high_prec_dur,high_prec_dur,Climate,average duration of high precipitation events (number of consecutive days >= 5 times mean daily precip.),days,N15 - Daymet*,-,FALSE,TRUE,TRUE
+high_prec_timing,high_prec_timing,Climate,season during which most high precipitation days ( >= 5 times mean daily precip.) occur,qualitative,N15 - Daymet*,-,FALSE,FALSE,TRUE*
+low_prec_freq,low_prec_freq,Climate,average frequency of dry days ( <1 mm/day),days/year,N15 - Daymet*,-,FALSE,TRUE,TRUE
+low_prec_dur,low_prec_dur,Climate,average duration of dry periods (number of consecutive days <1 mm/day),days,N15 - Daymet*,-,FALSE,TRUE,TRUE
+low_prec_timing,low_prec_timing,Climate,season during which most dry days ( <1 mm/day) occur,qualitative,N15 - Daymet*,-,FALSE,FALSE,TRUE*
+q_mean,q_mean,Hydrology,mean discharge,mm/day,N15 - USGS data*,-,FALSE,FALSE,FALSE
+runoff_ratio,runoff_ratio,Hydrology,runoff ratio (ratio of long-term average streamflow to long-term average precipitation),-,N15 - USGS data*,Eq. 2 in Sawicz et al. (2011),FALSE,FALSE,FALSE
+stream_elas,stream_elas,Hydrology,"streamflow elasticity (sensitivity of streamflow to changes in precipitation at the annual time scale, using the long-term average as reference)",-,N15 - USGS data*,"Eq. 7 in Sankarasubramanian et al. (2001), the last element being P/Q not Q/P",FALSE,FALSE,FALSE
+slope_fdc,slope_fdc,Hydrology,slope of the flow duration curve (between the log-transformed 33rd and 66th streamflow percentiles),,N15 - USGS data*,Eq. 3 in Sawicz et al. (2011),FALSE,FALSE,FALSE
+baseflow_index,baseflow_index,Hydrology,"baseflow index (ratio of long-term average baseflow to long-term average streamflow, hydrograph separation performed using Ladson et al. [2013] digital filter)",-,N15 - USGS data*,"Eq. 4 in Sawicz et al. (2011), Ladson et al. (2013)",FALSE,FALSE,FALSE
+hfd_mean,hfd_mean,Hydrology,mean half flow date (date on which the cumulative discharge since October 1st reaches half of the annual discharge),day of year,N15 - USGS data*,Court (1962),FALSE,FALSE,FALSE
+q5,q5,Hydrology,5% flow quantile,mm/day,N15 - USGS data*,-,FALSE,FALSE,FALSE
+q95,q95,Hydrology,95% flow quantile,mm/day,N15 - USGS data*,-,FALSE,FALSE,FALSE
+high_q_freq,high_q_freq,Hydrology,average frequency of high flow days ( > 9 times the median daily flow),days/year,N15 - USGS data*,"Clausen and Biggs (2000), Table 2 in Westerberg and McMillan (2015)",FALSE,FALSE,FALSE
+high_q_dur,high_q_dur,Hydrology,average duration of high flow events (number of consecutive days > 9 times the median daily flow),days,N15 - USGS data*,"Clausen and Biggs (2000), Table 2 in Westerberg and McMillan (2015)",FALSE,FALSE,FALSE
+low_q_freq,low_q_freq,Hydrology,average frequency of daily low-flow days ( < 0.2 times mean daily flow),days/year,N15 - USGS data*,"Olden and Poff (2003), Table 2 in Westerberg and McMillan (2015)",FALSE,FALSE,FALSE
+low_q_dur,low_q_dur,Hydrology,average duration of daily flow events (number of consecutive days < 0.2 times the mean daily flow),days,N15 - USGS data*,"Olden and Poff (2003), Table 2 in Westerberg and McMillan (2015)",FALSE,FALSE,FALSE
+zero_q_freq,zero_q_freq,Hydrology,frequency of days with Q = 0,%,N15 - USGS data*,,FALSE,FALSE,FALSE
+forest_frac,frac_forest,Landcover,forest fraction,-,N15 - USGS data,-,TRUE,TRUE,TRUE
+lai_max,lai_max,Landcover,maximum monthly mean of the leaf area index (based on 12 monthly means),-,MODIS*,-,TRUE,TRUE,TRUE
+lai_diff,lai_diff,Landcover,difference between the maximum and mimumum monthly mean of the leaf area index (based on 12 monthly means),-,MODIS*,-,TRUE,TRUE,TRUE
+gvf_max,gvf_max,Landcover,maximum monthly mean of the green vegetation fraction (based on 12 monthly means),-,MODIS*,-,FALSE,FALSE,FALSE
+gvf_diff,gvf_diff,Landcover,difference between the maximum and mimumum monthly mean of the green vegetation fraction (based on 12 monthly means),-,MODIS*,-,FALSE,FALSE,TRUE*
+dom_land_cover,dom_land_cover,Landcover,dominant land cover (Noah-modified 20-category IGBP-MODIS land cover),-,MODIS*,-,TRUE,TRUE,TRUE
+dom_land_cover_frac,dom_land_cover_frac,Landcover,fraction of the catchment area associated with the dominant land cover,-,MODIS*,-,TRUE,TRUE,TRUE
+root_depth_50,root_depth_50,Landcover,root depth (percentiles XX = 50% extracted from a root depth distribution based on IGBP land cover),m,MODIS*,Eq. 2 and Table 2 in Zeng (2011),TRUE,FALSE,FALSE
+root_depth_99,root_depth_99,Landcover,root depth (percentiles XX = 99% extracted from a root depth distribution based on IGBP land cover),m,MODIS*,Eq. 2 and Table 2 in Zeng (2011),FALSE,FALSE,FALSE
+soil_depth_pelletier,soil_depth_pelletier,Soil,depth to bedrock (maximum 50m),m,Pelletier et al. (2016),-,FALSE,TRUE,TRUE
+soil_depth_statgso,soil_depth_statsgo,Soil,"soil depth (maximum 1.5m, layers marked as water and bedrock were excluded)",m,Miller and White (1998) - STATSGO*,-,TRUE,TRUE,TRUE
+soil_porosity,soil_porosity,Soil,"volumetric porosity (saturated volumetric water content estimated using a multiple linear regression based on sand and clay fraction for the layers marked as USDA soil texture class and a default value [0.9] for layers marked as organic material, layers marked as water, bedrock and ""other"" were excluded)",-,Miller and White (1998) - STATSGO*,"Table 4 in Cosby et al. (1984), Lawrence and Slater (2008)",TRUE,TRUE,TRUE
+soil_conductivity,soil_conductivity,Soil,"saturated hydraulic conductivity (estimated using a multiple linear regression based on sand and clay fraction for the layers marked as USDA soil texture class and a default value [36cm/hr] for layers marked as organic material, layers marked as water, bedrock and ""other"" were excluded)",cm/hr,Miller and White (1998) - STATSGO*,"Table 4 in Cosby et al. (1984), Lawrence and Slater (2008)",TRUE,TRUE,TRUE
+max_water_content,max_water_content,Soil,"maximum water content (combination of porosity and soil_depth_statgso, layers marked as water, bedrock and ""other"" were excluded)",m,Miller and White (1998) - STATSGO*,-,TRUE,TRUE,TRUE
+sand_frac,sand_frac,Soil,"sand fraction (of the soil material smaller than 2 mm, layers marked as oragnic material, water, bedrock and ""other"" were excluded)",%,Miller and White (1998) - STATSGO*,-,FALSE,TRUE,TRUE
+silt_frac,silt_frac,Soil,"silt fraction (of the soil material smaller than 2 mm, layers marked as oragnic material, water, bedrock and ""other"" were excluded)",%,Miller and White (1998) - STATSGO*,-,FALSE,TRUE,TRUE
+clay_frac,clay_frac,Soil,"clay fraction (of the soil material smaller than 2 mm, layers marked as oragnic material, water, bedrock and ""other"" were excluded)",%,Miller and White (1998) - STATSGO*,-,FALSE,TRUE,TRUE
+water_frac,water_frac,Soil,fraction of the top 1.5m marked as water (class 14 ),%,Miller and White (1998) - STATSGO*,-,FALSE,FALSE,FALSE
+organic_frac,organic_frac,Soil,fraction of soil_depth_statgso marked as organic material (class 13),%,Miller and White (1998) - STATSGO*,-,FALSE,FALSE,TRUE*
+other_frac,other_frac,Soil,fraction of soil_depth_statgso marked as other (class 16),%,Miller and White (1998) - STATSGO*,-,FALSE,FALSE,FALSE
+geol_class_1st,geol_1st_class,Geology,most common geologic class in the catchment,-,GLiM,Hartmann and Moosdorf (2012),TRUE,FALSE,FALSE
+geol_class_1st_frac,glim_1st_class_frac,Geology,fraction of the catchment area associated with its most common geologic class,-,GLiM,Hartmann and Moosdorf (2012),FALSE,FALSE,FALSE
+geol_class_2nd,geol_2nd_class,Geology,2nd most common geologic class in the catchment,-,GLiM,Hartmann and Moosdorf (2012),TRUE,FALSE,FALSE
+geol_class_2nd_frac,glim_2nd_class_frac,Geology,fraction of the catchment area associated with its 2nd most common geologic class,-,GLiM,Hartmann and Moosdorf (2012),FALSE,FALSE,FALSE
+carb_rocks_frac,carbonate_rocks_frac,Geology,"fraction of the catchment area characterized as ""Carbonate sedimentary rocks""",-,GLiM,Hartmann and Moosdorf (2012),FALSE,TRUE,TRUE
+geol_porosity,geol_porostiy,Geology,subsurface porosity,-,GLHYMPS,Gleeson et al. (2014),TRUE,FALSE,FALSE
+geol_permeability,geol_permeability,Geology,subsurface permeability (log10),m2,GLHYMPS,Gleeson et al. (2014),TRUE,TRUE,TRUE

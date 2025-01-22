@@ -1,0 +1,66 @@
+level1_221
+sse/lse iter-0 to iter-3 best kge
+(array([0.31269745, 0.32347335, 0.32504006, 0.32760588]),
+ array([0.31269745, 0.31483779, 0.31886765, 0.32686288]))
+
+zbedrock: 1.17
+
+/glade/work/guoqiang/CTSM_CAMELS/data_paramcailb/ParamCalib_basinparam_3384450.csv
+
+hru_id                                                     3384450
+ann_P                                                          0.0
+lon_cen                                                  -88.52769
+lat_cen                                                   37.53076
+AREA                                                 112284035.644
+elev_mean                                                191.72973
+ave_T                                                          NaN
+july_T                                                         NaN
+Perimeter                                                    77775
+Source                                                       HSTDX
+latoutlet                                                 37.47227
+lonoutlet                                                -88.54727
+areaUSGS                                                    111.13
+RawCAMELSarea                                           112.284036
+RawTDXarea                                              113.729422
+HSTDXarea                                               111.341821
+MHTDXarea                                               110.558628
+RawCAMELSbias                                             0.010385
+RawTDXbias                                                0.023391
+HSTDXbias                                                 0.001906
+MHTDXbias                                                -0.005141
+final_bias                                                0.001906
+
+
+
+
+level1_4
+defa/sse/lse kge
+0.3372485290566952
+[0.56473037 0.59727834 0.56911873 0.58832351]
+[0.56473037 0.60906545 0.63004741 0.62426104]
+
+zbedrock
+3.4794549192760638
+
+hru_id                                                     1047000
+ann_P                                                          0.0
+lon_cen                                                  -70.16213
+lat_cen                                                   44.98744
+AREA                                                 904956194.351
+elev_mean                                               379.779978
+ave_T                                                          NaN
+july_T                                                         NaN
+Perimeter                                                   310157
+Source                                                   RawCAMELS
+latoutlet                                                  44.8692
+lonoutlet                                                 -69.9551
+areaUSGS                                                     909.1
+RawCAMELSarea                                           904.956194
+RawTDXarea                                              914.491471
+HSTDXarea                                               914.237495
+MHTDXarea                                               913.814091
+RawCAMELSbias                                            -0.004558
+RawTDXbias                                                0.005931
+HSTDXbias                                                 0.005651
+MHTDXbias                                                 0.005185
+final_bias                                                0.004558

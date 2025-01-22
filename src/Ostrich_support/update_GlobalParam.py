@@ -75,7 +75,7 @@ with open(infile_factor_value, 'r') as f:
 df_bind = pd.DataFrame()
 for i in range(len(df_calibparam)):
     bindvari = df_calibparam.iloc[i]['Binding']
-    if bindvari != 'None':
+    if isinstance(bindvari, str) and bindvari != 'None':
         bindvari = bindvari.split(',')
         for bv in bindvari:
             dftmp = df_calibparam.iloc[[i]].copy()
@@ -132,6 +132,16 @@ if len(df_param1) > 0:
 if change_param == True:
     ds_param.to_netcdf(outfile_newparam, format='NETCDF3_CLASSIC')
 
+# check if new parameter name is already in the user_nl_clm file
+for i in range(len(lines_nlclm)):
+    if outfile_newparam in lines_nlclm[i]:
+        # already in ...
+        break
+    if i == len(lines_nlclm) - 1:
+        # not in
+        lines_nlclm.append(f"\nparamfile='{outfile_newparam}'\n")
+        change_nlclm = True
+
 ## 2. surface data file
 df_param2 = df_calibparam[df_calibparam['Source']=='Surfdata']
 if len(df_param2) > 0:
@@ -158,12 +168,12 @@ if change_surfdata == True:
 
 # check if new parameter name is already in the user_nl_clm file
 for i in range(len(lines_nlclm)):
-    if outfile_newparam in lines_nlclm[i]:
+    if outfile_newsurf in lines_nlclm[i]:
         # already in ...
         break
     if i == len(lines_nlclm) - 1:
         # not in
-        lines_nlclm.append(f"\nparamfile='{outfile_newparam}'\n")
+        lines_nlclm.append(f"\nfsurdat='{outfile_newsurf}'\n")
         change_nlclm = True
 
 ## 3. namelist

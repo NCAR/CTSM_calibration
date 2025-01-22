@@ -1,0 +1,42 @@
+{
+    "{\"alpha\": 0.0001, \"early_stopping\": true, \"hidden_layer_sizes\": [300], \"max_iter\": 1000, \"random_state\": 42}": {
+        "train_rmse": [
+            0.08324758691410383
+        ],
+        "test_rmse": [
+            0.22176568381645026
+        ]
+    },
+    "{\"alpha\": 0.0001, \"early_stopping\": true, \"hidden_layer_sizes\": [200], \"max_iter\": 1000, \"random_state\": 42}": {
+        "train_rmse": [
+            0.08638170105212277
+        ],
+        "test_rmse": [
+            0.2233274605366598
+        ]
+    },
+    "{\"alpha\": 0.0001, \"early_stopping\": true, \"hidden_layer_sizes\": [100], \"max_iter\": 1000, \"random_state\": 42}": {
+        "train_rmse": [
+            0.09328865556829544
+        ],
+        "test_rmse": [
+            0.22577381324368906
+        ]
+    },
+    "{\"alpha\": 0.0001, \"early_stopping\": true, \"hidden_layer_sizes\": [50, 25], \"max_iter\": 1000, \"random_state\": 42}": {
+        "train_rmse": [
+            0.08684757397875094
+        ],
+        "test_rmse": [
+            0.20768905757493084
+        ]
+    },
+    "{\"alpha\": 0.0001, \"early_stopping\": true, \"hidden_layer_sizes\": [200], \"learning_rate\": \"adaptive\", \"learning_rate_init\": 0.002, \"max_iter\": 1000, \"random_state\": 42}": {
+        "train_rmse": [
+            0.08743124882407202
+        ],
+        "test_rmse": [
+            0.21302658159182536
+        ]
+    }
+}
