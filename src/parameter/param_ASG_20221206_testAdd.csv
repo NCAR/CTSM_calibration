@@ -1,2 +1,0 @@
-Parameter,Default,Lower,Upper,Source,Method,Type,Binding
-precip_repartition_nonglc_all_rain_t,2,0,4,Namelist,Additive,Hydrology,"precip_repartition_glc_all_rain_t,precip_repartition_glc_all_snow_t,precip_repartition_nonglc_all_snow_t"

@@ -1,0 +1,200 @@
+# Create config.toml files for CAMELS basins
+
+import pandas as pd
+import numpy as np
+import os, toml, sys, glob
+from datetime import datetime
+import decide_CalibValid_periods as decidePeriod
+
+
+########################################################################################################################
+# settings
+
+level = 'level1'
+
+clonecase = 'level1_0'
+
+projectcode = 'P08010000'
+
+infile_basin_info = f'/glade/work/guoqiang/CTSM_CAMELS/data_mesh_surf/HillslopeHydrology/CAMELS_{level}_basin_info.csv'
+
+df_info = pd.read_csv(infile_basin_info)
+
+
+for basin_num in range(627):
+
+    inpath_camels_data = '/glade/campaign/ral/hap/common/camels/obs_flow_met'
+    inpath_Qobs = '/glade/work/guoqiang/CTSM_CAMELS/CAMLES_Qobs'
+    
+    outpath_case = '/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_Ostrich_SameParam_KGE'
+    outpath_out = '/glade/derecho/scratch/guoqiang/CTSM_outputs/CAMELS_Calib/Calib_HH_Ostrich_SameParam_KGE'
+    outpath_config = f'{outpath_case}/configuration'
+    outfile_config = f'{outpath_config}/{level}-{basin_num}_config.toml'
+    
+    os.makedirs(outpath_case, exist_ok=True)
+    os.makedirs(outpath_out, exist_ok=True)
+    os.makedirs(outpath_config, exist_ok=True)
+    
+    calibyears = 6
+    wy_month = 10 # October: water year start
+    
+    ########################################################################################################################
+    # basic configurations
+    config_intro = {'author': 'Guoqiang Tang',
+                    'version': '0.0.1',
+                    'name': 'CTSM calibration',
+                    'date': '2024-10',
+                    'affiliation': 'CGD/TSS NCAR'}
+    
+    create_case_settings = "--machine derecho --compset I2000Clm51Sp --driver nuopc --compiler intel --res f09_g16 --handle-preexisting-dirs r --run-unsupported"
+    
+    config_HPC = {'projectCode': projectcode}
+    
+    ########################################################################################################################
+    # decide calibration period
+    
+    if len(df_info)<basin_num:
+        sys.exit(f'basin_num {basin_num} exceeds the length of basin info csv')
+    
+    hru_id = df_info.iloc[basin_num]['hru_id']
+    name = df_info.iloc[basin_num]['file_obsQ'].split('/')[-1]
+    file_Qobs = f'{inpath_Qobs}/{name}'
+    
+    df_q = decidePeriod.read_raw_CAMELS_Q_to_df(file_Qobs)
+    date = df_q['date'].values
+    data = df_q['Qobs'].values
+    
+    # the most recent period is used for calibration
+    trial_start_date, trial_end_date = decidePeriod.calib_period_Ending(data, date, calibyears, validratio=0.8, wy_month=10)
+    RUN_STARTDATE = trial_start_date
+    STOP_N = calibyears * 12
+    STOP_OPTION = 'nmonths'
+    
+    # decide the spin up period uisng the data starts from 1950-01
+    input_date = datetime.strptime(trial_start_date, '%Y-%m-%d')
+    reference_date = datetime(1951, 1, 1)
+    months_difference = (input_date.year - reference_date.year) * 12 + (input_date.month - reference_date.month)
+    
+    
+    
+    # # method-1
+    # settings = {}
+    # settings['method'] = 1
+    # settings['calibyears'] = 5 # how many years are used to calibrate the model
+    # settings['validratio'] = 0.8 # ratio of valid Q records during the period
+    # settings['trial_start_date'] = '1985-10-01' # only use data after this period. month can be used to define the start of a water year
+    # RUN_STARTDATE, STOP_N, STOP_OPTION, STOP_DATE = decidePeriod.calibration_period_CTSMformat(data, date, settings)
+    
+    # # method-2
+    # settings = {}
+    # settings['method'] = 2
+    # settings['startmonth'] = 10 #  the start of a year (e.g., 1 or 10)
+    # settings['periodlength'] = 5 # calib years
+    # settings['window'] = 5 # years of rolling mean
+    # RUN_STARTDATE, STOP_N, STOP_OPTION, STOP_DATE = decidePeriod.calibration_period_CTSMformat(data, date, settings)
+    
+    # # Method-3: default start period to utilize the existing restart file
+    # STOP_OPTION = 'nmonths'
+    # STOP_N = 36 # 3 years
+    # RUN_STARTDATE = '2000-01-01'
+    # STOP_DATE = '2002-12-31'
+    
+    ########################################################################################################################
+    # CTSM configurations
+    config_CTSM = {}
+    config_CTSM['files'] = {}
+    config_CTSM['files']['path_CTSM_source'] = '/glade/u/home/guoqiang/CTSM_repos/CTSM'
+    config_CTSM['files']['path_CTSM_case'] = f'{outpath_case}/{level}_{basin_num}'
+    config_CTSM['files']['path_CTSM_CIMEout'] = f'{outpath_out}/{level}_{basin_num}'
+    config_CTSM['files']['file_CTSM_mesh'] = f'/glade/work/guoqiang/CTSM_CAMELS/data_mesh_surf/HillslopeHydrology/disaggregation/corrected_HCDN_nhru_final_671_buff_fix_holes.CAMELSandTDX_areabias_fix.simp0.001.{level}_polygons_neighbor_group_esmf_mesh_{basin_num}.nc'
+    
+    config_CTSM['files']['file_CTSM_surfdata'] = f'/glade/work/guoqiang/CTSM_CAMELS/data_mesh_surf/HillslopeHydrology/disaggregation/surfdata_CAMELS_{level}_hist_78pfts_CMIP6_simyr2000_HAND_trapezoidal_{basin_num}.nc'
+    
+    config_CTSM['settings'] = {}
+    
+    if basin_num == 0 and level == 'level1':
+        print('Will create new CTSM case from scratch.')
+        config_CTSM['settings']['CLONEROOT'] = ''
+    else:
+        print('Will clone CTSM case from basin 0 using --keepexe')
+        config_CTSM['settings']['CLONEROOT'] = f'{outpath_case}/{clonecase}'
+    
+    config_CTSM['settings']['CLONEsettings'] = "--keepexe"
+    config_CTSM['settings']['createcase'] = create_case_settings
+    config_CTSM['settings']['RUN_STARTDATE'] = RUN_STARTDATE
+    config_CTSM['settings']['STOP_N'] = STOP_N
+    config_CTSM['settings']['STOP_OPTION'] = STOP_OPTION
+    config_CTSM['settings']['NTASKS'] = 1
+    config_CTSM['settings']['casebuild'] = 'direct'
+    config_CTSM['settings']['subset_length'] = 'existing'
+    config_CTSM['settings']['forcing_YearStep'] = 5 # merge monthly/yearly forcings to the target time step
+    
+    
+    config_CTSM['AddToNamelist'] = {}
+    config_CTSM['AddToNamelist']['user_nl_datm_streams'] = ['topo.observed:meshfile=/glade/work/guoqiang/CTSM_CAMELS/data_topo/ESMFmesh_ctsm_elev_Conus_0.125d_210810.cdf5.nc',
+                                                            'topo.observed:datafiles=/glade/work/guoqiang/CTSM_CAMELS/data_topo/ctsm_elev_Conus_0.125d.cdf5.nc']
+    config_CTSM['AddToNamelist']['user_nl_datm'] = ['']
+    
+    
+    outformat = "hist_fincl2 = 'QRUNOFF','QDRAI','QOVER','QH2OSFC','QINFL','H2OSNO','QFLX_SNOW_DRAIN','QFLX_SOLIDEVAP_FROM_TOP_LAYER','SNOW_DEPTH','SNOWDP','SNO_T','SNO_Z','SNO_MELT','QSNOMELT','SOILICE','SOILLIQ','TOTSOILICE','TOTSOILLIQ','SOILWATER_10CM','TWS','ZWT','QINTR','LIQCAN','SNOCAN','QVEGE','QSOIL','QVEGT','FSH','EFLX_LH_TOT','Rnet','RAIN','SNOW','TBOT'"
+    finit = glob.glob(f'/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO/{level}_{basin_num}_SpinupFiles/*.clm2.r.*.nc')
+    if len(finit)==1:
+        finit = finit[0]
+    else:
+        sys.exit('Wrong finit file')
+    
+    config_CTSM['AddToNamelist']['user_nl_clm'] = ["use_hillslope = .true.", "use_hillslope_routing = .true.", "n_dom_pfts = 2",
+                                                  "hist_nhtfrq = 0,-24", "hist_mfilt = 1,365", 
+                                                  f"finidat = '{finit}'",
+                                                  outformat]
+    
+    
+    config_CTSM['replacefiles'] = {}
+    config_CTSM['replacefiles']['user_nl_datm_streams'] = f'/glade/work/guoqiang/CTSM_CAMELS/Calib_HH_MOASMO/{level}_{basin_num}_SubsetForcing/user_nl_datm_streams'
+    
+    ########################################################################################################################
+    # calibration configurations
+    config_calib = {}
+    config_calib['files'] = {}
+    config_calib['files']['path_script_calib'] = '/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/calibration'
+    config_calib['files']['path_script_Ostrich'] = '/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/Ostrich_support'
+    
+    idi = df_info.iloc[basin_num]['hru_id']
+    # paramfile = f'/glade/work/guoqiang/CTSM_CAMELS/data_paramcailb/ParamCalib_basinparam_{idi}.csv'
+    paramfile = f'/glade/work/guoqiang/CTSM_CAMELS/data_paramcailb/ParamCalib_same4basins_{idi}.csv'
+    if not os.path.isfile(paramfile):
+        sys.exit(f'paramfile does not exist: {paramfile}')
+    config_calib['files']['file_calib_param'] = paramfile
+    # config_calib['files']['file_calib_param'] = '/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/parameter/param_ASG_20221206.csv'
+    
+    config_calib['files']['file_Qobs'] = file_Qobs
+    config_calib['files']['path_calib'] = f"/glade/campaign/cgd/tss/people/guoqiang/CTSM_CAMELS_proj/Calib_HH_Ostrich_SameParam_KGE/{level}_{basin_num}_calib" # if not provided, just use default settings (i.e., a folder within the same folder with the CTSM case)
+    
+    config_calib['eval'] = {}
+    config_calib['eval']['ignore_month'] = 12 # the first few months are ignored during evaluation due to spin up
+    config_calib['eval']['objfunc'] = 'kge'
+    
+    
+    config_calib['job'] = {}
+    config_calib['job']['jobsetting'] = ['#PBS -N OstrichCalib', '#PBS -q develop', '#PBS -l walltime=6:00:00']
+    # config_calib['job']['jobsetting'] = ['#PBS -N OstrichCalib', '#PBS -q casper', '#PBS -l walltime=24:00:00']
+    
+    ########################################################################################################################
+    # spinup configurations
+    config_spinup = {}
+    config_spinup['spinup_mode'] = "continuous" # continuous: period before RUN_STARTDATE. No other option for now
+    config_spinup['spinup_month'] = months_difference # 5-year spin up
+    config_spinup['force_Jan_start'] = True # CTSM default initial conditions start at Jan 1st. So, using Jan as the start date could be better
+    config_spinup['update_restart'] = True # after spin-up is done, add the restart file to user_nl_clm
+    
+    ########################################################################################################################
+    # save configurations to toml
+    config_all = {}
+    config_all['intro'] = config_intro
+    config_all['HPC'] = config_HPC
+    config_all['CTSM'] = config_CTSM
+    config_all['calib'] = config_calib
+    config_all['spinup'] = config_spinup
+    
+    with open(outfile_config, 'w') as f:
+        toml.dump(config_all, f)

@@ -53,5 +53,6 @@ for i in range(numbasin):
     # print(index_nodeCount)
     dsi = dsall.isel(elementCount=index_elementCount, connectionCount=index_connectionCount, nodeCount=index_nodeCount)
     # re-assign elementConn
-    dsi['elementConn'].values = dsi['elementConn'].values - dsi['elementConn'].values.min() + 1
+    # dsi['elementConn'].values = dsi['elementConn'].values - dsi['elementConn'].values.min() + 1
+    dsi['elementConn'].values = np.arange(len(index_nodeCount)) + 1.0 # needs to make sure this is counterclockwise
     save_to_netcdf(dsi, outfilei, netcdf_format)

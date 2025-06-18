@@ -1,5 +1,5 @@
 # An independent basin
-
+import shutil
 # Create a CTSM model case
 # Settings based on single basin files
 # Note: manual check of settings are needed before running this script
@@ -41,6 +41,13 @@ projectCode = config_CTSMcase['projectCode']
 CLONEROOT = config_CTSMcase['CLONEROOT']
 CLONEsettings = config_CTSMcase['CLONEsettings']
 
+if 'file_CTSM_ROFMESH' in config_CTSMcase:
+    file_CTSM_ROFMESH = config_CTSMcase['file_CTSM_ROFMESH']
+else:
+    file_CTSM_ROFMESH = ''
+
+print('file_CTSM_ROFMESH', file_CTSM_ROFMESH)
+
 #####################
 # Model settings to be changed: list
 user_nl_clm_settings = [f"fsurdat = '{file_CTSM_surfdata}'",
@@ -58,15 +65,22 @@ xmlchange_settings = [f"ATM_DOMAIN_MESH={file_CTSM_mesh}",
                       # turn off MOSART_MODE to save time
                       "MOSART_MODE=NULL",
                       # change forcing data
-                      "DATM_MODE=CLMNLDAS2",
+                      "DATM_MODE=CLMGSWP3v1",
+                      # change MPI to MPILIB: MPILIB from the default mpich to mpi-serial
+                      "MPILIB=mpi-serial",
                       # change the run time of mode case
                       f"STOP_N={STOP_N}",
                       f"RUN_STARTDATE={RUN_STARTDATE}",
                       f"STOP_OPTION={STOP_OPTION}",
                       # change computation resource requirement if needed
                       # NTASKS: the total number of MPI tasks, a negative value indicates nodes rather than tasks
-                      f"NTASKS={NTASKS}",
                       ]
+
+if len(file_CTSM_ROFMESH)>0:
+    xmlchange_settings.append(f"ROF_DOMAIN_MESH={file_CTSM_ROFMESH}")
+
+if NTASKS > -999:
+    xmlchange_settings.append(f"NTASKS={NTASKS}")
 
 if NTASKS == 1:
     # need to recompile
@@ -76,18 +90,13 @@ if NTASKS == 1:
                            "MAX_TASKS_PER_NODE=1",
                            "MAX_MPITASKS_PER_NODE=1",
                            "COST_PES=1",
+                           "--file env_mach_pes.xml --id ROOTPE --val 0",
+                           "--file env_mach_pes.xml --id TOTALPES --val 1",
                           ]
     xmlchange_settings = xmlchange_settings + xmlchange_settings2
 
 # if clone is used, only change these settings to avoid recompiling
-select_settings_if_clone = ['ATM_DOMAIN_MESH', 'LND_DOMAIN_MESH', 'MASK_MESH', 'DATM_MODE', 'STOP_N', 'RUN_STARTDATE', 'STOP_OPTION']
-tmp = []
-for s1 in xmlchange_settings:
-    for s2 in select_settings_if_clone:
-        if s2 in s1:
-            tmp.append(s1)
-            break
-xmlchange_settings = tmp
+select_settings_if_clone = ['ATM_DOMAIN_MESH', 'LND_DOMAIN_MESH', 'MASK_MESH', 'ROF_DOMAIN_MESH', 'DATM_MODE', 'STOP_N', 'RUN_STARTDATE', 'STOP_OPTION']
 
 xmlquery_settings = 'ATM_DOMAIN_MESH,LND_DOMAIN_MESH,MASK_MESH,RUNDIR,DOUT_S_ROOT,MOSART_MODE,DATM_MODE,RUN_STARTDATE,STOP_N,STOP_OPTION,NTASKS,NTASKS_PER_INST'
 
@@ -96,6 +105,10 @@ xmlquery_settings = 'ATM_DOMAIN_MESH,LND_DOMAIN_MESH,MASK_MESH,RUNDIR,DOUT_S_ROO
 # create model cases
 
 pwd = os.getcwd()
+
+################################
+# (0) delete raw folders
+_ = subprocess.run(f'rm -r {path_CTSM_case}', shell=True)
 
 ################################
 # (1) create new case
@@ -111,6 +124,17 @@ else:
     _ = subprocess.run(f'{path_CTSM_source}/cime/scripts/create_clone --case {path_CTSM_case} --clone {CLONEROOT} {clone_settings}', shell=True)
     flag_clone = True
 
+    # abandon some original settings
+    file = f'{path_CTSM_case}/user_nl_clm'
+    with open(file, 'w') as f:
+        pass
+
+    file = f'{path_CTSM_case}/user_nl_datm_streams'
+    with open(file, 'w') as f:
+        pass
+
+    os.system(f'rm {path_CTSM_case}/user_nl_datm_streams_*')
+
 ################################
 # (2) change dir
 os.chdir(path_CTSM_case)
@@ -124,6 +148,15 @@ with open('user_nl_clm', 'a') as f:
         _ = f.write(s+'\n')
 
 # change land domain and MESH files
+if flag_clone == True:
+    tmp = []
+    for s1 in xmlchange_settings:
+        for s2 in select_settings_if_clone:
+            if s2 in s1:
+                tmp.append(s1)
+                break
+    xmlchange_settings = tmp
+
 for s in xmlchange_settings:
     _ = subprocess.run(f'./xmlchange {s}', shell=True)
 
@@ -144,7 +177,26 @@ if flag_clone == False:
     else:
         sys.exit('Unknown casebuild')
 
+else:
+    _ = subprocess.run('./case.setup', shell=True)
+
 ################################
-# (5) submit jobs (optional)
+# (5) replace files if they are provided
+if 'replacefiles' in config_CTSMcase:
+    replacefiles = config_CTSMcase['replacefiles']
+    if isinstance(replacefiles, dict):
+        
+        for name, file in replacefiles.items():
+            
+            if os.path.isfile(name):
+                print(f'use {file} to replace {name}')
+                _ = subprocess.run(f'cp {name} {name}-backup', shell=True)
+                _ = subprocess.run(f'cp {file} {name}', shell=True)
+        
+        _ = subprocess.run('./check_case', shell=True) # to make changed files shown in buildconf
+
+        
+################################
+# (6) submit jobs (optional)
 # Can be used to check whether the case can be successfully run before calibration
 # _ = subprocess.run('./case.submit', shell=True)

@@ -1,0 +1,99 @@
+! ****************************************************************************************************************************
+! ****************************************************************************************************************************
+! ***** DEFINITION OF MODEL CONTROL INFORMATION ******************************************************************************
+! ****************************************************************************************************************************
+! ****************************************************************************************************************************
+! Note: lines starting with "!" are treated as comment lines -- there is no limit on the number of comment lines.
+!       lines starting with <xxx> are read till "!"
+!
+! ****************************************************************************************************************************
+! RUN CONTROL
+! --------------------------
+<case_name>            sflow                    ! prefix name of simulation outputs -- used as root of both the output and restart files
+<sim_start>      2010-10-01                     ! time of simulation start (year-month-day)
+<sim_end>        2011-09-30                  ! time of simulation end (year-month-day)
+<restart_write>        never          ! options: never-> N[n]ever write, L[l]ast -> write at last time step
+!<fname_state_in>   sflow.r.2010-2011-01-00000.nc  ! filename for the channel states input (netcdf)
+<newFileFrequency>     single                    ! frequency for new output files (day, month, annual, single)
+!
+! ****************************************************************************************************************************
+! ROUTE options
+! --------------------------
+<route_opt>            5                           ! option for routing schemes 0-> accumRunoff, 1->IRF, 2->KWT, 3-> KW, 4->MC, 5->DW 
+<doesBasinRoute>       1                           ! basin (hillslope) routing?  0-> no, 1-> basin UH
+<hw_drain_point>       1          ! lateral flow input point for headwater reach. 1->top of reach, 2-> bottom of reach
+<min_length_route>     100                         ! minimum reach length [m] for routing to be performed. pass-through is performed for length less than this threshold
+<dt_qsim>              86400                       ! time interval of the simulation in second
+!
+! ****************************************************************************************************************************
+! DEFINE DIRECTORIES
+! --------------------------
+<ancil_dir>       /glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/prepare_CAMELS/step2_try_mizuroute/       ! ancillary data (mapping, topology)
+<input_dir>        /glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/prepare_CAMELS/step2_try_mizuroute/       ! input data (runoff data) dir
+<output_dir>       /glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/prepare_CAMELS/step2_try_mizuroute/       ! output/state data dir
+!
+! ****************************************************************************************************************************
+! DEFINE RIVER NETWORK DATA
+! ---------------------------------------
+<fname_ntopOld>        ntopo_MERIT_Hydro_v1_01013500.nc        ! name for river network netcdf file (in ancil_dir/)
+<dname_sseg>           seg                               ! dimension name of the stream segments
+<dname_nhru>           hru                               ! dimension name of the input polygons in the topo file
+!
+! ****************************************************************************************************************************
+! DEFINE DESIRED VARIABLES FOR THE NETWORK TOPOLOGY
+! ---------------------------------------------------------
+<seg_outlet>       -9999                                 ! seg_id of outlet streamflow segment. -9999 for all segments
+!
+! ****************************************************************************************************************************
+! DEFINE RUNOFF DATA
+! ----------------------------------
+<fname_qsim>           basin0_QRUNOFF.nc                         ! name of text file listing runoff netcdf(s)
+<vname_qsim>           QRUNOFF          ! name of HRU average runoff variable
+<vname_time>           time                              ! name of time variable in the runoff file
+<vname_hruid>          gruId                             ! name of runoff polygon id variable
+<dname_time>           time                              ! name of time dimension
+<dname_hruid>          gru                               ! name of the polygon dimension in the runoff file
+<units_qsim>           mm/s                               ! units of runoff
+!<time_units>           seconds since 1990-01-01 00:00:00 ! unit of time
+<ro_calendar>          noleap                          ! calendar
+!<ro_time_stamp>        end                               ! runoff input time stamp, start (default) or end (e.g., SUMMA use the end of time step)
+!<ro_fillvalue>         -9999                            ! fillvalue for runoff variable. Use only if runoff has missing values, but no _fillvalue
+!
+! ****************************************************************************************************************************
+! DEFINE RUNOFF REMAPPING DATA
+! ----------------------------------
+<is_remap>              T                                            ! logical whether or not runnoff needs to be mapped to river network HRU 
+<fname_remap>           spatialweights_CAMELS_to_MERIT.nc            ! name of runoff mapping netCDF file
+<vname_hruid_in_remap>  polyid                                       ! name of variable containing areal weights of runoff HRUs within each river network HRU 
+<vname_weight>          weight                                       ! name of variable containing areal weights of runoff HRUs within each river network HRU 
+<vname_qhruid>          intersector                                  ! name of variable containing ID of runoff HRU
+<vname_num_qhru>        overlaps                                     ! name of variable containing numbers of runoff HRUs within each river network HRU 
+<dname_hru_remap>       polyid                                       ! name of hru dimension name
+<dname_data_remap>      data                                         ! name of data dimension name
+!
+! ****************************************************************************************************************************
+! OUTPUT options
+! ---------------------------
+<basRunoff>            F                           ! HRU average total runoff depth 
+<instRunoff>           F                           ! HRU average total runoff volume
+<dlayRunoff>           F                           ! runoff volume poured into the reach
+<DWroutedRunoff>       T                           ! routed runoff volume - diffusive wave routing
+!
+! ****************************************************************************************************************************
+! SPATIALLY CONSTANT PARAMETER NAMELIST
+! ---------------------------
+<param_nml>            param.nml.default           ! Namelist name containing routing parameter values
+!
+! ****************************************************************************************************************************
+! Dictionary to map variable names used in topology file
+! ---------------------------
+<varname_area>         Basin_Area                  ! name of variable holding hru area
+<varname_length>       Length                      ! name of variable holding segment length
+<varname_slope>        Slope                       ! name of variable holding segment slope
+<varname_HRUid>        hruid                       ! name of variable holding HRU id
+<varname_hruSegId>     hru_seg_id                  ! name of variable holding the stream segment below each HRU
+<varname_segId>        seg_id                      ! name of variable holding the ID of each stream segment
+<varname_downSegId>    Tosegment                   ! name of variable holding the ID of the next downstream segment
+!
+! ****************************************************************************************************************************
+! ****************************************************************************************************************************

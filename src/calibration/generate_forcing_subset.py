@@ -6,6 +6,43 @@ import xmltodict, subprocess
 import os, time, sys, glob, pathlib
 import timemerge
 
+# # dask, but may not be good when using GNU parallel to use all cores
+# def subset_forcing(infile, lat_range, lon_range):
+#     # Open the dataset using Dask for efficient handling of large datasets
+#     ds_data = xr.open_dataset(infile, chunks={"time":"auto", "lat":"auto", "lon":"auto"})  # Adjust chunking based on data structure
+#  
+#     # Lazy loading the necessary data for index calculation
+#     lonmin = np.min(ds_data.LONGXY.values, axis=0)
+#     lonmax = np.max(ds_data.LONGXY.values, axis=0)
+#     latmin = np.min(ds_data.LATIXY.values, axis=1)
+#     latmax = np.max(ds_data.LATIXY.values, axis=1)
+#  
+#     indexlat = np.where((latmin >= lat_range[0]) & (latmax <= lat_range[1]))[0]
+#     indexlon = np.where((lonmin >= lon_range[0]) & (lonmax <= lon_range[1]))[0]
+#  
+#     # Applying original logic for index ranges
+#     if len(indexlon) == 0:
+#         ind1 = np.where(lonmin >= lon_range[0])[0][0]
+#         indexlon = [ind1-1, ind1]
+#     if len(indexlat) == 0:
+#         ind1 = np.where(latmin >= lat_range[0])[0][0]
+#         indexlat = [ind1-1, ind1]
+#  
+#     # extend dim
+#     if len(indexlat)==1:
+#         print('raw indexlat:', indexlat)
+#         indexlat = np.append(indexlat, indexlat[-1]+1)
+#         print('new indexlat:', indexlat)
+#     if len(indexlon)==1:
+#         print('raw indexlon:', indexlon)
+#         indexlon = np.append(indexlon, indexlon[-1]+1)
+#         print('new indexlon:', indexlon)
+#     
+#     ds_data_out = ds_data.isel(lat=indexlat, lon=indexlon).compute()
+#  
+#     return ds_data_out
+
+
 def subset_forcing(infile, lat_range, lon_range):
     # gridded forcing
     ds_data = xr.open_dataset(infile)
@@ -13,17 +50,32 @@ def subset_forcing(infile, lat_range, lon_range):
     lonmax = np.max(ds_data.LONGXY.values, axis=0)
     latmin = np.min(ds_data.LATIXY.values, axis=1)
     latmax = np.max(ds_data.LATIXY.values, axis=1)
+    
     indexlat = np.where((latmin >= lat_range[0]) & (latmax <= lat_range[1]))[0]
     indexlon = np.where((lonmin >= lon_range[0]) & (lonmax <= lon_range[1]))[0]
+    
     if len(indexlon) == 0:
         ind1 = np.where((lonmin >= lon_range[0]))[0][0]
         indexlon = [ind1-1, ind1]
     if len(indexlat) == 0:
         ind1 = np.where((latmin >= lat_range[0]))[0][0]
         indexlat = [ind1-1, ind1]
+        
+    # extend dim
+    if len(indexlat)==1:
+        print('raw indexlat:', indexlat)
+        indexlat = np.append(indexlat, indexlat[-1]+1)
+        print('new indexlat:', indexlat)
+    if len(indexlon)==1:
+        print('raw indexlon:', indexlon)
+        indexlon = np.append(indexlon, indexlon[-1]+1)
+        print('new indexlon:', indexlon)
+        
     ds_data = ds_data.load()
     ds_data_out = ds_data.sel(lat=indexlat, lon=indexlon)
+    
     return ds_data_out
+
 
 def subset_meshfile(meshfile, example_subsetfile):
     # mesh file, which is subset based on an example_subsetfile
@@ -42,7 +94,7 @@ def subset_meshfile(meshfile, example_subsetfile):
     ds_mesh = ds_mesh.isel(elementCount=index_elementCount)
     return ds_mesh
 
-def subset_allfiles(datm_xml_dict, keyword_data, outpathSubset, ncformat, subset_length):
+def subset_allfiles(datm_xml_dict, keyword_data, outpathSubset, ncformat, subset_length, lat_range, lon_range):
     # e.g., datm_xml_dict['file']['stream_info'][0]['datafiles']['file']
     tstart = time.time()
     inout_maplist = []
@@ -61,6 +113,7 @@ def subset_allfiles(datm_xml_dict, keyword_data, outpathSubset, ncformat, subset
                     if subset_length == 'existing':
                         pass
                     elif subset_length == 'all':
+                        # although files are changed, changing foo:year_first = integer / foo:year_last = integer / foo:year_align = integer does not seem necessary in the namelist file
                         infile0 = infilelist[0]
                         inpath0 = pathlib.Path(infile0).parent
                         inname0 = pathlib.Path(infile0).name
@@ -86,6 +139,7 @@ def subset_allfiles(datm_xml_dict, keyword_data, outpathSubset, ncformat, subset
             if i == 0:
                 outpath = f'{outpathSubset}/{foldername}'
                 os.makedirs(outpath, exist_ok=True)
+                
             outfilei = f'{outpath}/subset_{filename}'
             outfilelist.append(outfilei)
             if os.path.isfile(outfilei):
@@ -164,8 +218,22 @@ if __name__ == '__main__':
 
     print('Create datm subset settings ...')
     print('Reading configuration from:', config_file_SubForc)
-
-    ########################################################################################################################
+    
+    # check whether new forcing has been generated
+    config_SubForc = toml.load(config_file_SubForc)
+    folders = ['Solar', 'Precip', 'TPQWL']
+    path_CTSM_case = config_SubForc['path_CTSM_case']
+    outpathSubset = path_CTSM_case + '_SubsetForcing'
+    flag = 0
+    for f in folders:
+        file = f'{outpathSubset}/{f}/inout_list_timemerge.txt'
+        if os.path.isfile(file):
+            flag = flag + 1
+            print('Merging file exists:', file)
+    if flag == 3:
+        sys.exit('All merging files exist. no need to perform subsetting')
+            
+ ########################################################################################################################
     # settings
 
     ##############
@@ -177,108 +245,155 @@ if __name__ == '__main__':
     subset_length = config_SubForc['subset_length']
     forcing_YearStep = config_SubForc['forcing_YearStep'] # number of years (e.g., 2 means that files are saved at a 2-y step. <=0: no time merging
 
-    ##############
-    # default settings
+    if not subset_length in ['existing', 'all']:
+        print(f'subset_length is {subset_length}, does not fall in [existing, all]')
+        print('Do not perform forcing subsetting')
 
-    outpathSubset = path_CTSM_case + '_SubsetForcing'
-    os.makedirs(outpathSubset, exist_ok=True)
+    else:
 
-    ncformat = 'NETCDF3_CLASSIC'
+        ##############
+        # default settings
 
-    ########################################################################################################################
+        outpathSubset = path_CTSM_case + '_SubsetForcing'
+        if os.path.isdir(outpathSubset):
+            print(f'{outpathSubset} exists. Continue without deleting existing folder')
+            # _ = subprocess.run(f'rm -r {outpathSubset}', shell=True)
+        else:
+            os.makedirs(outpathSubset, exist_ok=True)
 
-    # back up files (generated when creating new case). only back up for the first-time run
-    datm_streams_xml = f'{path_CTSM_case}/Buildconf/datmconf/datm.streams.xml'
-    initial_datm_streams_xml = datm_streams_xml + '-initial'
-    if not os.path.isfile(initial_datm_streams_xml):
-        _ = shutil.copy(datm_streams_xml, initial_datm_streams_xml)
+        ncformat = 'NETCDF3_CLASSIC'
 
-    user_nl_datm_streams = f'{path_CTSM_case}/user_nl_datm_streams'
-    initial_user_nl_datm_streams = user_nl_datm_streams + '-initial'
-    if not os.path.isfile(initial_user_nl_datm_streams):
-        _ = shutil.copy(user_nl_datm_streams, initial_user_nl_datm_streams)
+        ########################################################################################################################
 
-    ########################################################################################################################
-    # basin boundary
+        # back up files (generated when creating new case). only back up for the first-time run
+        datm_streams_xml = f'{path_CTSM_case}/Buildconf/datmconf/datm.streams.xml'
+        initial_datm_streams_xml = datm_streams_xml + '-initial'
+        if not os.path.isfile(initial_datm_streams_xml):
+            _ = shutil.copy(datm_streams_xml, initial_datm_streams_xml)
 
-    # get mesh file
-    cwd = os.getcwd()
-    os.chdir(path_CTSM_case)
-    out = subprocess.run('./xmlquery LND_DOMAIN_MESH', shell=True, capture_output=True)
-    infileMESH = out.stdout.decode().strip().split(':')[1].strip()
-    os.chdir(cwd)
+        user_nl_datm_streams = f'{path_CTSM_case}/user_nl_datm_streams'
+        initial_user_nl_datm_streams = user_nl_datm_streams + '-initial'
+        if not os.path.isfile(initial_user_nl_datm_streams):
+            _ = shutil.copy(user_nl_datm_streams, initial_user_nl_datm_streams)
 
-    # find coordinates of basins with mask == 1
-    ds_basin = xr.load_dataset(infileMESH)
-    nodeCoords = ds_basin.nodeCoords.values
-    elementConn = ds_basin.elementConn.values
-    numElementConn = ds_basin.numElementConn.values
-    nodeCoords_valid = np.zeros([0, 2])
+        ########################################################################################################################
+        # basin boundary
 
-    for i in range(ds_basin.elementCount.size):
-        if ds_basin.elementMask.values[i] == 1:
-            index_elementCount = [i]
-            index_connectionCount = np.arange(np.sum(numElementConn[:i]), np.sum(numElementConn[:i+1])).astype(int)
-            index_nodeCount = elementConn[index_connectionCount].astype(int) - 1 # index starts from 0
-            nodeCoords_valid = np.vstack((nodeCoords_valid, nodeCoords[index_nodeCount, :]))
+        # get mesh file
+        cwd = os.getcwd()
+        os.chdir(path_CTSM_case)
+        out = subprocess.run('./xmlquery LND_DOMAIN_MESH', shell=True, capture_output=True)
+        infileMESH = out.stdout.decode().strip().split(':')[1].strip()
+        os.chdir(cwd)
 
-    lat_range = [np.min(nodeCoords_valid[:, 1]), np.max(nodeCoords_valid[:, 1])]
-    lon_range = [np.min(nodeCoords_valid[:, 0]), np.max(nodeCoords_valid[:, 0])]
+        # find coordinates of basins with mask == 1
+        ds_basin = xr.load_dataset(infileMESH)
+        nodeCoords = ds_basin.nodeCoords.values
+        elementConn = ds_basin.elementConn.values
+        numElementConn = ds_basin.numElementConn.values
+        nodeCoords_valid = np.zeros([0, 2])
+
+        for i in range(ds_basin.elementCount.size):
+            if ds_basin.elementMask.values[i] == 1:
+                index_elementCount = [i]
+                index_connectionCount = np.arange(np.sum(numElementConn[:i]), np.sum(numElementConn[:i+1])).astype(int)
+                index_nodeCount = elementConn[index_connectionCount].astype(int) - 1 # index starts from 0
+                nodeCoords_valid = np.vstack((nodeCoords_valid, nodeCoords[index_nodeCount, :]))
+        
+        buffer = 0.15
+        lat_range = [np.min(nodeCoords_valid[:, 1])-buffer, np.max(nodeCoords_valid[:, 1])+buffer]
+        lon_range = [np.min(nodeCoords_valid[:, 0])-buffer, np.max(nodeCoords_valid[:, 0])+buffer]
 
 
-    ########################################################################################################################
-    # create subset forcing / mesh files
-    with open(initial_datm_streams_xml) as f:
-        datm_xml_dict = xmltodict.parse(f.read())
+        ########################################################################################################################
+        # create subset forcing / mesh files
+        with open(initial_datm_streams_xml) as f:
+            datm_xml_dict = xmltodict.parse(f.read())
 
-    keyword_data = ['Solar', 'Precip', 'TPQW']
-    inout_maplist, keyword_data_complete = subset_allfiles(datm_xml_dict, keyword_data, outpathSubset, ncformat, subset_length)
+        keyword_data = ['Solar', 'Precip', 'TPQW']
+        
+        # if user_datm_file contains forcing files, use them to replace datm_xml_dict
+        with open(user_nl_datm_streams, 'r') as f:
+            lines = f.readlines()
 
-    ########################################################################################################################
-    # update user_nl_datm_streams
+        for line in lines:
+            if not line.startswith('!'):
 
-    with open(initial_user_nl_datm_streams, 'r') as f:
-        contents = f.readlines()
+                if ':meshfile' in line:
+                    line = line.strip()
+                    for kyd in keyword_data:
+                        if kyd+':' in line:
+                            break
+                    newfile = line.split('=')[1]
+                    for dicti in datm_xml_dict['file']['stream_info']:
+                        if kyd in dicti['@name']:
+                            dicti['meshfile'] = newfile
 
-    contents.append('\n')
-    for i in range(len(keyword_data_complete)):
-        # data files and mesh file
-        datafilesi = ''
-        with open(inout_maplist[i], 'r') as f:
-            for li in f:
-                li = li.strip().split(':')
-                li_tag = li[0]
-                if li_tag == 'datafile':
-                    datafilesi = datafilesi + li[1].strip().split('->')[1].strip() + ','
-                elif li_tag == 'meshfile':
-                    meshfile = li[1].strip().split('->')[1].strip()
-        datafilesi = datafilesi[:-1]
-        # add contents
-        contents.append(f'{keyword_data_complete[i]}:meshfile={meshfile}\n')
-        if not keyword_data_complete[i] == 'topo.observed':
-            contents.append(f'{keyword_data_complete[i]}:mapalgo=nn\n')
-        contents.append(f'{keyword_data_complete[i]}:datafiles={datafilesi}\n')
 
-    # write to file
-    with open(user_nl_datm_streams, 'w') as f:
-        for l in contents:
-            _ = f.write(l)
+                if ':datafiles' in line:
+                    line = line.strip()
+                    for kyd in keyword_data:
+                        if kyd+':' in line:
+                            break
+                    newfile = line.split('=')[1]
+                    newfile = newfile.split(',')
+                    for dicti in datm_xml_dict['file']['stream_info']:
+                        if kyd in dicti['@name']:
+                            dicti['datafiles']['file'] = newfile
+        
+        inout_maplist, keyword_data_complete = subset_allfiles(datm_xml_dict, keyword_data, outpathSubset, ncformat, subset_length, lat_range, lon_range)
 
-    ########################################################################################################################
-    # post-processing: merge files in a folder to the target time step to reduce the number of files
+        ########################################################################################################################
+        # update user_nl_datm_streams
 
-    if forcing_YearStep > 0:
+        with open(initial_user_nl_datm_streams, 'r') as f:
+            contents0 = f.readlines()
+            # only keep settings that are not datafile or meshfile
+            contents = []
+            for c in contents0:
+                if (not ':datafiles' in c) and not (':meshfile' in c):
+                    contents.append(c)
+            
+        contents.append('\n')
+        #contents = []
+        for i in range(len(keyword_data_complete)):
+            # data files and mesh file
+            datafilesi = ''
+            with open(inout_maplist[i], 'r') as f:
+                for li in f:
+                    li = li.strip().split(':')
+                    li_tag = li[0]
+                    if li_tag == 'datafile':
+                        datafilesi = datafilesi + li[1].strip().split('->')[1].strip() + ','
+                    elif li_tag == 'meshfile':
+                        meshfile = li[1].strip().split('->')[1].strip()
+            datafilesi = datafilesi[:-1]
+            # add contents
+            contents.append(f'{keyword_data_complete[i]}:meshfile={meshfile}\n')
+            if not keyword_data_complete[i] == 'topo.observed':
+                contents.append(f'{keyword_data_complete[i]}:mapalgo=bilinear\n')
+            contents.append(f'{keyword_data_complete[i]}:datafiles={datafilesi}\n')
 
-        print(f'Start time mering to forcing_YearStep {forcing_YearStep}')
+        # write to file
+        with open(user_nl_datm_streams, 'w') as f:
+            for l in contents:
+                _ = f.write(l)
 
-        keywords = ['Solar:datafiles', 'Precip:datafiles', 'TPQW:datafiles']
-        infile_lists = get_inputfiles_from_datm_streams(user_nl_datm_streams, keywords)
+        ########################################################################################################################
+        # post-processing: merge files in a folder to the target time step to reduce the number of files
 
-        for i in range(len(infile_lists)):
-            infile_list = np.array(infile_lists[i])
-            # subset
-            all_outfiles, maplist_infile, maplist_outfile = timemerge.highlevel_cdo_mergetime(infile_list, forcing_YearStep)
-            # update datastreams files
-            update_datastreams_datafiles(user_nl_datm_streams, all_outfiles, keywords[i])
-            # finish
-            print('Sucessful mergetime!')
+        if forcing_YearStep > 0:
+
+            print(f'Start time mering to forcing_YearStep {forcing_YearStep}')
+
+            keywords = ['Solar:datafiles', 'Precip:datafiles', 'TPQW:datafiles']
+            infile_lists = get_inputfiles_from_datm_streams(user_nl_datm_streams, keywords)
+
+            for i in range(len(infile_lists)):
+                infile_list = np.array(infile_lists[i])
+                # subset
+                all_outfiles, maplist_infile, maplist_outfile = timemerge.highlevel_cdo_mergetime(infile_list, forcing_YearStep)
+                # update datastreams files
+                update_datastreams_datafiles(user_nl_datm_streams, all_outfiles, keywords[i])
+                # finish
+                print('Sucessful mergetime!')

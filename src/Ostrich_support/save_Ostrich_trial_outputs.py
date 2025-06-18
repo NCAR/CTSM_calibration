@@ -58,14 +58,18 @@ else:
     print(f'Save calibration intermediate outputs using mode {mode}')
 
 ######## hard coded parameters (may be changed later)
-archive_keyword = ".clm2.h1." # what archive files to be saved? only for PreserveBestModel
+#archive_keyword = ".clm2.h1." # what archive files to be saved? only for PreserveBestModel
+archive_keyword = "clm2*.nc" # what archive files to be saved? only for PreserveBestModel
 
 ########################################################################################################################
 # define folder name
 
 file_OstModel = f'{pathOstrichRun}/OstModel0.txt'
-df_OstModel = pd.read_csv(file_OstModel, delim_whitespace=True)
-current_run = int(df_OstModel.iloc[-1]['Run'])
+if os.path.isfile(file_OstModel):
+    df_OstModel = pd.read_csv(file_OstModel, delim_whitespace=True)
+    current_run = int(df_OstModel.iloc[-1]['Run'])
+else:
+    current_run = 0
 
 nowtime_UTC = datetime.datetime.utcnow()
 nowtime_UTC = nowtime_UTC.strftime("%Y-%m-%m-%H-%M-%S")
@@ -109,7 +113,12 @@ if len(filelist_simulations) == 0:
 else:
     for f in filelist_simulations:
         # print('Archive best model output:', f)
-        _ = subprocess.run(f'cp {f} {pathOstrichSave}', shell=True)
+        _ = subprocess.run(f'mv {f} {pathOstrichSave}', shell=True)
+
+
+# copy mizuroute
+_ = subprocess.run(f'mv {patharchive}/mizuroute/ {pathOstrichSave}/', shell=True)
+_ = subprocess.run(f'mv {patharchive}/*.csv {pathOstrichSave}/', shell=True)
 
 # save parameters
 _ = subprocess.run(f'cp {file_parameter} {pathOstrichSave}', shell=True)
@@ -117,9 +126,13 @@ _ = subprocess.run(f'cp {file_surfdata} {pathOstrichSave}', shell=True)
 _ = subprocess.run(f'cp {file_lnd_in} {pathOstrichSave}', shell=True)
 _ = subprocess.run(f'cp {file_user_nl_clm} {pathOstrichSave}', shell=True)
 
-if mode == 'PreserveBestModel':
+# save OstModel
+_ = subprocess.run(f'cp {pathOstrichRun}/OstModel0.txt {pathOstrichSave}', shell=True)
+
+#if mode == 'PreserveBestModel':
+if True:
     # save Ostrich outputs
-    files_in_pathOstrichRun = ['nc_multiplier.txt', 'trial_stats*.txt', 'Ost*.txt', 'timetrack.log']
+    files_in_pathOstrichRun = ['*.txt', '*.tpl', 'timetrack.log']
     for f in files_in_pathOstrichRun:
         _ = subprocess.run(f'cp {pathOstrichRun}/{f} {pathOstrichSave}', shell=True)
 
