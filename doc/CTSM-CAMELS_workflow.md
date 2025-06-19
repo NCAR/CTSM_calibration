@@ -10,7 +10,7 @@ Hillslope hydrology version from Sean
 3. Prepare CAMELS data  
 3.1 Create basin information csv file  
 3.2 Disaggregate basin mesh and surface data files since they are all contained in one file  
-3.3 Create configration files (Ostrich, MO-ASMO) for each basin  
+3.3 Create configuration files (Ostrich, MO-ASMO) for each basin  
 
 4. Generate ERA5-Land + EM-Earth forcing  
 This is gridded forcing for CONUS. The codes are in "CTSM_dataprepare" repo. CAMELS will extract gridded forcing from this dataset  
