@@ -19,7 +19,7 @@ This is gridded forcing for CONUS. The codes are in "CTSM_dataprepare" repo. CAM
 5.1 Create the case "Build,MOASMO,SubForc,NameList,SpinUp" # run complete MO-ASMO calibration  
 This step will also archive the spin up outputs using default parameters. NameList should be run before SpinUp because it changes model settings  
 I plan to output more restart files for each year, but unless the last restart file, all other files are removed by the model  
-I submit basin-0 of MO-ASMO. After CTSM is compiled after 10-20 mintues, submit basin-1 to X which will clone basin-0.  
+I submit basin-0 of MO-ASMO. After CTSM is compiled after 10-20 minutes, submit basin-1 to X which will clone basin-0.  
 
 Numerical problems:  
 (1)
