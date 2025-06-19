@@ -9,7 +9,7 @@ Developed as part of the study _"On using AI-based large-sample emulators for la
 - **Emulator-based calibration**: Use Gaussian Process Regression (GPR) and Random Forest (RF) emulators with adaptive surrogate optimization.
 - **Large-sample emulator (LSE)**: Jointly optimize CTSM parameters across 627+ CONUS basins using geo-attributes for model generalization.
 - **Single-site emulator (SSE)**: Basin-by-basin multi-objective optimization via MO-ASMO (Gong et al., 2016) methodology.
-- **Dynamically dimensioned search (DDS)**: A caliration algorithm developed by Tolson and Shoemaker (2007). Relevant workflow and codes are adapted from Tang et al (2023).
+- **Dynamically dimensioned search (DDS)**: A calibration algorithm developed by Tolson and Shoemaker (2007). Relevant workflow and codes are adapted from Tang et al (2023).
 - **Regionalization-ready**: Predict parameters in ungauged basins using attribute-based transfer from trained emulators when LSE is adopted.
 - **Tested at scale**: Supports tens of thousands of CTSM runs; compatible with NCAR HPC and other parallelized environments.
 - **Evaluation tools**: Integrated performance metrics (KGE', MAE, MMAE), cross-validation routines, and visualization support.
