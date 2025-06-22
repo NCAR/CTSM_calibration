@@ -15,7 +15,7 @@ The application for which this package was developed is detailed in _"On using A
 - **Evaluation tools**: Integrated performance metrics (e.g., KGE', MAE, MMAE), cross-validation routines, and visualization support.
 
 ## Acknowledgements  
-This work has been supported by research grants to NCAR from the United States Army Corps of Engineers (the ‘Robust Hydrology’ projects), and from the NOAA Climate Observations and Modeling program. These sponsored projects (led by PI A. Wood) seek to advance scientific and technical capabilities for large-domain land/hydrology model calibration so as to create new modeling resources for national-scale water security analyses and risk projection.  We acknowledge high‐performance computing support provided by NCAR’s Computational and Information Systems Laboratory, sponsored by the National Science Foundation. 
+The development work for this software was supported by research grants to NCAR from the United States Army Corps of Engineers (the ‘Robust Hydrology’ projects), and from the NOAA Climate Observations and Modeling program. These sponsored projects (under PI A. Wood) sought to advance capabilities for large-domain land/hydrology modeling and create new resources for national-scale water security analyses, and current development efforts have expanded to target global Earth System Modeling objectives.  We acknowledge high‐performance computing support provided by NCAR’s Computational and Information Systems Laboratory, sponsored by the National Science Foundation. 
 
 ## Contacts
 - **Guoqiang Tang**, Wuhan University, guoqiang.tang@whu.edu.cn 
