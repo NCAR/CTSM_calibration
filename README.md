@@ -3,10 +3,10 @@
 
 The current implementation and work to date with the LSE focus on _hydrological_ performance, using a large sample of diverse watersheds, yet the methodology and supporting software are general to efficient complex model calibration for a wide range of desired outcomes (such as for land-atmosphere fluxes of heat and moisture, or other model prognostic and diagnostic variables (e.g, LAI, GPP). Even more generally, **CTSM_calibration** provides tools for flexible, extensible, and scalable parameter estimation in complex land models. It has since been implemented for other land/hydrology models such as SUMMA (Farahani et al., 2025) and HBV (Tang et al, 2025).
 
-The application for which this package was developed is detailed in _"On using AI-based large-sample emulators for land/hydrology model calibration and regionalization"_ (Tang et al., 2025). The initial implemenation was designed to run on NCAR Casper High Performance Computing (HPC) resources.
+The application for which this package was developed is detailed in _"On using AI-based large-sample emulators for land/hydrology model calibration and regionalization"_ (Tang et al., 2025). This initial version was run on NCAR Casper High Performance Computing (HPC) resources.
 
 ## Features
-- **Emulator-based calibration**: Currently use Gaussian Process Regression (GPR) and Random Forest (RF) emulators with adaptive surrogate optimization via a genetic algorithm, but these choices are extensible to other emulator forms and optimization methods.
+- **Emulator-based calibration**: Currently use Gaussian Process Regression (GPR) and Random Forest (RF) emulators with adaptive surrogate optimization via a genetic algorithm, but these choices are extensible to other emulator forms (e.g., NN) and optimization methods.
 - **Large-sample emulator (LSE)**: Jointly optimize CTSM parameters across 627+ CONUS basins using static geo-attributes for model generalization.
 - **Single-site emulator (SSE)**: Basin-by-basin multi-objective optimization via MO-ASMO (Gong et al., 2016) methodology.
 - **Dynamically dimensioned search (DDS)**: An alternative (benchmarking) calibration algorithm developed by Tolson and Shoemaker (2007). Relevant workflow and codes are adapted from Tang et al (2023), leveraging prior model implementations developed at NCAR. 
@@ -18,8 +18,8 @@ The application for which this package was developed is detailed in _"On using A
 This work has been supported by research grants to NCAR from the United States Army Corps of Engineers (the ‘Robust Hydrology’ projects), and from the NOAA Climate Observations and Modeling program. These sponsored projects (led by PI A. Wood) seek to advance scientific and technical capabilities for large-domain land/hydrology model calibration so as to create new modeling resources for national-scale water security analyses and risk projection.  We acknowledge high‐performance computing support provided by NCAR’s Computational and Information Systems Laboratory, sponsored by the National Science Foundation. 
 
 ## Contacts
-- ** Guoqiang Tang, Wuhan University, guoqiang.tang@whu.edu.cn 
-- ** Andy Wood, NSF NCAR, andywood@ucar.edu
+- **Guoqiang Tang**, Wuhan University, guoqiang.tang@whu.edu.cn 
+- **Andy Wood**, NSF NCAR, andywood@ucar.edu
 
 ## Major Citation  
 Tang, G., Wood, A., & Swenson, S. (2025). On using AI-based large-sample emulators for land/hydrology model calibration and regionalization. Water Resources Research (accepted)
