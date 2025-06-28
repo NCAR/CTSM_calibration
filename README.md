@@ -25,8 +25,8 @@ The original development of this software was supported by research grants to NC
 Tang, G., Wood, A. W., & Swenson, S. (2025). On using AI-based large-sample emulators for land/hydrology model calibration and regionalization. Water Resources Research, 61, e2024WR039525. https://doi.org/10.1029/2024WR039525
 
 ## Associated dataset resources
-NCAR Research Data Archive:  CTSM (CLM5) CAMELS Basins Model -- LSE calibration version 1.  https://rda.ucar.edu/datasets/d010035/
-Zenodo:  Data for LSE-CTSM parameter calibration and regionalization paper.  https://zenodo.org/records/15720131
+- **NCAR Research Data Archive:**  CTSM (CLM5) CAMELS Basins Model -- LSE calibration version 1.  https://rda.ucar.edu/datasets/d010035/
+- **Zenodo:**  Data for LSE-CTSM parameter calibration and regionalization paper.  https://zenodo.org/records/15720131
 
 ## Related references 
 - Tang, G., Clark, M. P., Knoben, W. J., Liu, H., Gharari, S., Arnal, L., ... & Papalexiou, S. M. (2023). The impact of meteorological forcing uncertainty on hydrological modeling: A global analysis of cryosphere basins. Water Resources Research, 59(6), e2022WR033767.  
