@@ -1,0 +1,19 @@
+﻿Type,Process,PPE_DailyQ_Rank,Rank2410,Parameter,Default,Lower,Upper,Source,Binding,Method,RangeMethod
+Hydrology,Soil storage capacity ,9,0,watsat_sf,1,0.1,10,Param,None,Multiplicative,Absolute
+Hydrology,"Infiltration
+Soil storage",1,1,fff,0.5,0.001,20,Param,None,Multiplicative,Absolute
+Stomatal resistance and photosynthesis,ET (transpiration),2,2,medlynslope,4.840379695,0.1,20,Param,None,Multiplicative,Absolute
+Hydrology,Soil water drainage ,10,3,hksat_sf,1,0.1,10,Param,None,Multiplicative,Absolute
+Snow Processes,Snow accumulation,24,4,accum_factor,0.1,0.01,1,Param,None,Multiplicative,Absolute
+Hydrology,Infiltration,0,5,FMAX,0.381669399,0.1,0.9,Surfdata,None,Multiplicative,Absolute
+Hydrology,"Infiltration
+Groundwater flow",31,6,om_frac_sf,1,0.1,10,Param,None,Multiplicative,Absolute
+Hydrology,Infiltration,23,7,e_ice,6,0.01,20,Param,None,Multiplicative,Absolute
+Hydrology,Soil storage capacity ,0,8,zbedrock,,0.1,10,Surfdata,None,Multiplicative,Absolute
+Snow Processes,Snow melt,79,11,n_melt_coef,200,5,800,Param,None,Multiplicative,Absolute
+Hydrology,Infiltration,7,12,d_max,15,0.1,500,Param,None,Multiplicative,Absolute
+Snow Processes,Rain/Snow forcing classification,0,16,precip_repartition_nonglc_all_rain_t,2,0,4,Namelist,"precip_repartition_glc_all_rain_t,precip_repartition_glc_all_snow_t,precip_repartition_nonglc_all_snow_t",Additive,Absolute
+Hydrology,Canopy Interception,45,18,interception_fraction,1,0.1,1,Namelist,None,Multiplicative,Absolute
+Hydrology,Baseflow generation,37,23,n_baseflow,1,0.1,30,Param,None,Multiplicative,Absolute
+Hydrology,Canopy Water,5,14,liq_canopy_storage_scalar,0.1,0.01,20,Param,None,Multiplicative,Absolute
+Hydrology,Baseflow generation,3,25,baseflow_scalar,0.001,0.00001,0.1,Namelist,None,Multiplicative,Absolute

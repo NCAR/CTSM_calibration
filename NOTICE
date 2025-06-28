@@ -1,0 +1,20 @@
+======================================================================
+  NOTICE
+
+  This software was created by:
+
+      Guoqiang Tang, Andy Wood, Sean Swenson and colleagues,
+      NSF National Center for Atmospheric Research (NCAR),
+      Boulder CO (USA).
+
+  If you use this code — or any part or derivative of it — in academic, technical,
+  or commercial work, please cite:
+
+      Tang, G., A. W. Wood, and S. Swenson, 2025. 
+      "On AI-based large-sample emulators for land/hydrology model calibration and regionalization", 
+      Water Resources Research.  https://doi.org/10.22541/essoar.173386122.27239661/v1 
+
+  Per AGPL v3 §7(b), this NOTICE file must be preserved verbatim in any copy
+  or modified version that you convey or deploy, together with the licence.
+
+======================================================================

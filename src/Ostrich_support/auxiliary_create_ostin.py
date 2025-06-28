@@ -117,7 +117,7 @@ for i in range(len(df_calibparam)):
         else:
             sys.exit(f'The upper and lower values of {parami_name} have different signs!')
 
-        if df_calibparam.iloc[i]['Upper_factor'] > 1 and df_calibparam.iloc[i]['Lower_factor'] < 1:
+        if df_calibparam.iloc[i]['Upper_factor'] >= 1 and df_calibparam.iloc[i]['Lower_factor'] <= 1:
             # start from the default parameter value
             df_calibparam.at[i, 'Initi_factor'] = 1
         else:
@@ -131,7 +131,7 @@ for i in range(len(df_calibparam)):
         df_calibparam.at[i, 'Upper_factor'] = parami_upper - parami_priori_mean
         df_calibparam.at[i, 'Lower_factor'] = parami_lower - parami_priori_mean
 
-        if df_calibparam.iloc[i]['Upper_factor'] > 0 and df_calibparam.iloc[i]['Lower_factor'] < 0:
+        if df_calibparam.iloc[i]['Upper_factor'] >= 0 and df_calibparam.iloc[i]['Lower_factor'] <= 0:
             # start from the default parameter value
             df_calibparam.at[i, 'Initi_factor'] = 0
         else:
@@ -185,4 +185,6 @@ with open(outfile_ostin_txt, 'w') as f:
             str_old = line.split('#')[0].strip().split(' ')[-1]
             line = line.replace(str_old, OstrichWarmStart)
         _ = f.write(line)
+
+
 

@@ -57,6 +57,7 @@ path_CTSM_case = config_Ostrich['path_CTSM_case']
 file_calib_param = config_Ostrich['file_calib_param']
 file_Qobs = config_Ostrich['file_Qobs']
 ignore_month = config_Ostrich['ignore_month']
+objfunc = config_Ostrich['objfunc']
 RUN_STARTDATE = config_Ostrich['RUN_STARTDATE']
 STOP_N = config_Ostrich['STOP_N']
 STOP_OPTION = config_Ostrich['STOP_OPTION']
@@ -65,8 +66,11 @@ jobsetting = config_Ostrich['jobsetting']
 
 #############
 # default settings
+if config_Ostrich['path_calib'] == 'NA':
+    outpathOstCalib = path_CTSM_case + "_OstCalib"
+else:
+    outpathOstCalib = config_Ostrich['path_calib']
 
-outpathOstCalib = path_CTSM_case + "_OstCalib"
 ostrichRunDir = f"{outpathOstCalib}/run"  # calib directory
 ostrichArchive = f'{outpathOstCalib}/archive'
 ostrichRefDir = f"{outpathOstCalib}/refdata"  # calib directory
@@ -74,6 +78,7 @@ ostrichParam = f"{outpathOstCalib}/parameters"
 
 # template files
 infile_ostin_template = f'{path_script_Ostrich}/ostIn_KGE_DDS.tpl'
+# infile_ostin_template = f'{path_script_Ostrich}/ostIn_meanerr_DDS.tpl'
 infile_runtrial_template = f'{path_script_Ostrich}/CTSM_run_trial.sh'
 infile_savebest_template = f'{path_script_Ostrich}/call_PreserveBestModel.sh'
 infile_savemodel_template = f'{path_script_Ostrich}/call_PreserveModelOutput.sh'
@@ -93,6 +98,8 @@ outfile_surfdata_ost = f'{ostrichParam}/ostrich_trial_surfdata.nc'
 outfile_param_info = f'{ostrichParam}/calib_parameter_info.csv'
 
 exeOstrich = "/glade/u/home/guoqiang/model_sources/Ostrich_v17.12.19/Source/OstrichGCC"
+
+_ = subprocess.run(f'rm -r {outpathOstCalib}', shell=True)
 
 os.makedirs(ostrichRunDir, exist_ok=True)
 os.makedirs(ostrichArchive, exist_ok=True)
@@ -251,6 +258,7 @@ runtrial_setting['lndinfile_ostrich'] = outfile_lndin_base
 runtrial_setting['ostrichRunDir'] = ostrichRunDir
 runtrial_setting['file_param_info'] = outfile_param_info
 runtrial_setting['ostrichScriptDir'] = path_script_Ostrich
+runtrial_setting['objfunc'] = objfunc
 
 
 # evaluation period
@@ -306,10 +314,12 @@ cwd = os.getcwd()
 os.chdir(path_CTSM_case)
 out = subprocess.run('./xmlquery DOUT_S_ROOT', shell=True, capture_output=True)
 DOUT_S_ROOT = out.stdout.decode().strip().split(' ')[-1]
+out = subprocess.run('./xmlquery RUNDIR', shell=True, capture_output=True)
+RUNDIR = out.stdout.decode().strip().split(' ')[-1]
 os.chdir(cwd)
-lines3 = ['\n', f'rm -r {DOUT_S_ROOT}/*']
+lines3 = ['\n', f'rm -r {DOUT_S_ROOT}/*\n', f'rm -r {RUNDIR}/*.nc']
 
-lines4 = ['\n', 'module load conda/latest', 'conda activate npl-2022b', '\n', './OstrichGCC']
+lines4 = ['\n', 'module load ncarenv/23.09', 'module load conda/latest', 'conda activate npl-2023b', '\n', './OstrichGCC']
 
 with open(file_submit, 'w') as f:
     for li in lines1+lines2+lines3+lines4:

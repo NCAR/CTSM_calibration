@@ -1,0 +1,77 @@
+# configuration file used to run the CTSM calibration tool
+# this configuration is generated using a Python script
+
+[intro] # Not needed for model run
+author = "Guoqiang Tang"
+version = "0.0.1"
+name = "CTSM calibration using MO-ASMO"
+date = "2023-6"
+affiliation = "NCAR CGD"
+
+
+[HPC]
+projectCode = "P08010000"
+
+
+[CTSM]
+[CTSM.files]
+path_CTSM_source = "/glade/u/home/guoqiang/CTSM_repos/CTSM"
+path_CTSM_case = "/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Distr_Calib_split_nest/CAMELS_test"
+path_CTSM_CIMEout = "/glade/scratch/guoqiang/CTSM_outputs/CAMELS_Calib/Distr_Calib_split_nest/CAMELS_test"
+file_CTSM_mesh = "/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/shared_data_Sean/ESMFmesh_ctsm_HCDN_nhru_final_671.buff_fix_holes_polygons_simplified_5e-4_split_nested.nc"
+file_CTSM_surfdata = "/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/shared_data_Sean/surfdata_CAMELS_split_nested_hist_78pfts_CMIP6_simyr2000_c230105.nc"
+
+[CTSM.settings]
+CLONEROOT = "if this folder exists, create_newcase will be replaced by create_clone"
+CLONEsettings = "--keepexe"
+
+createcase = "--compset I2000Clm51Sp --driver nuopc --compiler intel --res f09_g16 --handle-preexisting-dirs r --run-unsupported"
+RUN_STARTDATE = "2000-01-01"
+STOP_N = 12
+STOP_OPTION = "nmonths"
+NTASKS = -9999
+casebuild = 'direct' # direct or qcmd. no need to use qcmd if this script is submitted through qbs
+subset_length = 'NA' # existing: files exist in datm.streams.xml; all: all files in the source folder. existing is shorter than all
+forcing_YearStep = 5 # >0: time merging subset forcing to the period; <=0: no time merging
+
+
+[CTSM.AddToNamelist]
+user_nl_datm_streams = ["topo.observed:meshfile=/glade/work/swensosc/topo_data/ESMFmesh_ctsm_elev_Conus_0.125d_210810.cdf5.nc",
+                        "topo.observed:datafiles=/glade/work/swensosc/topo_data/ctsm_elev_Conus_0.125d.cdf5.nc"]
+user_nl_datm = ['']
+user_nl_clm = ['']
+
+[calib]
+[calib.files]
+path_script_calib = "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/calibration"
+path_script_MOASMO = "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/MOASMO_support"
+file_calib_param = "/glade/u/home/guoqiang/CTSM_repos/CTSM_calibration/src/parameter/param_ASG_20221206_moasmo.csv"
+file_Qobs = "/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib_split_nest_LMWG/CAMELS_100_OstCalib/refdata/streamflow_data.csv"
+
+[calib.eval]
+ignore_month = 1 # the first part of simulation is ignored when evaluating the model for better spin up
+nonstandard_evaluation = 'evaluate_allCAMELS'
+
+[calib.settings]
+sampling_method = 'glp'
+num_init = 10 # initial number of samples
+num_per_iter = 5 # number of selected pareto parameter sets for each iteration
+num_iter = 3 # including the initial iteration
+
+[calib.job]
+# lumpsubmit: a job only addressed one grid and thus one submission job can sequentially deal with many jobs
+# casesubmit: use the casesubmit function provided by CTSM to run each model case independently
+job_mode = 'casesubmit'
+
+# job to run each iteration (including iteration 0). multiple CTMS cases will be run
+job_CTSMiteration = ['#PBS -N CTSMiter', '#PBS -q regular', '#PBS -l walltime=12:00:00', '#PBS -A P08010000']
+
+# one job that controls all jobs, and perform basic functions such as parameter generation and emulator construction
+job_controlMOASMO =  ['#PBS -N MOAcontrol', '#PBS -q share', '#PBS -l select=1:ncpus=1', '#PBS -l walltime=6:00:00', '#PBS -A P08010000']
+
+
+[spinup]
+spinup_mode = "continuous" # continuous: period before RUN_STARTDATE. No other option for now
+spinup_month = 60 # 5-year spin up
+force_Jan_start = true # CTSM default initial conditions start at Jan 1st. So, using Jan as the start date could be better
+update_restart = true # after spin-up is done, add the restart file to user_nl_clm

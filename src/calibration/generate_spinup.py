@@ -29,6 +29,8 @@ update_restart = config_spinup['update_restart']
 ##############
 # default settings
 
+save_spinup_simulations = True # save the lnd model output files from spin up run
+
 spinup_info = 'spinup_info.csv'
 
 if path_CTSM_case[-1]=='/':
@@ -38,6 +40,14 @@ pathSpinup = path_CTSM_case + '_SpinupFiles'
 os.makedirs(pathSpinup, exist_ok=True)
 
 t1 = time.time()
+
+########################################################################################################################
+# check if restart file has been generated
+files = glob.glob(f'{pathSpinup}/*clm2.r.*.nc')
+if len(files)>0:
+    print('Restart files exist:', files)
+    sys.exit('Restart files exist. No need to spin up')
+
 
 ########################################################################################################################
 # change model settings
@@ -85,21 +95,44 @@ except:
 # copy restart files
 
 if sucess_flag == True:
-
-    # copy restart files to a target folder and change model settings
+    
+    RUNDIR = func_runCTSM.get_xmlquery_output('RUNDIR')
+    DOUT_S_ROOT = func_runCTSM.get_xmlquery_output('DOUT_S_ROOT')
+    path_archive = f'{pathSpinup}/archive'
+    os.makedirs(path_archive, exist_ok=True)
+    
+    # copy the restart file to a target folder and change model settings
     file_restart = glob.glob(f'{RUNDIR}/*.clm2.r.*.nc')
-    file_restart.sort()
     file_restart = file_restart[-1]
     file_restart_archive = pathSpinup + '/' + pathlib.Path(file_restart).name
     file_info = file_restart_archive.replace('.nc', '_info.csv')
 
     _ = shutil.copy(file_restart, pathSpinup)
     _ = shutil.copy(spinup_info, file_info)
-
-    # copy restart files to a target folder and change model settings to before spin up
+    
     if update_restart == True:
         with open('user_nl_clm', 'a') as f:
             f.write(f"finidat = '{file_restart_archive}'\n")
+            
+    # copy other restart related files
+    file_restart = glob.glob(f'{RUNDIR}/*.clm2.rh*.*.nc')
+    for f in file_restart:
+        f_archive = pathSpinup + '/' + pathlib.Path(f).name
+        _ = shutil.copy(f, f_archive)
+    
+    # copy timing information (the most recent two files
+    path_time = f'{path_archive}/timing'
+    os.makedirs(path_time, exist_ok=True)
+    files = glob.glob(os.path.join("./timing/*"))
+    files.sort(key=os.path.getmtime, reverse=True)
+
+    for f in files[:2]:
+        _ = subprocess.run(f'cp {f} {path_time}', shell=True)
+    
+    # copy save_spinup_simulations
+    if save_spinup_simulations == True:
+        _ = subprocess.run(f'cp -r {DOUT_S_ROOT}/lnd {path_archive}', shell=True)
+
 
 
 ########################################################################################################################

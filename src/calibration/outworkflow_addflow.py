@@ -38,7 +38,7 @@ def update_txt_file(file, newsettings, start, sep, comment):
 
 
 infile_basin_info = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/shared_data_Sean/info_ESMFmesh_ctsm_HCDN_nhru_final_671.buff_fix_holes_polygons_simplified_5e-4_split_nested.csv'
-outpath_parent = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib_split_nest'
+outpath_parent = '/glade/work/guoqiang/CTSM_cases/CAMELS_Calib/Lump_calib_split_nest_LMWG'
 
 df_info = pd.read_csv(infile_basin_info)
 for i in range(len(df_info)):
@@ -48,5 +48,7 @@ for i in range(len(df_info)):
         if len(file_obsQ_indup) > 0:
             file_obsQ_indup = ','.join(file_obsQ_indup)
             runtrial_setting = {'add_flow_file': file_obsQ_indup}
+            print('For:', filei)
+            print(runtrial_setting)
             update_txt_file(filei, runtrial_setting, start='', sep='=', comment='#')
             _ = os.system(f'chmod +x {filei}')

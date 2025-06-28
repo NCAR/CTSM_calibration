@@ -1,0 +1,19 @@
+Parameter,Default,Lower,Upper,Source,Method,Type,Binding
+vcmaxha,72000,20000,250000,Param,Multiplicative,Hydrology,None
+om_frac_sf,1,0.25,2,Param,Multiplicative,Hydrology,None
+slopebeta,-3,-10,-0.5,Param,Multiplicative,Hydrology,None
+fff,0.5,0.01,10,Param,Multiplicative,Hydrology,None
+e_ice,6,1,8,Param,Multiplicative,Hydrology,None
+liq_canopy_storage_scalar,0.1,0.025,4,Param,Multiplicative,Hydrology,None
+baseflow_scalar,Default,0.0005,0.1,Namelist,Multiplicative,Hydrology,None
+FMAX,Default,0.2,0.8,Surfdata,Multiplicative,Hydrology,None
+hksat_sf,Default,0.9,9,Param,Multiplicative,Hydrology,None
+krmax,1.22E-09,5.83E-11,6.90E-09,Param,Multiplicative,Plant hydraulics,None
+d_max,15,5,100,Param,Multiplicative,Stomatal resistance and photosynthesis,None
+frac_sat_soil_dsl_init,0.8,0.25,2,Param,Multiplicative,Stomatal resistance and photosynthesis,None
+cv,0.01,0.0025,0.04,Param,Multiplicative,Stomatal resistance and photosynthesis,None
+a_coef,0.13,0.05,0.15,Param,Multiplicative,Stomatal resistance and photosynthesis,None
+upplim_destruct_metamorph,175,10,500,Namelist,Multiplicative,Snow Processes,None
+n_melt_coef,200,25,600,Param,Multiplicative,Snow Processes,None
+medlynintercept,100,1,20000,Param,Multiplicative,Stomatal resistance and photosynthesis,None
+precip_repartition_nonglc_all_rain_t,2,0,4,Namelist,Additive,Hydrology,"precip_repartition_glc_all_rain_t,precip_repartition_glc_all_snow_t,precip_repartition_nonglc_all_snow_t"
