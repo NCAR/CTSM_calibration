@@ -15,14 +15,18 @@ The application for which this package was developed is detailed in _"On using A
 - **Evaluation tools**: Integrated performance metrics (e.g., KGE', MAE, MMAE), cross-validation routines, and visualization support.
 
 ## Acknowledgements  
-The original development of this software was supported by research grants to NCAR from the United States Army Corps of Engineers (the ‘Robust Hydrology’ projects). These sponsored projects aim to advance capabilities for large-domain land/hydrology modeling and create new resources for national-scale water security analyses, while more recent development efforts target broader Earth System Modeling objectives. We acknowledge high‐performance computing support provided by NCAR’s Computational and Information Systems Laboratory, sponsored by the National Science Foundation. 
+The original development of this software was supported by research grants to NCAR from the United States Army Corps of Engineers (the ‘Robust Hydrology’ projects). These sponsored projects aim to advance capabilities for large-domain land/hydrology modeling and create new resources for national-scale water security analyses, while more recent development efforts target broader Earth System Modeling objectives. We acknowledge high‐performance computing support provided by NCAR’s Computational and Information Systems Laboratory, sponsored by the National Science Foundation. Further acknowledgements are detailed in Tang et al. (2025). 
 
 ## Contacts
 - **Guoqiang Tang**, Wuhan University, guoqiang.tang@whu.edu.cn 
 - **Andy Wood**, NSF NCAR, andywood@ucar.edu
 
 ## Major Citation  
-Tang, G., Wood, A., & Swenson, S. (2025). On using AI-based large-sample emulators for land/hydrology model calibration and regionalization. Water Resources Research (accepted)
+Tang, G., Wood, A. W., & Swenson, S. (2025). On using AI-based large-sample emulators for land/hydrology model calibration and regionalization. Water Resources Research, 61, e2024WR039525. https://doi.org/10.1029/2024WR039525
+
+## Associated dataset resources
+- **NCAR Research Data Archive:**  CTSM (CLM5) CAMELS Basins Model -- LSE calibration version 1.  https://rda.ucar.edu/datasets/d010035/
+- **Zenodo:**  Data for LSE-CTSM parameter calibration and regionalization paper.  https://zenodo.org/records/15720131
 
 ## Related references 
 - Tang, G., Clark, M. P., Knoben, W. J., Liu, H., Gharari, S., Arnal, L., ... & Papalexiou, S. M. (2023). The impact of meteorological forcing uncertainty on hydrological modeling: A global analysis of cryosphere basins. Water Resources Research, 59(6), e2022WR033767.  
