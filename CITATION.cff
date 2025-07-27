@@ -1,18 +1,27 @@
-cff-version: 1.2.0
-message: |
-  If you use this software or code in your research, please cite the
-  following article:
+cff-version: "1.2.0"
+message: "If you use this software or code in your research, please cite the following article:"
 title: "On AI-based large-sample emulators for land/hydrology model calibration and regionalization"
-type: article
 authors:
-  - family-names: Tang
-    given-names: G.
-  - family-names: Wood
-    given-names: A. W.
-  - family-names: Swenson
-    given-names: S.
-year: 2025
-journal: "Water Resources Research"
-volume: "61"
-article-number: "e2024WR039525"
-doi: 10.1029/2024WR039525
+  - family-names: "Tang"
+    given-names: "G."
+  - family-names: "Wood"
+    given-names: "A. W."
+  - family-names: "Swenson"
+    given-names: "S."
+
+preferred-citation:
+  type: article
+  title: "On using AI-based large-sample emulators for land/hydrology model calibration and regionalization"
+  authors:
+   - family-names: "Tang"
+     given-names: "G."
+   - family-names: "Wood"
+     given-names: "A. W."
+   - family-names: "Swenson"
+     given-names: "S."
+  year: "2025"
+  journal: "Water Resources Research"
+  volume: "61"
+  pages: "e2024WR039525"
+  doi: "10.1029/2024WR039525"
+
